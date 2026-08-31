@@ -1,0 +1,2 @@
+# JERNI
+Real discipline, quantified!
