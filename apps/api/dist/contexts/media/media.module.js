@@ -14,6 +14,9 @@ const disabled_media_adapter_1 = require("./infrastructure/adapters/disabled-med
 const feature_flag_orm_entity_1 = require("./infrastructure/persistence/feature-flag.orm-entity");
 const feature_flag_service_1 = require("./application/feature-flag.service");
 const config_controller_1 = require("./infrastructure/http/config.controller");
+const media_controller_1 = require("./infrastructure/http/media.controller");
+const config_1 = require("@nestjs/config");
+const cloudinary_media_adapter_1 = require("./infrastructure/adapters/cloudinary-media.adapter");
 let MediaModule = class MediaModule {
 };
 exports.MediaModule = MediaModule;
@@ -22,17 +25,19 @@ exports.MediaModule = MediaModule = __decorate([
         imports: [nestjs_1.MikroOrmModule.forFeature([feature_flag_orm_entity_1.FeatureFlagOrmEntity])],
         providers: [
             feature_flag_service_1.FeatureFlagService,
-            /**
-             * Phase 1: wire DisabledMediaAdapter as the default provider.
-             * Phase 1.5: replace useClass with a factory that reads feature_flags.config.provider
-             * and returns CloudinaryMediaAdapter or DisabledMediaAdapter accordingly.
-             */
             {
                 provide: media_storage_provider_1.MEDIA_STORAGE_PROVIDER,
-                useClass: disabled_media_adapter_1.DisabledMediaAdapter,
+                inject: [feature_flag_service_1.FeatureFlagService, config_1.ConfigService],
+                useFactory: async (featureFlags, config) => {
+                    const isEnabled = await featureFlags.isEnabled('media_uploads');
+                    if (isEnabled) {
+                        return new cloudinary_media_adapter_1.CloudinaryMediaAdapter(config);
+                    }
+                    return new disabled_media_adapter_1.DisabledMediaAdapter();
+                },
             },
         ],
-        controllers: [config_controller_1.ConfigController],
+        controllers: [config_controller_1.ConfigController, media_controller_1.MediaController],
         exports: [media_storage_provider_1.MEDIA_STORAGE_PROVIDER, feature_flag_service_1.FeatureFlagService],
     })
 ], MediaModule);

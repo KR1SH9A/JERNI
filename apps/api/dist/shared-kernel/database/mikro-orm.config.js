@@ -72,6 +72,7 @@ function mikroOrmConfig() {
         debug: process.env.NODE_ENV === 'development',
         // Connection pool sizing — keeps Supabase's free-tier connection limit safe
         pool: { min: 2, max: 10 },
+        allowGlobalContext: true,
     });
 }
 //# sourceMappingURL=mikro-orm.config.js.map
