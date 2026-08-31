@@ -1,0 +1,84 @@
+/* Minimal base styles — Phase 1 bare-bones functional UI */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --color-bg: #0f0f10;
+  --color-surface: #1a1a1d;
+  --color-border: #2a2a2e;
+  --color-text: #e8e8ea;
+  --color-muted: #8a8a95;
+  --color-accent: #7c6df7;
+  --color-accent-hover: #9585fa;
+  --radius: 8px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+button.primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+button.primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--color-border);
+  color: var(--color-muted);
+}
+
+.badge.published { background: #1a3a1a; color: #5cb85c; }
+.badge.draft     { background: #3a3a1a; color: #d4a017; }
+.badge.milestone { background: #1a2a3a; color: #5b9bd5; }
+.badge.recurring { background: #2a1a3a; color: #a57dd5; }
