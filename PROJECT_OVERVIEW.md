@@ -40,7 +40,7 @@ The backend is built with **NestJS** and follows **Domain-Driven Design (DDD)**.
 Currently, we have 3 main contexts:
 1. **`identity`**: User authentication, JWT validation, and user profile syncing.
 2. **`curation`**: The core feature—creating Journeys, adding Tasks (Milestones & Recurring), and publishing them.
-3. **`media`**: Handles image uploads (covers, avatars) using feature flags (currently disabled, Cloudinary integration is next in Phase 1.5).
+3. **`media`**: Handles image uploads (covers, avatars) via Cloudinary using a feature flag toggle (`media_uploads`).
 
 ### Inside a Context (The DDD Layers)
 Every context is split into three strict layers to keep code clean and testable:
@@ -58,7 +58,7 @@ Every context is split into three strict layers to keep code clean and testable:
    - Ties the application to NestJS, databases, and HTTP.
    - **Controllers**: Handle incoming HTTP requests (`GET /journeys`).
    - **Persistence**: MikroORM entities (`journey.orm-entity.ts`) and Repository Adapters that implement the application ports.
-   - **Adapters**: E.g., `DisabledMediaAdapter` (or soon, `CloudinaryMediaAdapter`).
+   - **Adapters**: E.g., `CloudinaryMediaAdapter`, `DisabledMediaAdapter`.
 
 ---
 
@@ -94,11 +94,12 @@ If you change an ORM entity in `apps/api/src/.../*.orm-entity.ts`:
 
 ---
 
-## 6. What's Next? (Phase 1.5)
+## 6. What's Next? (Phase 2)
 
-We have completed Phase 0 (Scaffolding) and Phase 1 (Domain Core & DB). 
+We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), and Phase 1.5 (Cloudinary Integration). 
 
-**Next up is Phase 1.5: Cloudinary Integration**
-- Scaffold `.env` variables for Cloudinary credentials.
-- Build the `CloudinaryMediaAdapter` in the backend.
-- Create secure, signed upload flows so users can upload Journey Covers directly to Cloudinary, then confirm the ownership with our NestJS API.
+**Next up is Phase 2: Participation, Execution & Engagement**
+- **Membership**: Joining a journey.
+- **Task Execution**: Completing tasks and checking them off.
+- **Engagement**: Liking/reacting to journeys or milestones.
+- **Frontend Expansion**: Building out the Next.js UI to interact with these features.
