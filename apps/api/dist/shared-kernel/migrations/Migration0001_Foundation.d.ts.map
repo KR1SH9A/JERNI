@@ -1,0 +1,1 @@
+{"version":3,"file":"Migration0001_Foundation.d.ts","sourceRoot":"","sources":["../../../src/shared-kernel/migrations/Migration0001_Foundation.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,uBAAuB,CAAC;AAElD;;;;;;;;;;;;;GAaG;AACH,qBAAa,wBAAyB,SAAQ,SAAS;IAC/C,EAAE,IAAI,OAAO,CAAC,IAAI,CAAC;IA+EnB,IAAI,IAAI,OAAO,CAAC,IAAI,CAAC;CAQ5B"}

@@ -5,23 +5,28 @@ import { DisabledMediaAdapter } from './infrastructure/adapters/disabled-media.a
 import { FeatureFlagOrmEntity } from './infrastructure/persistence/feature-flag.orm-entity';
 import { FeatureFlagService } from './application/feature-flag.service';
 import { ConfigController } from './infrastructure/http/config.controller';
+import { MediaController } from './infrastructure/http/media.controller';
+
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryMediaAdapter } from './infrastructure/adapters/cloudinary-media.adapter';
 
 @Module({
   imports: [MikroOrmModule.forFeature([FeatureFlagOrmEntity])],
   providers: [
     FeatureFlagService,
-
-    /**
-     * Phase 1: wire DisabledMediaAdapter as the default provider.
-     * Phase 1.5: replace useClass with a factory that reads feature_flags.config.provider
-     * and returns CloudinaryMediaAdapter or DisabledMediaAdapter accordingly.
-     */
     {
       provide: MEDIA_STORAGE_PROVIDER,
-      useClass: DisabledMediaAdapter,
+      inject: [FeatureFlagService, ConfigService],
+      useFactory: async (featureFlags: FeatureFlagService, config: ConfigService) => {
+        const isEnabled = await featureFlags.isEnabled('media_uploads');
+        if (isEnabled) {
+          return new CloudinaryMediaAdapter(config);
+        }
+        return new DisabledMediaAdapter();
+      },
     },
   ],
-  controllers: [ConfigController],
+  controllers: [ConfigController, MediaController],
   exports: [MEDIA_STORAGE_PROVIDER, FeatureFlagService],
 })
 export class MediaModule {}
