@@ -2,6 +2,11 @@ import { apiClient } from '@/lib/api-client';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { JoinButton } from '@/components/join-button';
+import { LikeButton } from '@/components/like-button';
+import { TaskChecklist } from '@/components/task-checklist';
 
 interface TaskReadModel {
   id: string;
@@ -25,6 +30,13 @@ interface JourneyDetail {
   tasks: TaskReadModel[];
 }
 
+interface CompletionReadModel {
+  taskDefinitionId: string;
+  taskKindSnapshot: string;
+  forDate: string | null;
+  isActive: boolean;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -43,8 +55,10 @@ export async function generateMetadata({
 }
 
 /**
- * Journey Detail page — Server Component.
- * Read-only in Phase 1 (join button, checkboxes come in Phase 2).
+ * Journey Detail page — Server Component (Phase 2).
+ *
+ * Fetches membership status + task progress server-side so the JWT never
+ * reaches client JS. Passes initial state to client components as props.
  */
 export default async function JourneyDetailPage({
   params,
@@ -53,6 +67,7 @@ export default async function JourneyDetailPage({
 }) {
   const { id } = await params;
 
+  // ── Load journey ──────────────────────────────────────────────────────────
   let journey: JourneyDetail;
   try {
     journey = await apiClient.get<JourneyDetail>(`/journeys/${id}`);
@@ -60,8 +75,49 @@ export default async function JourneyDetailPage({
     notFound();
   }
 
-  const milestoneTasks = journey.tasks.filter((t) => t.kind === 'MILESTONE');
-  const recurringTasks = journey.tasks.filter((t) => t.kind === 'RECURRING');
+  // ── Load authenticated user session (server-side only) ────────────────────
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+
+  // ── Fetch membership + progress (only if logged in) ───────────────────────
+  let initialIsMember = false;
+  let initialCompletions: CompletionReadModel[] = [];
+
+  if (token) {
+    // These run in parallel — both needed before rendering
+    const [membershipRes, progressRes] = await Promise.allSettled([
+      apiClient.get<{ isMember: boolean }>(
+        `/journeys/${id}/memberships/me`,
+        { token },
+      ),
+      apiClient.get<{ completions: CompletionReadModel[] }>(
+        `/journeys/${id}/progress/me`,
+        { token },
+      ),
+    ]);
+
+    if (membershipRes.status === 'fulfilled') {
+      initialIsMember = membershipRes.value.isMember;
+    }
+    if (progressRes.status === 'fulfilled') {
+      initialCompletions = progressRes.value.completions;
+    }
+  }
 
   return (
     <main className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
@@ -106,17 +162,31 @@ export default async function JourneyDetailPage({
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', minWidth: 150 }}>
+          {/* Action sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 160 }}>
             <span className={`badge ${journey.status.toLowerCase()}`} style={{ textAlign: 'center' }}>
               {journey.status}
             </span>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', textAlign: 'center' }}>
-              ❤️ {journey.likeCount} likes · 📋 {journey.taskCount} tasks
+              📋 {journey.taskCount} tasks
             </span>
-            {/* Join button placeholder — wired in Phase 2 */}
-            <button className="primary" disabled style={{ opacity: 0.5 }}>
-              Join (Phase 2)
-            </button>
+
+            {/* Like button — works for all users */}
+            <LikeButton
+              journeyId={journey.id}
+              initialIsLiked={false}
+              initialLikeCount={journey.likeCount}
+            />
+
+            {/* Join button — only shown when logged in */}
+            {token && (
+              <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
+            )}
+            {!token && (
+              <Link href="/auth/login" style={{ textAlign: 'center', fontSize: '13px', color: 'var(--color-muted)' }}>
+                Sign in to join
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -131,44 +201,66 @@ export default async function JourneyDetailPage({
           <p style={{ color: 'var(--color-muted)' }}>No tasks yet.</p>
         )}
 
-        {milestoneTasks.length > 0 && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Milestones
-            </h3>
-            <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {milestoneTasks
-                .sort((a, b) => a.orderIndex - b.orderIndex)
-                .map((task, i) => (
-                  <li key={task.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span style={{ color: 'var(--color-muted)', fontVariantNumeric: 'tabular-nums', minWidth: '1.5rem' }}>
-                      {i + 1}.
-                    </span>
-                    <span style={{ flex: 1 }}>{task.title}</span>
-                    <span className="badge milestone">milestone</span>
-                  </li>
-                ))}
-            </ol>
-          </div>
-        )}
-
-        {recurringTasks.length > 0 && (
-          <div>
-            <h3 style={{ fontSize: '0.875rem', color: 'var(--color-muted)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Daily Recurring
-            </h3>
-            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {recurringTasks.map((task) => (
-                <li key={task.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span>🔁</span>
-                  <span style={{ flex: 1 }}>{task.title}</span>
-                  <span className="badge recurring">{task.recurrenceRule?.toLowerCase()}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {journey.tasks.length > 0 && (
+          <>
+            {/* Interactive checklist — only for members */}
+            {token && initialIsMember ? (
+              <TaskChecklist
+                journeyId={journey.id}
+                tasks={journey.tasks}
+                initialCompletions={initialCompletions}
+              />
+            ) : (
+              /* Read-only task list for non-members */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: token ? 1 : 0.8 }}>
+                {[...journey.tasks]
+                  .sort((a, b) => a.orderIndex - b.orderIndex)
+                  .map((task) => (
+                    <div
+                      key={task.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        background: 'var(--color-surface, rgba(255,255,255,0.04))',
+                        border: '1px solid var(--color-border, rgba(255,255,255,0.08))',
+                      }}
+                    >
+                      <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>
+                        {task.kind === 'RECURRING' ? '🔁' : '◻️'}
+                      </span>
+                      <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          background: task.kind === 'RECURRING' ? 'rgba(99,102,241,0.12)' : 'rgba(16,185,129,0.12)',
+                          color: task.kind === 'RECURRING' ? '#818cf8' : '#34d399',
+                        }}
+                      >
+                        {task.kind === 'RECURRING' ? 'daily' : 'milestone'}
+                      </span>
+                    </div>
+                  ))}
+                {!token && (
+                  <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
+                    <Link href="/auth/login">Sign in</Link> and join this journey to track your progress.
+                  </p>
+                )}
+                {token && !initialIsMember && (
+                  <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
+                    Join this journey to start tracking your progress.
+                  </p>
+                )}
+              </div>
+            )}
+          </>
         )}
       </section>
     </main>
   );
 }
+

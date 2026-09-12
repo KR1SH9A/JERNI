@@ -8,6 +8,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { IdentityModule } from './contexts/identity/identity.module';
 import { CurationModule } from './contexts/curation/curation.module';
 import { MediaModule } from './contexts/media/media.module';
+import { ParticipationModule } from './contexts/participation/participation.module';
+import { EngagementModule } from './contexts/engagement/engagement.module';
+import { ExecutionModule } from './contexts/execution/execution.module';
 
 // Shared infra
 import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
@@ -32,6 +35,10 @@ import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
     IdentityModule,
     CurationModule,
     MediaModule,
+    ParticipationModule,
+    EngagementModule,
+    ExecutionModule,
   ],
 })
 export class AppModule {}
+

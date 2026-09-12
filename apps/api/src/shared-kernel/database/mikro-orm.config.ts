@@ -8,6 +8,9 @@ import { UserProfileOrmEntity } from '../../contexts/identity/infrastructure/per
 import { JourneyOrmEntity } from '../../contexts/curation/infrastructure/persistence/journey.orm-entity';
 import { TaskDefinitionOrmEntity } from '../../contexts/curation/infrastructure/persistence/task-definition.orm-entity';
 import { FeatureFlagOrmEntity } from '../../contexts/media/infrastructure/persistence/feature-flag.orm-entity';
+import { MembershipOrmEntity } from '../../contexts/participation/infrastructure/persistence/membership.orm-entity';
+import { LikeOrmEntity } from '../../contexts/engagement/infrastructure/persistence/like.orm-entity';
+import { TaskCompletionOrmEntity } from '../../contexts/execution/infrastructure/persistence/task-completion.orm-entity';
 
 /**
  * Returns the MikroORM configuration object.
@@ -24,6 +27,9 @@ export function mikroOrmConfig() {
       JourneyOrmEntity,
       TaskDefinitionOrmEntity,
       FeatureFlagOrmEntity,
+      MembershipOrmEntity,
+      LikeOrmEntity,
+      TaskCompletionOrmEntity,
     ],
     metadataProvider: TsMorphMetadataProvider,
     extensions: [Migrator],
