@@ -37,10 +37,13 @@ JERNI/
 The backend is built with **NestJS** and follows **Domain-Driven Design (DDD)**. This means code is grouped by *business feature* (Contexts) rather than technical type (Controllers/Services).
 
 ### Bounded Contexts (`apps/api/src/contexts/`)
-Currently, we have 3 main contexts:
+Currently, we have 6 main contexts:
 1. **`identity`**: User authentication, JWT validation, and user profile syncing.
-2. **`curation`**: The core feature—creating Journeys, adding Tasks (Milestones & Recurring), and publishing them.
+2. **`curation`**: The core feature — creating Journeys, adding Tasks (Milestones & Recurring), and publishing them.
 3. **`media`**: Handles image uploads (covers, avatars) via Cloudinary using a feature flag toggle (`media_uploads`).
+4. **`participation`**: Membership lifecycle — joining and leaving journeys. Enforces the one-active-membership-per-(journey, user) invariant via a DB partial unique index.
+5. **`engagement`**: Like/unlike journeys. Fully idempotent. Publishes `JourneyLiked`/`JourneyUnliked` events that drive the denormalized `likeCount` in Curation via the `LikeCountProjection` event handler.
+6. **`execution`**: Task completions. The `TaskCompletion` aggregate uses a single DB unique constraint (`UNIQUE NULLS NOT DISTINCT`) to handle both MILESTONE (forDate = NULL, unique once) and RECURRING (forDate = today, resets daily) tasks in one table.
 
 ### Inside a Context (The DDD Layers)
 Every context is split into three strict layers to keep code clean and testable:
@@ -66,9 +69,16 @@ Every context is split into three strict layers to keep code clean and testable:
 
 The frontend is a **Next.js 15** application using the App Router.
 
-- **Routing (`src/app/`)**: 
+- **Routing (`src/app/`)**:
   - `page.tsx` (Discover feed)
-  - `journeys/[id]/page.tsx` (Journey Detail page)
+  - `journeys/[id]/page.tsx` (Journey Detail page — fully interactive in Phase 2)
+  - `api/journeys/[id]/memberships/route.ts` (Next.js Route Handler — proxies join/leave to NestJS)
+  - `api/journeys/[id]/likes/route.ts` (Next.js Route Handler — proxies like/unlike)
+  - `api/journeys/[id]/tasks/[taskId]/complete/route.ts` (Next.js Route Handler — proxies task complete/uncomplete)
+- **Client Components (`src/components/`)**:
+  - `JoinButton` — optimistic join/leave toggle
+  - `LikeButton` — optimistic like count with rollback
+  - `TaskChecklist` — per-task checkboxes differentiating MILESTONE vs RECURRING (recurring shows today's date label)
 - **Auth (`src/lib/supabase/`)**:
   - Uses `@supabase/ssr` to securely store JWTs in HttpOnly cookies.
   - `middleware.ts` automatically refreshes these cookies so users stay logged in.
@@ -94,12 +104,20 @@ If you change an ORM entity in `apps/api/src/.../*.orm-entity.ts`:
 
 ---
 
-## 6. What's Next? (Phase 2)
+## 6. What's Next? (Phase 3)
 
-We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), and Phase 1.5 (Cloudinary Integration). 
+We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (Cloudinary Integration), and **Phase 2 (Participation, Execution & Engagement)**.
 
-**Next up is Phase 2: Participation, Execution & Engagement**
-- **Membership**: Joining a journey.
-- **Task Execution**: Completing tasks and checking them off.
-- **Engagement**: Liking/reacting to journeys or milestones.
-- **Frontend Expansion**: Building out the Next.js UI to interact with these features.
+**Phase 2 added:**
+- **Participation context**: `Membership` aggregate, join/leave endpoints, unique-active-membership DB partial index constraint.
+- **Engagement context**: `Like` aggregate, idempotent like/unlike, `LikeCountProjection` event handler keeping `likeCount` in sync on Journey cards.
+- **Execution context**: `TaskCompletion` aggregate with the milestone/recurring unique-index trick (`UNIQUE NULLS NOT DISTINCT`), `CompleteTask`/`UncompleteTask` use-cases with membership guard, task progress query.
+- **Domain events**: `MemberJoined`, `MemberLeft`, `TaskCompleted`, `TaskUncompleted`, `JourneyLiked`, `JourneyUnliked` wired via `@nestjs/cqrs` EventBus.
+- **DB migration**: `Migration0002_Phase2` — `memberships`, `likes`, `task_completions` tables with all DB-level constraints applied.
+- **Frontend**: `JoinButton`, `LikeButton`, `TaskChecklist` client components; all mutations proxy through Next.js route handlers so the JWT never reaches browser JS.
+
+**Next up is Phase 3: Stats & Analytics**
+- **Event-driven projections**: Build `DailyStat` (who completed what today) and `AllTimeStat` (completion % per member) by reacting to `TaskCompleted`/`TaskUncompleted` events — pure read models, never hand-edited.
+- **Stats endpoint**: `GET /journeys/:id/stats` — Today board + All-time leaderboard, matching the wireframe.
+- **Replay test**: Drop the stats tables, replay from `task_completions`, assert identical output — proves the projection is a true CQRS read side.
+- **Frontend**: Stats panel on the Journey detail page.

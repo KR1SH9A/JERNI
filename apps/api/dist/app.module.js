@@ -16,6 +16,9 @@ const throttler_1 = require("@nestjs/throttler");
 const identity_module_1 = require("./contexts/identity/identity.module");
 const curation_module_1 = require("./contexts/curation/curation.module");
 const media_module_1 = require("./contexts/media/media.module");
+const participation_module_1 = require("./contexts/participation/participation.module");
+const engagement_module_1 = require("./contexts/engagement/engagement.module");
+const execution_module_1 = require("./contexts/execution/execution.module");
 // Shared infra
 const mikro_orm_config_1 = require("./shared-kernel/database/mikro-orm.config");
 let AppModule = class AppModule {
@@ -38,6 +41,9 @@ exports.AppModule = AppModule = __decorate([
             identity_module_1.IdentityModule,
             curation_module_1.CurationModule,
             media_module_1.MediaModule,
+            participation_module_1.ParticipationModule,
+            engagement_module_1.EngagementModule,
+            execution_module_1.ExecutionModule,
         ],
     })
 ], AppModule);

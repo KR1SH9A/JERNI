@@ -43,6 +43,9 @@ const user_profile_orm_entity_1 = require("../../contexts/identity/infrastructur
 const journey_orm_entity_1 = require("../../contexts/curation/infrastructure/persistence/journey.orm-entity");
 const task_definition_orm_entity_1 = require("../../contexts/curation/infrastructure/persistence/task-definition.orm-entity");
 const feature_flag_orm_entity_1 = require("../../contexts/media/infrastructure/persistence/feature-flag.orm-entity");
+const membership_orm_entity_1 = require("../../contexts/participation/infrastructure/persistence/membership.orm-entity");
+const like_orm_entity_1 = require("../../contexts/engagement/infrastructure/persistence/like.orm-entity");
+const task_completion_orm_entity_1 = require("../../contexts/execution/infrastructure/persistence/task-completion.orm-entity");
 /**
  * Returns the MikroORM configuration object.
  *
@@ -58,6 +61,9 @@ function mikroOrmConfig() {
             journey_orm_entity_1.JourneyOrmEntity,
             task_definition_orm_entity_1.TaskDefinitionOrmEntity,
             feature_flag_orm_entity_1.FeatureFlagOrmEntity,
+            membership_orm_entity_1.MembershipOrmEntity,
+            like_orm_entity_1.LikeOrmEntity,
+            task_completion_orm_entity_1.TaskCompletionOrmEntity,
         ],
         metadataProvider: reflection_1.TsMorphMetadataProvider,
         extensions: [migrations_1.Migrator],

@@ -12,6 +12,7 @@ const nestjs_1 = require("@mikro-orm/nestjs");
 const journey_repository_1 = require("./application/ports/journey.repository");
 const journey_commands_1 = require("./application/use-cases/journey.commands");
 const journey_queries_1 = require("./application/use-cases/journey.queries");
+const like_count_projection_1 = require("./application/event-handlers/like-count.projection");
 const journey_orm_entity_1 = require("./infrastructure/persistence/journey.orm-entity");
 const task_definition_orm_entity_1 = require("./infrastructure/persistence/task-definition.orm-entity");
 const mikro_orm_journey_repository_1 = require("./infrastructure/persistence/mikro-orm-journey.repository");
@@ -31,6 +32,8 @@ exports.CurationModule = CurationModule = __decorate([
             journey_commands_1.PublishJourneyUseCase,
             journey_queries_1.GetDiscoverFeedQuery,
             journey_queries_1.GetJourneyDetailQuery,
+            // Event handler: keeps denormalized likeCount in sync when Engagement fires
+            like_count_projection_1.LikeCountProjection,
         ],
         controllers: [curation_controller_1.CurationController],
         exports: [journey_repository_1.JOURNEY_REPOSITORY, journey_queries_1.GetJourneyDetailQuery],

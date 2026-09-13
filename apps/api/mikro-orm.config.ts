@@ -8,6 +8,9 @@ import { UserProfileOrmEntity } from './src/contexts/identity/infrastructure/per
 import { JourneyOrmEntity } from './src/contexts/curation/infrastructure/persistence/journey.orm-entity';
 import { TaskDefinitionOrmEntity } from './src/contexts/curation/infrastructure/persistence/task-definition.orm-entity';
 import { FeatureFlagOrmEntity } from './src/contexts/media/infrastructure/persistence/feature-flag.orm-entity';
+import { MembershipOrmEntity } from './src/contexts/participation/infrastructure/persistence/membership.orm-entity';
+import { LikeOrmEntity } from './src/contexts/engagement/infrastructure/persistence/like.orm-entity';
+import { TaskCompletionOrmEntity } from './src/contexts/execution/infrastructure/persistence/task-completion.orm-entity';
 
 export default defineConfig({
   clientUrl: process.env.DATABASE_URL,
@@ -16,6 +19,9 @@ export default defineConfig({
     JourneyOrmEntity,
     TaskDefinitionOrmEntity,
     FeatureFlagOrmEntity,
+    MembershipOrmEntity,
+    LikeOrmEntity,
+    TaskCompletionOrmEntity,
   ],
   metadataProvider: TsMorphMetadataProvider,
   extensions: [Migrator],

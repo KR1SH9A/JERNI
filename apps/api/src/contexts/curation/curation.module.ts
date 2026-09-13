@@ -8,6 +8,7 @@ import {
   PublishJourneyUseCase,
 } from './application/use-cases/journey.commands';
 import { GetDiscoverFeedQuery, GetJourneyDetailQuery } from './application/use-cases/journey.queries';
+import { LikeCountProjection } from './application/event-handlers/like-count.projection';
 import { JourneyOrmEntity } from './infrastructure/persistence/journey.orm-entity';
 import { TaskDefinitionOrmEntity } from './infrastructure/persistence/task-definition.orm-entity';
 import { MikroOrmJourneyRepository } from './infrastructure/persistence/mikro-orm-journey.repository';
@@ -24,6 +25,8 @@ import { CurationController } from './infrastructure/http/curation.controller';
     PublishJourneyUseCase,
     GetDiscoverFeedQuery,
     GetJourneyDetailQuery,
+    // Event handler: keeps denormalized likeCount in sync when Engagement fires
+    LikeCountProjection,
   ],
   controllers: [CurationController],
   exports: [JOURNEY_REPOSITORY, GetJourneyDetailQuery],
