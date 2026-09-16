@@ -49,3 +49,29 @@ export class AddTaskDto {
   @IsEnum(['DAILY'])
   recurrenceRule?: 'DAILY';
 }
+
+export class UpdateJourneyDto {
+  @ApiPropertyOptional({ example: 'Updated Journey Title' })
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(120)
+  title?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  description?: string;
+
+  @ApiPropertyOptional({ example: ['react', 'typescript'] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @ApiPropertyOptional({ enum: ['PUBLIC', 'PRIVATE'] })
+  @IsOptional()
+  @IsEnum(['PUBLIC', 'PRIVATE'])
+  visibility?: 'PUBLIC' | 'PRIVATE';
+}

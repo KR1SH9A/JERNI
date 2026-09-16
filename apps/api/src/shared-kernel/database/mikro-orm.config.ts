@@ -11,6 +11,8 @@ import { FeatureFlagOrmEntity } from '../../contexts/media/infrastructure/persis
 import { MembershipOrmEntity } from '../../contexts/participation/infrastructure/persistence/membership.orm-entity';
 import { LikeOrmEntity } from '../../contexts/engagement/infrastructure/persistence/like.orm-entity';
 import { TaskCompletionOrmEntity } from '../../contexts/execution/infrastructure/persistence/task-completion.orm-entity';
+import { DailyStatOrmEntity } from '../../contexts/stats/infrastructure/persistence/daily-stat.orm-entity';
+import { AllTimeStatOrmEntity } from '../../contexts/stats/infrastructure/persistence/all-time-stat.orm-entity';
 
 /**
  * Returns the MikroORM configuration object.
@@ -30,6 +32,8 @@ export function mikroOrmConfig() {
       MembershipOrmEntity,
       LikeOrmEntity,
       TaskCompletionOrmEntity,
+      DailyStatOrmEntity,
+      AllTimeStatOrmEntity,
     ],
     metadataProvider: TsMorphMetadataProvider,
     extensions: [Migrator],

@@ -123,3 +123,81 @@ export class PublishJourneyUseCase {
     return journey;
   }
 }
+
+// ─── UpdateJourney ─────────────────────────────────────────────────────────
+
+export interface UpdateJourneyCommand {
+  journeyId: string;
+  requestedBy: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+  visibility?: JourneyVisibility;
+}
+
+@Injectable()
+export class UpdateJourneyUseCase {
+  constructor(
+    @Inject(JOURNEY_REPOSITORY)
+    private readonly journeyRepo: JourneyRepository,
+  ) {}
+
+  async execute(cmd: UpdateJourneyCommand): Promise<Journey> {
+    const journey = await this.journeyRepo.findById(JourneyId.of(cmd.journeyId));
+    if (!journey) {
+      throw new NotFoundException(`Journey ${cmd.journeyId} not found`);
+    }
+
+    if (!journey.isCurator(UserId.of(cmd.requestedBy))) {
+      throw new DomainError('Only the curator can edit this journey.', 'UNAUTHORIZED_ACTION');
+    }
+
+    if (journey.status !== 'DRAFT') {
+      throw new DomainError(
+        `Only DRAFT journeys can be edited. Current status: ${journey.status}.`,
+        'JOURNEY_NOT_DRAFT',
+      );
+    }
+
+    // Apply only supplied fields
+    if (cmd.title !== undefined) journey.title = cmd.title;
+    if (cmd.description !== undefined) journey.description = cmd.description;
+    if (cmd.tags !== undefined) journey.tags = cmd.tags;
+    if (cmd.visibility !== undefined) journey.visibility = cmd.visibility;
+    journey.updatedAt = new Date();
+
+    await this.journeyRepo.save(journey);
+    return journey;
+  }
+}
+
+// ─── ArchiveJourney ────────────────────────────────────────────────────────
+
+export interface ArchiveJourneyCommand {
+  journeyId: string;
+  requestedBy: string;
+}
+
+@Injectable()
+export class ArchiveJourneyUseCase {
+  constructor(
+    @Inject(JOURNEY_REPOSITORY)
+    private readonly journeyRepo: JourneyRepository,
+  ) {}
+
+  async execute(cmd: ArchiveJourneyCommand): Promise<Journey> {
+    const journey = await this.journeyRepo.findById(JourneyId.of(cmd.journeyId));
+    if (!journey) {
+      throw new NotFoundException(`Journey ${cmd.journeyId} not found`);
+    }
+
+    if (!journey.isCurator(UserId.of(cmd.requestedBy))) {
+      throw new DomainError('Only the curator can archive this journey.', 'UNAUTHORIZED_ACTION');
+    }
+
+    // archive() enforces: must be PUBLISHED
+    journey.archive();
+    await this.journeyRepo.save(journey);
+    return journey;
+  }
+}

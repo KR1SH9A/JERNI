@@ -18,12 +18,15 @@ import {
   CreateJourneyUseCase,
   AddTaskDefinitionUseCase,
   PublishJourneyUseCase,
+  UpdateJourneyUseCase,
+  ArchiveJourneyUseCase,
 } from '../../application/use-cases/journey.commands';
 import {
   GetDiscoverFeedQuery,
   GetJourneyDetailQuery,
+  GetMyJourneysQuery,
 } from '../../application/use-cases/journey.queries';
-import { CreateJourneyDto, AddTaskDto } from './curation.dto';
+import { CreateJourneyDto, AddTaskDto, UpdateJourneyDto } from './curation.dto';
 
 @ApiTags('Journeys')
 @Controller('journeys')
@@ -32,15 +35,17 @@ export class CurationController {
     private readonly createJourney: CreateJourneyUseCase,
     private readonly addTask: AddTaskDefinitionUseCase,
     private readonly publishJourney: PublishJourneyUseCase,
+    private readonly updateJourney: UpdateJourneyUseCase,
+    private readonly archiveJourney: ArchiveJourneyUseCase,
     private readonly discoverFeed: GetDiscoverFeedQuery,
     private readonly journeyDetail: GetJourneyDetailQuery,
+    private readonly myJourneys: GetMyJourneysQuery,
   ) {}
 
   // ── Public routes ────────────────────────────────────────────────────────
 
   /**
    * GET /journeys — Discover feed (public, no auth required).
-   * Returns paginated list of published public journeys.
    */
   @Public()
   @Get()
@@ -69,6 +74,19 @@ export class CurationController {
   }
 
   // ── Authenticated routes ─────────────────────────────────────────────────
+
+  /**
+   * GET /journeys/mine — Curator's own journeys (all statuses) with live member count.
+   *
+   * NOTE: this must be defined BEFORE :id routes or NestJS will try to parse
+   * 'mine' as a UUID and fail. Order matters in NestJS route resolution.
+   */
+  @Get('mine')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "Get the current user's journeys as curator" })
+  async getMine(@CurrentUser() user: AuthenticatedUser) {
+    return this.myJourneys.execute(user.id);
+  }
 
   /**
    * POST /journeys — Curator creates a new journey.
@@ -122,6 +140,43 @@ export class CurationController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     const journey = await this.publishJourney.execute({
+      journeyId,
+      requestedBy: user.id,
+    });
+    return { id: journey.id.value, status: journey.status };
+  }
+
+  /**
+   * PATCH /journeys/:id — Curator edits a DRAFT journey's metadata.
+   */
+  @Patch(':id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a DRAFT journey (curator only, DRAFT journeys only)' })
+  async update(
+    @Param('id', ParseUUIDPipe) journeyId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateJourneyDto,
+  ) {
+    const journey = await this.updateJourney.execute({
+      journeyId,
+      requestedBy: user.id,
+      ...dto,
+    });
+    return { id: journey.id.value, status: journey.status, updatedAt: journey.updatedAt };
+  }
+
+  /**
+   * POST /journeys/:id/archive — Curator archives a PUBLISHED journey.
+   */
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Archive a published journey (curator only)' })
+  async archive(
+    @Param('id', ParseUUIDPipe) journeyId: string,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    const journey = await this.archiveJourney.execute({
       journeyId,
       requestedBy: user.id,
     });
