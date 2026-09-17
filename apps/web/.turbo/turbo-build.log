@@ -3,4 +3,38 @@
    - Environments: .env.local
 
  [37m[1m [22m[39m Creating an optimized production build ...
-[41m[31m[[39m[49m[41m[30mELIFECYCLE[39m[49m[41m[31m][39m[49m [31mCommand failed with exit code 130.[39m
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (259kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ [32m[1m✓[22m[39m Compiled successfully in 3.7s
+[?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
+[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
+[?25l [37m[1m [22m[39m Generating static pages (0/8)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/8)  [36m[=   ][39m[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (8/8)
+[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
+[2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization     [32m[1m✓[22m[39m Finalizing page optimization 
+
+[4mRoute (app)[24m                                        [4mSize[24m  [4mFirst Load JS[24m  [4m[24m  [4m[24m
+┌ ƒ /                                             165 B         [37m[1m106 kB[22m[39m
+├ ƒ /_not-found                                   998 B         [37m[1m103 kB[22m[39m
+├ ƒ /api/journeys                                 143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]                            143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]/archive                    143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]/likes                      143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]/memberships                143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]/stats                      143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/[id]/tasks/[taskId]/complete    143 B         [37m[1m102 kB[22m[39m
+├ ƒ /api/journeys/mine                            143 B         [37m[1m102 kB[22m[39m
+├ ƒ /dashboard                                    165 B         [37m[1m106 kB[22m[39m
+├ ƒ /dashboard/journeys/[id]/edit               1.48 kB         [37m[1m104 kB[22m[39m
+├ ƒ /dashboard/journeys/new                     1.48 kB         [37m[1m104 kB[22m[39m
+└ ƒ /journeys/[id]                              3.03 kB         [37m[1m109 kB[22m[39m
++ First Load JS shared by all                    [37m[1m102 kB[22m[39m
+  ├ chunks/4af3a5cd-d19eef3ae478f662.js         54.2 kB
+  ├ chunks/864-a9d08b7afa183136.js                46 kB
+  └ other shared chunks (total)                 1.89 kB
+
+
+ƒ Middleware                                    [37m[1m92.5 kB[22m[39m
+
+ƒ  (Dynamic)  server-rendered on demand
+
+[?25h

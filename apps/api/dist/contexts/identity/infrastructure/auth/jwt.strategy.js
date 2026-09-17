@@ -45,7 +45,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             // Supabase tokens are issued for the "authenticated" audience
             audience: 'authenticated',
             issuer: `${supabaseUrl}/auth/v1`,
-            algorithms: ['RS256'],
+            algorithms: ['RS256', 'ES256'],
         });
         this.syncProfile = syncProfile;
     }

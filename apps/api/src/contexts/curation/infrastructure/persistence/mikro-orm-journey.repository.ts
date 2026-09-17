@@ -42,7 +42,16 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
     };
 
     if (filters.curatorId) where['curatorId'] = filters.curatorId;
-    if (filters.tags?.length) where['tags'] = { $contains: filters.tags };
+    if (filters.tags?.length) {
+      // Normalise: NestJS may deliver a single ?tags=foo as a bare string
+      // when only one value is provided (no ParseArrayPipe).
+      const tagsArray = Array.isArray(filters.tags)
+        ? filters.tags
+        : [filters.tags as unknown as string];
+
+      // ArrayType (native PG text[]) makes $contains emit: tags @> '{"tag"}'
+      where['tags'] = { $contains: tagsArray };
+    }
 
     const offset = (page - 1) * pageSize;
     const [orms, total] = await this.repo.findAndCount(where, {

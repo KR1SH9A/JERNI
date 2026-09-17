@@ -4,6 +4,7 @@ import {
   Property,
   OneToMany,
   Collection,
+  ArrayType,
 } from '@mikro-orm/core';
 import { TaskDefinitionOrmEntity } from './task-definition.orm-entity';
 
@@ -21,7 +22,7 @@ export class JourneyOrmEntity {
   @Property({ type: 'text' })
   description: string = '';
 
-  @Property({ type: 'array', fieldName: 'tags' })
+  @Property({ type: ArrayType, fieldName: 'tags' })
   tags: string[] = [];
 
   @Property({ type: 'text' })

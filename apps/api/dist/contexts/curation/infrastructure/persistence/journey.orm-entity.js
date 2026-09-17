@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", String)
 ], JourneyOrmEntity.prototype, "description", void 0);
 __decorate([
-    (0, core_1.Property)({ type: 'array', fieldName: 'tags' }),
+    (0, core_1.Property)({ type: core_1.ArrayType, fieldName: 'tags' }),
     __metadata("design:type", Array)
 ], JourneyOrmEntity.prototype, "tags", void 0);
 __decorate([

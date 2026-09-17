@@ -1,1 +1,12 @@
-{}
+{
+  "/api/journeys/[id]/memberships/route": "app/api/journeys/[id]/memberships/route.js",
+  "/api/journeys/route": "app/api/journeys/route.js",
+  "/api/journeys/[id]/route": "app/api/journeys/[id]/route.js",
+  "/api/journeys/[id]/likes/route": "app/api/journeys/[id]/likes/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/journeys/new/page": "app/dashboard/journeys/new/page.js",
+  "/journeys/[id]/page": "app/journeys/[id]/page.js",
+  "/dashboard/journeys/[id]/edit/page": "app/dashboard/journeys/[id]/edit/page.js"
+}
