@@ -55,7 +55,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       // Supabase tokens are issued for the "authenticated" audience
       audience: 'authenticated',
       issuer: `${supabaseUrl}/auth/v1`,
-      algorithms: ['RS256'],
+      algorithms: ['RS256', 'ES256'],
     });
   }
 

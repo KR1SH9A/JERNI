@@ -15,7 +15,6 @@ interface DiscoverFeedResponse {
   pageSize: number;
 }
 
-const POPULAR_TAGS = ['coding', 'react', 'typescript', 'design', 'productivity', 'health'];
 
 function journeyColor(title: string) {
   const hues = [240, 270, 200, 180, 300, 160, 330, 220];
@@ -29,18 +28,16 @@ function journeyColor(title: string) {
 export default async function DiscoverPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; tag?: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
   const page = parseInt(params.page ?? '1', 10);
-  const activeTag = params.tag;
 
   let feed: DiscoverFeedResponse | null = null;
   let error: string | null = null;
 
   try {
     const qs = new URLSearchParams({ page: String(page), pageSize: '20' });
-    if (activeTag) qs.set('tags', activeTag);
     feed = await apiClient.get<DiscoverFeedResponse>(`/journeys?${qs.toString()}`);
   } catch {
     error = 'Could not load journeys. Is the API running?';
@@ -58,30 +55,6 @@ export default async function DiscoverPage({
         <p className="hero-sub">
           Discover curated journeys, join a community, and track your progress day by day.
         </p>
-
-        {/* Tag filter chips */}
-        <div className="tag-filters" role="navigation" aria-label="Filter by tag">
-          <Link href="/?" replace>
-            <button
-              className={`tag-chip ${!activeTag ? 'active' : ''}`}
-              id="filter-all"
-              aria-pressed={!activeTag}
-            >
-              All
-            </button>
-          </Link>
-          {POPULAR_TAGS.map((tag) => (
-            <Link key={tag} href={`/?tag=${tag}`} replace>
-              <button
-                className={`tag-chip ${activeTag === tag ? 'active' : ''}`}
-                id={`filter-${tag}`}
-                aria-pressed={activeTag === tag}
-              >
-                {tag}
-              </button>
-            </Link>
-          ))}
-        </div>
       </section>
 
       {/* ── Journey grid ──────────────────────────────────────────────────── */}
@@ -96,7 +69,7 @@ export default async function DiscoverPage({
           <div className="card" style={{ textAlign: 'center', padding: '3rem' }}>
             <p style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🗺️</p>
             <p style={{ color: 'var(--color-muted)' }}>
-              {activeTag ? `No journeys tagged "${activeTag}" yet.` : 'No journeys yet. Be the first curator!'}
+              No journeys yet. Be the first curator!
             </p>
           </div>
         )}
@@ -151,7 +124,7 @@ export default async function DiscoverPage({
         {feed && feed.total > feed.pageSize && (
           <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem', justifyContent: 'center', alignItems: 'center' }}>
             {page > 1 && (
-              <Link href={`/?page=${page - 1}${activeTag ? `&tag=${activeTag}` : ''}`}>
+              <Link href={`/?page=${page - 1}`}>
                 <button id="prev-page-btn">← Prev</button>
               </Link>
             )}
@@ -159,7 +132,7 @@ export default async function DiscoverPage({
               {page} / {Math.ceil(feed.total / feed.pageSize)}
             </span>
             {page < Math.ceil(feed.total / feed.pageSize) && (
-              <Link href={`/?page=${page + 1}${activeTag ? `&tag=${activeTag}` : ''}`}>
+              <Link href={`/?page=${page + 1}`}>
                 <button id="next-page-btn">Next →</button>
               </Link>
             )}
