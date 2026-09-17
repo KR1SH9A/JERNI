@@ -1,0 +1,1 @@
+{"version":3,"file":"daily-stat.entity.d.ts","sourceRoot":"","sources":["../../../../src/contexts/stats/domain/daily-stat.entity.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;GAWG;AACH,MAAM,WAAW,SAAS;IACxB,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,gBAAgB,EAAE,MAAM,CAAC;IACzB,yCAAyC;IACzC,OAAO,EAAE,MAAM,CAAC;IAChB,cAAc,EAAE,MAAM,CAAC;CACxB"}

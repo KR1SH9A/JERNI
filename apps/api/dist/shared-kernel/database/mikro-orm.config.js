@@ -46,6 +46,8 @@ const feature_flag_orm_entity_1 = require("../../contexts/media/infrastructure/p
 const membership_orm_entity_1 = require("../../contexts/participation/infrastructure/persistence/membership.orm-entity");
 const like_orm_entity_1 = require("../../contexts/engagement/infrastructure/persistence/like.orm-entity");
 const task_completion_orm_entity_1 = require("../../contexts/execution/infrastructure/persistence/task-completion.orm-entity");
+const daily_stat_orm_entity_1 = require("../../contexts/stats/infrastructure/persistence/daily-stat.orm-entity");
+const all_time_stat_orm_entity_1 = require("../../contexts/stats/infrastructure/persistence/all-time-stat.orm-entity");
 /**
  * Returns the MikroORM configuration object.
  *
@@ -64,6 +66,8 @@ function mikroOrmConfig() {
             membership_orm_entity_1.MembershipOrmEntity,
             like_orm_entity_1.LikeOrmEntity,
             task_completion_orm_entity_1.TaskCompletionOrmEntity,
+            daily_stat_orm_entity_1.DailyStatOrmEntity,
+            all_time_stat_orm_entity_1.AllTimeStatOrmEntity,
         ],
         metadataProvider: reflection_1.TsMorphMetadataProvider,
         extensions: [migrations_1.Migrator],

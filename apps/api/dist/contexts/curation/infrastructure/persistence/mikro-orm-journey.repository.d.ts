@@ -11,6 +11,10 @@ export declare class MikroOrmJourneyRepository implements JourneyRepository {
     findById(id: JourneyId): Promise<Journey | null>;
     findPublicPublished(filters: JourneyFilters, page: number, pageSize: number): Promise<PaginatedResult<Journey>>;
     save(journey: Journey): Promise<void>;
+    findByCuratorId(curatorId: string): Promise<{
+        journey: Journey;
+        memberCount: number;
+    }[]>;
     nextOrderIndex(journeyId: JourneyId): Promise<number>;
     private toDomain;
 }

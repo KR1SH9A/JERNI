@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddTaskDto = exports.CreateJourneyDto = void 0;
+exports.UpdateJourneyDto = exports.AddTaskDto = exports.CreateJourneyDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
 class CreateJourneyDto {
@@ -70,4 +70,39 @@ __decorate([
     (0, class_validator_1.IsEnum)(['DAILY']),
     __metadata("design:type", String)
 ], AddTaskDto.prototype, "recurrenceRule", void 0);
+class UpdateJourneyDto {
+    title;
+    description;
+    tags;
+    visibility;
+}
+exports.UpdateJourneyDto = UpdateJourneyDto;
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: 'Updated Journey Title' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(3),
+    (0, class_validator_1.MaxLength)(120),
+    __metadata("design:type", String)
+], UpdateJourneyDto.prototype, "title", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)(),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(1000),
+    __metadata("design:type", String)
+], UpdateJourneyDto.prototype, "description", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: ['react', 'typescript'] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsString)({ each: true }),
+    __metadata("design:type", Array)
+], UpdateJourneyDto.prototype, "tags", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ enum: ['PUBLIC', 'PRIVATE'] }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(['PUBLIC', 'PRIVATE']),
+    __metadata("design:type", String)
+], UpdateJourneyDto.prototype, "visibility", void 0);
 //# sourceMappingURL=curation.dto.js.map

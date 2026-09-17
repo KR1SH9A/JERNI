@@ -30,8 +30,11 @@ exports.CurationModule = CurationModule = __decorate([
             journey_commands_1.CreateJourneyUseCase,
             journey_commands_1.AddTaskDefinitionUseCase,
             journey_commands_1.PublishJourneyUseCase,
+            journey_commands_1.UpdateJourneyUseCase,
+            journey_commands_1.ArchiveJourneyUseCase,
             journey_queries_1.GetDiscoverFeedQuery,
             journey_queries_1.GetJourneyDetailQuery,
+            journey_queries_1.GetMyJourneysQuery,
             // Event handler: keeps denormalized likeCount in sync when Engagement fires
             like_count_projection_1.LikeCountProjection,
         ],

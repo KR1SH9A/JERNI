@@ -45,4 +45,17 @@ export declare class GetJourneyDetailQuery {
     constructor(journeyRepo: JourneyRepository);
     execute(journeyId: string): Promise<JourneyDetailReadModel>;
 }
+export interface CuratorJourneyReadModel extends JourneyReadModel {
+    memberCount: number;
+}
+export interface MyJourneysResult {
+    journeys: CuratorJourneyReadModel[];
+    total: number;
+}
+export declare class GetMyJourneysQuery {
+    private readonly journeyRepo;
+    constructor(journeyRepo: JourneyRepository);
+    execute(curatorId: string): Promise<MyJourneysResult>;
+    private toReadModel;
+}
 //# sourceMappingURL=journey.queries.d.ts.map

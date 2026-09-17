@@ -19,6 +19,7 @@ const media_module_1 = require("./contexts/media/media.module");
 const participation_module_1 = require("./contexts/participation/participation.module");
 const engagement_module_1 = require("./contexts/engagement/engagement.module");
 const execution_module_1 = require("./contexts/execution/execution.module");
+const stats_module_1 = require("./contexts/stats/stats.module");
 // Shared infra
 const mikro_orm_config_1 = require("./shared-kernel/database/mikro-orm.config");
 let AppModule = class AppModule {
@@ -44,6 +45,7 @@ exports.AppModule = AppModule = __decorate([
             participation_module_1.ParticipationModule,
             engagement_module_1.EngagementModule,
             execution_module_1.ExecutionModule,
+            stats_module_1.StatsModule,
         ],
     })
 ], AppModule);

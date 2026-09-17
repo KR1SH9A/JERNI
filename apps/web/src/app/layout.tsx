@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Nav } from '@/components/nav';
 
 export const metadata: Metadata = {
-  title: 'JERNI',
+  title: {
+    default: 'JERNI — Curated Learning Journeys',
+    template: '%s — JERNI',
+  },
   description:
-    'JERNI helps you discover and follow curated learning journeys. ' +
+    'Discover and follow curated learning journeys. ' +
     'Track your progress, compete with others, and level up together.',
+  openGraph: {
+    siteName: 'JERNI',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -15,7 +23,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Nav />
+        <div id="page-content">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

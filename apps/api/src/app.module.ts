@@ -11,6 +11,7 @@ import { MediaModule } from './contexts/media/media.module';
 import { ParticipationModule } from './contexts/participation/participation.module';
 import { EngagementModule } from './contexts/engagement/engagement.module';
 import { ExecutionModule } from './contexts/execution/execution.module';
+import { StatsModule } from './contexts/stats/stats.module';
 
 // Shared infra
 import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
@@ -38,6 +39,7 @@ import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
     ParticipationModule,
     EngagementModule,
     ExecutionModule,
+    StatsModule,
   ],
 })
 export class AppModule {}

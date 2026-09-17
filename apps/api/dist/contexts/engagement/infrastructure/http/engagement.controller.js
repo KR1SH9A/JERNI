@@ -17,12 +17,25 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const current_user_decorator_1 = require("../../../identity/infrastructure/decorators/current-user.decorator");
 const engagement_commands_1 = require("../../application/use-cases/engagement.commands");
+const like_repository_1 = require("../../application/ports/like.repository");
+const journey_id_vo_1 = require("../../../../shared-kernel/value-objects/journey-id.vo");
+const user_id_vo_1 = require("../../../../shared-kernel/value-objects/user-id.vo");
 let EngagementController = class EngagementController {
     likeJourney;
     unlikeJourney;
-    constructor(likeJourney, unlikeJourney) {
+    likeRepo;
+    constructor(likeJourney, unlikeJourney, likeRepo) {
         this.likeJourney = likeJourney;
         this.unlikeJourney = unlikeJourney;
+        this.likeRepo = likeRepo;
+    }
+    /**
+     * GET /journeys/:id/likes/me — Check if the current user has liked this journey.
+     * Used by the journey detail page to seed initialIsLiked on the LikeButton.
+     */
+    async isLiked(journeyId, user) {
+        const like = await this.likeRepo.find(journey_id_vo_1.JourneyId.of(journeyId), user_id_vo_1.UserId.of(user.id));
+        return { isLiked: like !== null };
     }
     /**
      * POST /journeys/:id/likes — Like a journey.
@@ -40,6 +53,15 @@ let EngagementController = class EngagementController {
     }
 };
 exports.EngagementController = EngagementController;
+__decorate([
+    (0, common_1.Get)('me'),
+    (0, swagger_1.ApiOperation)({ summary: 'Check if the current user has liked this journey' }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], EngagementController.prototype, "isLiked", null);
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.HttpCode)(common_1.HttpStatus.NO_CONTENT),
@@ -64,7 +86,8 @@ exports.EngagementController = EngagementController = __decorate([
     (0, swagger_1.ApiTags)('Engagement'),
     (0, common_1.Controller)('journeys/:id/likes'),
     (0, swagger_1.ApiBearerAuth)(),
+    __param(2, (0, common_1.Inject)(like_repository_1.LIKE_REPOSITORY)),
     __metadata("design:paramtypes", [engagement_commands_1.LikeJourneyUseCase,
-        engagement_commands_1.UnlikeJourneyUseCase])
+        engagement_commands_1.UnlikeJourneyUseCase, Object])
 ], EngagementController);
 //# sourceMappingURL=engagement.controller.js.map

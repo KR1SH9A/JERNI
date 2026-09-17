@@ -10,6 +10,269 @@
   "tables": [
     {
       "columns": {
+        "journey_id": {
+          "name": "journey_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "''",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "milestones_completed": {
+          "name": "milestones_completed",
+          "type": "int4",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 32,
+          "scale": 0,
+          "default": "0",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "recurring_done_today": {
+          "name": "recurring_done_today",
+          "type": "int4",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 32,
+          "scale": 0,
+          "default": "0",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        }
+      },
+      "name": "all_time_stats",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "journey_id",
+            "user_id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "all_time_stats_pkey",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "checks": [
+        {
+          "name": "all_time_stats_milestones_completed_check",
+          "columnName": "milestones_completed",
+          "definition": "CHECK ((milestones_completed >= 0))",
+          "expression": "milestones_completed >= 0"
+        },
+        {
+          "name": "all_time_stats_recurring_done_today_check",
+          "columnName": "recurring_done_today",
+          "definition": "CHECK ((recurring_done_today >= 0))",
+          "expression": "recurring_done_today >= 0"
+        }
+      ],
+      "foreignKeys": {
+        "all_time_stats_journey_id_fkey": {
+          "columnNames": [
+            "journey_id"
+          ],
+          "constraintName": "all_time_stats_journey_id_fkey",
+          "localTableName": "public.all_time_stats",
+          "referencedTableName": "public.journeys",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        },
+        "all_time_stats_user_id_fkey": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "all_time_stats_user_id_fkey",
+          "localTableName": "public.all_time_stats",
+          "referencedTableName": "public.user_profiles",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
         "instance_id": {
           "name": "instance_id",
           "type": "uuid",
@@ -188,7 +451,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -536,7 +800,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -805,7 +1070,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -1015,7 +1281,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -1606,7 +1873,291 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
+        "journey_id": {
+          "name": "journey_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "task_definition_id": {
+          "name": "task_definition_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "for_date": {
+          "name": "for_date",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": 0,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "date"
+        },
+        "completed_count": {
+          "name": "completed_count",
+          "type": "int2",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 16,
+          "scale": 0,
+          "default": "0",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "smallint"
+        }
+      },
+      "name": "daily_stats",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "journey_id",
+            "user_id",
+            "task_definition_id",
+            "for_date"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "daily_stats_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "journey_id",
+            "for_date"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_daily_stats_journey_date",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "daily_stats_completed_count_check",
+          "columnName": "completed_count",
+          "definition": "CHECK ((completed_count >= 0))",
+          "expression": "completed_count >= 0"
+        }
+      ],
+      "foreignKeys": {
+        "daily_stats_journey_id_fkey": {
+          "columnNames": [
+            "journey_id"
+          ],
+          "constraintName": "daily_stats_journey_id_fkey",
+          "localTableName": "public.daily_stats",
+          "referencedTableName": "public.journeys",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        },
+        "daily_stats_task_definition_id_fkey": {
+          "columnNames": [
+            "task_definition_id"
+          ],
+          "constraintName": "daily_stats_task_definition_id_fkey",
+          "localTableName": "public.daily_stats",
+          "referencedTableName": "public.task_definitions",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        },
+        "daily_stats_user_id_fkey": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "daily_stats_user_id_fkey",
+          "localTableName": "public.daily_stats",
+          "referencedTableName": "public.user_profiles",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -1811,7 +2362,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -2259,7 +2811,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -2590,7 +3143,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -2811,7 +3365,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -3186,7 +3741,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -3439,7 +3995,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -3722,7 +4279,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -4036,7 +4594,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -4282,7 +4841,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -4559,7 +5119,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -4676,7 +5237,8 @@
           "enumItems": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ],
           "mappedType": "unknown",
           "nativeEnumName": "auth.factor_type"
@@ -4985,7 +5547,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -5035,6 +5598,553 @@
         }
       },
       "comment": "auth: stores metadata about factors"
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "mfa_factor_id": {
+          "name": "mfa_factor_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "failed_verification_count": {
+          "name": "failed_verification_count",
+          "type": "int4",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": 32,
+          "scale": 0,
+          "default": "0",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "integer"
+        },
+        "verification_locked_until": {
+          "name": "verification_locked_until",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "mfa_recovery_code_sets",
+      "schema": "auth",
+      "indexes": [
+        {
+          "columnNames": [
+            "mfa_factor_id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "mfa_recovery_code_sets_mfa_factor_id_key",
+          "unique": true,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "mfa_recovery_code_sets_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "user_id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "keyName": "mfa_recovery_code_sets_user_id_key",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "mfa_recovery_code_sets_mfa_factor_id_fkey": {
+          "columnNames": [
+            "mfa_factor_id"
+          ],
+          "constraintName": "mfa_recovery_code_sets_mfa_factor_id_fkey",
+          "localTableName": "auth.mfa_recovery_code_sets",
+          "referencedTableName": "auth.mfa_factors",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        },
+        "mfa_recovery_code_sets_user_id_fkey": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "mfa_recovery_code_sets_user_id_fkey",
+          "localTableName": "auth.mfa_recovery_code_sets",
+          "referencedTableName": "auth.users",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "mfa_recovery_code_set_id": {
+          "name": "mfa_recovery_code_set_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "code_hash": {
+          "name": "code_hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "consumed_at": {
+          "name": "consumed_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "mfa_recovery_codes",
+      "schema": "auth",
+      "indexes": [
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "mfa_recovery_codes_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "mfa_recovery_code_set_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "mfa_recovery_codes_set_id_idx",
+          "unique": false,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "mfa_recovery_codes_mfa_recovery_code_set_id_fkey": {
+          "columnNames": [
+            "mfa_recovery_code_set_id"
+          ],
+          "constraintName": "mfa_recovery_codes_mfa_recovery_code_set_id_fkey",
+          "localTableName": "auth.mfa_recovery_codes",
+          "referencedTableName": "auth.mfa_recovery_code_sets",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
     },
     {
       "columns": {
@@ -5200,7 +6310,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -5684,7 +6795,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -5899,7 +7011,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -6266,7 +7379,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -6575,7 +7689,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -7015,7 +8130,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -7187,6 +8303,22 @@
           "comment": null,
           "enumItems": [],
           "mappedType": "datetime"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
         }
       },
       "name": "one_time_tokens",
@@ -7321,7 +8453,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -7682,7 +8815,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -8009,7 +9143,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -8337,7 +9472,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -8656,7 +9792,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -8982,7 +10119,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -9149,7 +10287,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -9332,7 +10471,769 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "sso_provider_id": {
+          "name": "sso_provider_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "prefix": {
+          "name": "prefix",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "last_used_at": {
+          "name": "last_used_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "scim_tokens",
+      "schema": "auth",
+      "indexes": [
+        {
+          "columnNames": [
+            "expires_at"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_tokens_expires_at_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_tokens_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "revoked_at"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_tokens_revoked_at_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "sso_provider_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_tokens_sso_provider_id_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "token_hash"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_tokens_token_hash_key",
+          "unique": true,
+          "primary": false
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "scim_tokens_sso_provider_id_fkey": {
+          "columnNames": [
+            "sso_provider_id"
+          ],
+          "constraintName": "scim_tokens_sso_provider_id_fkey",
+          "localTableName": "auth.scim_tokens",
+          "referencedTableName": "auth.sso_providers",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "sso_provider_id": {
+          "name": "sso_provider_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "resource": {
+          "name": "resource",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "json"
+        },
+        "user_name": {
+          "name": "user_name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text",
+          "generated": "lower((resource ->> 'userName'::text)) stored"
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text",
+          "generated": "(resource ->> 'externalId'::text) stored"
+        },
+        "active": {
+          "name": "active",
+          "type": "bool",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean",
+          "generated": "COALESCE(((resource ->> 'active'::text))::boolean, true) stored"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "scim_users",
+      "schema": "auth",
+      "indexes": [
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "created_at",
+            "id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_created_at_idx",
+          "unique": false,
+          "primary": false,
+          "expression": "CREATE INDEX scim_users_created_at_idx ON auth.scim_users USING btree (sso_provider_id, created_at, id) WHERE (deleted_at IS NULL)"
+        },
+        {
+          "columnNames": [
+            "deleted_at"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_users_deleted_at_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "external_id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_external_id_key",
+          "unique": true,
+          "primary": false,
+          "expression": "CREATE UNIQUE INDEX scim_users_external_id_key ON auth.scim_users USING btree (sso_provider_id, external_id) WHERE ((external_id IS NOT NULL) AND (deleted_at IS NULL))"
+        },
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_id_idx",
+          "unique": false,
+          "primary": false,
+          "expression": "CREATE INDEX scim_users_id_idx ON auth.scim_users USING btree (sso_provider_id, id) WHERE (deleted_at IS NULL)"
+        },
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_users_pkey",
+          "unique": true,
+          "primary": true
+        },
+        {
+          "columnNames": [
+            "sso_provider_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_users_sso_provider_id_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "updated_at",
+            "id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_updated_at_idx",
+          "unique": false,
+          "primary": false,
+          "expression": "CREATE INDEX scim_users_updated_at_idx ON auth.scim_users USING btree (sso_provider_id, updated_at, id) WHERE (deleted_at IS NULL)"
+        },
+        {
+          "columnNames": [
+            "user_id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "scim_users_user_id_idx",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "user_name",
+            "id"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_user_name_idx",
+          "unique": false,
+          "primary": false,
+          "expression": "CREATE INDEX scim_users_user_name_idx ON auth.scim_users USING btree (sso_provider_id, user_name COLLATE \"C\", id) WHERE (deleted_at IS NULL)"
+        },
+        {
+          "columnNames": [
+            "sso_provider_id",
+            "user_name"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "scim_users_user_name_key",
+          "unique": true,
+          "primary": false,
+          "expression": "CREATE UNIQUE INDEX scim_users_user_name_key ON auth.scim_users USING btree (sso_provider_id, user_name) WHERE (deleted_at IS NULL)"
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "scim_users_sso_provider_id_fkey": {
+          "columnNames": [
+            "sso_provider_id"
+          ],
+          "constraintName": "scim_users_sso_provider_id_fkey",
+          "localTableName": "auth.scim_users",
+          "referencedTableName": "auth.sso_providers",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        },
+        "scim_users_user_id_fkey": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "scim_users_user_id_fkey",
+          "localTableName": "auth.scim_users",
+          "referencedTableName": "auth.users",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "set null"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -9612,7 +11513,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -10066,7 +11968,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -10322,7 +12225,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -10564,7 +12468,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -10876,7 +12781,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -11212,7 +13118,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -11510,7 +13417,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -11747,7 +13655,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -12598,7 +14507,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -12908,7 +14818,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -13179,7 +15090,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -13578,7 +15490,8 @@
           "items": [
             "totp",
             "webauthn",
-            "phone"
+            "phone",
+            "recovery_code"
           ]
         },
         "auth.oauth_authorization_status": {
@@ -13701,7 +15614,8 @@
       "items": [
         "totp",
         "webauthn",
-        "phone"
+        "phone",
+        "recovery_code"
       ]
     },
     "auth.oauth_authorization_status": {

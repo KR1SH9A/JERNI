@@ -125,3 +125,50 @@ export class GetJourneyDetailQuery {
     };
   }
 }
+
+// ─── GetMyJourneys query ────────────────────────────────────────────────────
+
+export interface CuratorJourneyReadModel extends JourneyReadModel {
+  memberCount: number;
+}
+
+export interface MyJourneysResult {
+  journeys: CuratorJourneyReadModel[];
+  total: number;
+}
+
+@Injectable()
+export class GetMyJourneysQuery {
+  constructor(
+    @Inject(JOURNEY_REPOSITORY)
+    private readonly journeyRepo: JourneyRepository,
+  ) {}
+
+  async execute(curatorId: string): Promise<MyJourneysResult> {
+    const result = await this.journeyRepo.findByCuratorId(curatorId);
+    return {
+      journeys: result.map((item) => ({
+        ...this.toReadModel(item.journey),
+        memberCount: item.memberCount,
+      })),
+      total: result.length,
+    };
+  }
+
+  private toReadModel(j: Journey): JourneyReadModel {
+    return {
+      id: j.id.value,
+      curatorId: j.curatorId.value,
+      title: j.title,
+      description: j.description,
+      tags: j.tags,
+      status: j.status,
+      visibility: j.visibility,
+      coverProvider: j.coverProvider,
+      coverAssetId: j.coverAssetId,
+      likeCount: j.likeCount,
+      taskCount: j.taskDefinitions.length,
+      createdAt: j.createdAt,
+    };
+  }
+}
