@@ -37,3 +37,20 @@ next-env.d.ts
 
 #documentation
 JERNI-architecture-plan.md
+
+# IDE and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Caches & Frameworks
+.turbo/
+dist/
+apps/api/dist/
+
+# OS specific
+Thumbs.db
+
+# Agent / AI artifacts
+.gemini/

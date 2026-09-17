@@ -29,8 +29,8 @@ export default async function NewJourneyPage() {
       },
     },
   );
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/auth/login');
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
 
   return (
     <main className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem', maxWidth: 640 }}>

@@ -8,6 +8,8 @@ import { JoinButton } from '@/components/join-button';
 import { LikeButton } from '@/components/like-button';
 import { TaskChecklist } from '@/components/task-checklist';
 import { StatsPanel } from '@/components/stats-panel';
+import { CuratorActions } from '@/components/curator-actions';
+import { AddTaskForm } from '@/components/add-task-form';
 
 interface TaskReadModel {
   id: string;
@@ -94,9 +96,10 @@ export default async function JourneyDetailPage({
       },
     },
   );
+  const { data: { user } } = await supabase.auth.getUser();
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
-  const userId = session?.user?.id;
+  const userId = user?.id;
   const isCurator = Boolean(userId && userId === journey.curatorId);
 
   // ── Fetch membership + progress + like status (only if logged in) ─────────
@@ -141,17 +144,11 @@ export default async function JourneyDetailPage({
 
       {/* ── Curator action bar ──────────────────────────────────────────── */}
       {isCurator && (
-        <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
-          <span className="curator-bar-label">✨ You are the curator of this journey</span>
-          {journey.status === 'DRAFT' && (
-            <Link href={`/dashboard/journeys/${journey.id}/edit`}>
-              <button className="btn-sm" id="curator-edit-btn">Edit</button>
-            </Link>
-          )}
-          <Link href="/dashboard">
-            <button className="btn-sm" id="curator-dashboard-btn">Dashboard</button>
-          </Link>
-        </div>
+        <CuratorActions 
+          journeyId={journey.id} 
+          status={journey.status} 
+          taskCount={journey.taskCount} 
+        />
       )}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
@@ -208,11 +205,11 @@ export default async function JourneyDetailPage({
               initialLikeCount={journey.likeCount}
             />
 
-            {/* Join button — only shown when logged in */}
-            {token && (
+            {/* Join button — only shown when logged in AND journey is published */}
+            {token && journey.status === 'PUBLISHED' && (
               <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
             )}
-            {!token && (
+            {!token && journey.status === 'PUBLISHED' && (
               <Link href="/auth/login" style={{ textAlign: 'center', fontSize: '13px', color: 'var(--color-muted)' }}>
                 Sign in to join
               </Link>
@@ -239,6 +236,7 @@ export default async function JourneyDetailPage({
                 journeyId={journey.id}
                 tasks={journey.tasks}
                 initialCompletions={initialCompletions}
+                isReadOnly={journey.status !== 'PUBLISHED'}
               />
             ) : (
               /* Read-only task list for non-members */
@@ -267,12 +265,12 @@ export default async function JourneyDetailPage({
                       </span>
                     </div>
                   ))}
-                {!token && (
+                {!token && journey.status === 'PUBLISHED' && (
                   <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
                     <Link href="/auth/login">Sign in</Link> and join this journey to track your progress.
                   </p>
                 )}
-                {token && !initialIsMember && (
+                {token && !initialIsMember && journey.status === 'PUBLISHED' && (
                   <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
                     Join this journey to start tracking your progress.
                   </p>
@@ -280,6 +278,11 @@ export default async function JourneyDetailPage({
               </div>
             )}
           </>
+        )}
+
+        {/* Add Task Form — only for the curator on DRAFT or PUBLISHED journeys */}
+        {isCurator && journey.status !== 'ARCHIVED' && (
+          <AddTaskForm journeyId={journey.id} />
         )}
       </section>
 

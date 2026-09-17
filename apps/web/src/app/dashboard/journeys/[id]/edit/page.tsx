@@ -46,21 +46,24 @@ export default async function EditJourneyPage({
       },
     },
   );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
+
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/auth/login');
+  const token = session?.access_token;
 
   // ── Load journey ─────────────────────────────────────────────────────────
   let journey: JourneyDetail;
   try {
     journey = await apiClient.get<JourneyDetail>(`/journeys/${id}`, {
-      token: session.access_token,
+      token,
     });
   } catch {
     notFound();
   }
 
   // Auth: only the curator can edit
-  if (journey.curatorId !== session.user.id) redirect(`/journeys/${id}`);
+  if (journey.curatorId !== user.id) redirect(`/journeys/${id}`);
   // Domain: only DRAFT journeys are editable
   if (journey.status !== 'DRAFT') redirect(`/journeys/${id}`);
 
