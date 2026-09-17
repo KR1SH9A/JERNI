@@ -1,1 +1,0 @@
-{"version":3,"file":"all-time-stat.entity.d.ts","sourceRoot":"","sources":["../../../../src/contexts/stats/domain/all-time-stat.entity.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;GAWG;AACH,MAAM,WAAW,WAAW;IAC1B,SAAS,EAAE,MAAM,CAAC;IAClB,MAAM,EAAE,MAAM,CAAC;IACf,WAAW,EAAE,MAAM,CAAC;IACpB,mBAAmB,EAAE,MAAM,CAAC;IAC5B,kBAAkB,EAAE,MAAM,CAAC;CAC5B"}

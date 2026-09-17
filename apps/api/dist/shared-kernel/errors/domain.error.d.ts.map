@@ -1,1 +1,0 @@
-{"version":3,"file":"domain.error.d.ts","sourceRoot":"","sources":["../../../src/shared-kernel/errors/domain.error.ts"],"names":[],"mappings":"AAAA;;;;;;;;;GASG;AACH,qBAAa,WAAY,SAAQ,KAAK;IACpC,QAAQ,CAAC,IAAI,EAAE,MAAM,CAAC;gBAEV,OAAO,EAAE,MAAM,EAAE,IAAI,EAAE,MAAM;CAO1C"}

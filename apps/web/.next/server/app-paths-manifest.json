@@ -1,9 +1,0 @@
-{
-  "/api/journeys/[id]/tasks/route": "app/api/journeys/[id]/tasks/route.js",
-  "/api/journeys/[id]/publish/route": "app/api/journeys/[id]/publish/route.js",
-  "/api/journeys/[id]/stats/route": "app/api/journeys/[id]/stats/route.js",
-  "/page": "app/page.js",
-  "/dashboard/journeys/new/page": "app/dashboard/journeys/new/page.js",
-  "/journeys/[id]/page": "app/journeys/[id]/page.js",
-  "/dashboard/journeys/[id]/edit/page": "app/dashboard/journeys/[id]/edit/page.js"
-}

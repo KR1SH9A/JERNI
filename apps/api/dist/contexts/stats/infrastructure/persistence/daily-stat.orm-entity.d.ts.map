@@ -1,1 +1,0 @@
-{"version":3,"file":"daily-stat.orm-entity.d.ts","sourceRoot":"","sources":["../../../../../src/contexts/stats/infrastructure/persistence/daily-stat.orm-entity.ts"],"names":[],"mappings":"AAEA,qBACa,kBAAkB;IAE7B,SAAS,EAAG,MAAM,CAAC;IAGnB,MAAM,EAAG,MAAM,CAAC;IAGhB,gBAAgB,EAAG,MAAM,CAAC;IAG1B,OAAO,EAAG,MAAM,CAAC;IAGjB,cAAc,EAAE,MAAM,CAAK;CAC5B"}

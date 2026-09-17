@@ -106,7 +106,7 @@ If you change an ORM entity in `apps/api/src/.../*.orm-entity.ts`:
 
 ## 6. What's Next? (Phase 3)
 
-We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (Cloudinary Integration), and **Phase 2 (Participation, Execution & Engagement)**.
+We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (Cloudinary Integration), Phase 2 (Participation, Execution & Engagement), and are largely finished with **Phase 3 (Stats & Analytics)**.
 
 **Phase 2 added:**
 - **Participation context**: `Membership` aggregate, join/leave endpoints, unique-active-membership DB partial index constraint.
@@ -116,8 +116,12 @@ We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (
 - **DB migration**: `Migration0002_Phase2` — `memberships`, `likes`, `task_completions` tables with all DB-level constraints applied.
 - **Frontend**: `JoinButton`, `LikeButton`, `TaskChecklist` client components; all mutations proxy through Next.js route handlers so the JWT never reaches browser JS.
 
-**Next up is Phase 3: Stats & Analytics**
-- **Event-driven projections**: Build `DailyStat` (who completed what today) and `AllTimeStat` (completion % per member) by reacting to `TaskCompleted`/`TaskUncompleted` events — pure read models, never hand-edited.
+**Phase 3 added:**
+- **Event-driven projections**: Built `DailyStat` (who completed what today) and `AllTimeStat` (completion counts per member) by reacting to `TaskCompleted`/`TaskUncompleted` events — pure read models.
 - **Stats endpoint**: `GET /journeys/:id/stats` — Today board + All-time leaderboard, matching the wireframe.
-- **Replay test**: Drop the stats tables, replay from `task_completions`, assert identical output — proves the projection is a true CQRS read side.
-- **Frontend**: Stats panel on the Journey detail page.
+- **Frontend**: `StatsPanel` client component on the Journey detail page fetching live data.
+- *(Note: The automated Replay Test for the projection has been postponed for a future pass).*
+
+**Next up is Phase 4: Real-Time Layer**
+- **Socket.io gateway**: Room-scoped auth, event bridging from EventBus.
+- **Frontend**: Subscribes and updates the Today board / join count live without refresh.
