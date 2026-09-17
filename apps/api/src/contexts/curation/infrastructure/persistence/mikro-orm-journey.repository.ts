@@ -164,7 +164,11 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
       [journeyIds],
     );
 
-    const countMap = new Map(countRows.map((r) => [r.journey_id, parseInt(r.member_count, 10)]));
+    const countMap = new Map<string, number>(
+      countRows.map((r: { journey_id: string; member_count: string }) =>
+        [r.journey_id, parseInt(r.member_count, 10)] as [string, number],
+      ),
+    );
 
     return orms.map((orm) => ({
       journey: this.toDomain(orm),

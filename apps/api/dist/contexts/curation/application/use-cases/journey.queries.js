@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetJourneyDetailQuery = exports.GetDiscoverFeedQuery = void 0;
+exports.GetMyJourneysQuery = exports.GetJourneyDetailQuery = exports.GetDiscoverFeedQuery = void 0;
 const common_1 = require("@nestjs/common");
 const journey_repository_1 = require("../ports/journey.repository");
 const journey_id_vo_1 = require("../../../../shared-kernel/value-objects/journey-id.vo");
@@ -94,4 +94,42 @@ exports.GetJourneyDetailQuery = GetJourneyDetailQuery = __decorate([
     __param(0, (0, common_1.Inject)(journey_repository_1.JOURNEY_REPOSITORY)),
     __metadata("design:paramtypes", [Object])
 ], GetJourneyDetailQuery);
+let GetMyJourneysQuery = class GetMyJourneysQuery {
+    journeyRepo;
+    constructor(journeyRepo) {
+        this.journeyRepo = journeyRepo;
+    }
+    async execute(curatorId) {
+        const result = await this.journeyRepo.findByCuratorId(curatorId);
+        return {
+            journeys: result.map((item) => ({
+                ...this.toReadModel(item.journey),
+                memberCount: item.memberCount,
+            })),
+            total: result.length,
+        };
+    }
+    toReadModel(j) {
+        return {
+            id: j.id.value,
+            curatorId: j.curatorId.value,
+            title: j.title,
+            description: j.description,
+            tags: j.tags,
+            status: j.status,
+            visibility: j.visibility,
+            coverProvider: j.coverProvider,
+            coverAssetId: j.coverAssetId,
+            likeCount: j.likeCount,
+            taskCount: j.taskDefinitions.length,
+            createdAt: j.createdAt,
+        };
+    }
+};
+exports.GetMyJourneysQuery = GetMyJourneysQuery;
+exports.GetMyJourneysQuery = GetMyJourneysQuery = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, common_1.Inject)(journey_repository_1.JOURNEY_REPOSITORY)),
+    __metadata("design:paramtypes", [Object])
+], GetMyJourneysQuery);
 //# sourceMappingURL=journey.queries.js.map

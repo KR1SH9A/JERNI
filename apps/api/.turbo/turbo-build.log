@@ -1,0 +1,16 @@
+[2m$ nest build[22m
+[96msrc/contexts/curation/infrastructure/persistence/mikro-orm-journey.repository.ts[0m:[93m167[0m:[93m45[0m - [91merror[0m[90m TS7006: [0mParameter 'r' implicitly has an 'any' type.
+
+[7m167[0m     const countMap = new Map(countRows.map((r) => [r.journey_id, parseInt(r.member_count, 10)]));
+[7m   [0m [91m                                            ~[0m
+[96msrc/contexts/curation/infrastructure/persistence/mikro-orm-journey.repository.ts[0m:[93m169[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ journey: Journey; memberCount: {}; }[]' is not assignable to type '{ journey: Journey; memberCount: number; }[]'.
+  Type '{ journey: Journey; memberCount: {}; }' is not assignable to type '{ journey: Journey; memberCount: number; }'.
+    Types of property 'memberCount' are incompatible.
+      Type '{}' is not assignable to type 'number'.
+
+[7m169[0m     return orms.map((orm) => ({
+[7m   [0m [91m    ~~~~~~[0m
+
+Found 2 error(s).
+
+[41m[31m[[39m[49m[41m[30mELIFECYCLE[39m[49m[41m[31m][39m[49m [31mCommand failed with exit code 1.[39m

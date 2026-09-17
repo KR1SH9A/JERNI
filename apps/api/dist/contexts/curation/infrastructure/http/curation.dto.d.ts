@@ -9,4 +9,10 @@ export declare class AddTaskDto {
     kind: 'MILESTONE' | 'RECURRING';
     recurrenceRule?: 'DAILY';
 }
+export declare class UpdateJourneyDto {
+    title?: string;
+    description?: string;
+    tags?: string[];
+    visibility?: 'PUBLIC' | 'PRIVATE';
+}
 //# sourceMappingURL=curation.dto.d.ts.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"Migration0003_Stats.d.ts","sourceRoot":"","sources":["../../../src/shared-kernel/migrations/Migration0003_Stats.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,uBAAuB,CAAC;AAElD;;;;;;;;;;;;;;;;;;;;GAoBG;AACH,qBAAa,mBAAoB,SAAQ,SAAS;IAC1C,EAAE,IAAI,OAAO,CAAC,IAAI,CAAC;IAmCnB,IAAI,IAAI,OAAO,CAAC,IAAI,CAAC;CAM5B"}

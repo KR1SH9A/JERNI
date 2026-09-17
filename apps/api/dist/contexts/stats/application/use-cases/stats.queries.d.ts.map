@@ -1,0 +1,1 @@
+{"version":3,"file":"stats.queries.d.ts","sourceRoot":"","sources":["../../../../../src/contexts/stats/application/use-cases/stats.queries.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,eAAe,EAAoB,qBAAqB,EAAE,MAAM,2BAA2B,CAAC;AAErG,qBACa,oBAAoB;IAG7B,OAAO,CAAC,QAAQ,CAAC,SAAS;gBAAT,SAAS,EAAE,eAAe;IAGvC,OAAO,CAAC,SAAS,EAAE,MAAM,GAAG,OAAO,CAAC,qBAAqB,CAAC;CAIjE"}

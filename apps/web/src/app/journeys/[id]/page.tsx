@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 import { JoinButton } from '@/components/join-button';
 import { LikeButton } from '@/components/like-button';
 import { TaskChecklist } from '@/components/task-checklist';
+import { StatsPanel } from '@/components/stats-panel';
 
 interface TaskReadModel {
   id: string;
@@ -46,19 +47,21 @@ export async function generateMetadata({
   try {
     const journey = await apiClient.get<JourneyDetail>(`/journeys/${id}`);
     return {
-      title: `${journey.title} — JERNI`,
+      title: journey.title,
       description: journey.description || `A journey with ${journey.taskCount} tasks.`,
     };
   } catch {
-    return { title: 'Journey — JERNI' };
+    return { title: 'Journey' };
   }
 }
 
 /**
- * Journey Detail page — Server Component (Phase 2).
+ * Journey Detail page — Server Component (Phase 3).
  *
- * Fetches membership status + task progress server-side so the JWT never
- * reaches client JS. Passes initial state to client components as props.
+ * Phase 3 additions:
+ *  - initialIsLiked fetched from GET /journeys/:id/likes/me (fixes the bug)
+ *  - StatsPanel rendered below tasks
+ *  - Curator action bar (Edit/Archive) shown when viewer is the curator
  */
 export default async function JourneyDetailPage({
   params,
@@ -83,7 +86,7 @@ export default async function JourneyDetailPage({
     {
       cookies: {
         getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options),
           );
@@ -93,20 +96,26 @@ export default async function JourneyDetailPage({
   );
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;
+  const userId = session?.user?.id;
+  const isCurator = Boolean(userId && userId === journey.curatorId);
 
-  // ── Fetch membership + progress (only if logged in) ───────────────────────
+  // ── Fetch membership + progress + like status (only if logged in) ─────────
   let initialIsMember = false;
+  let initialIsLiked = false;
   let initialCompletions: CompletionReadModel[] = [];
 
   if (token) {
-    // These run in parallel — both needed before rendering
-    const [membershipRes, progressRes] = await Promise.allSettled([
+    const [membershipRes, progressRes, likeRes] = await Promise.allSettled([
       apiClient.get<{ isMember: boolean }>(
         `/journeys/${id}/memberships/me`,
         { token },
       ),
       apiClient.get<{ completions: CompletionReadModel[] }>(
         `/journeys/${id}/progress/me`,
+        { token },
+      ),
+      apiClient.get<{ isLiked: boolean }>(
+        `/journeys/${id}/likes/me`,
         { token },
       ),
     ]);
@@ -117,28 +126,49 @@ export default async function JourneyDetailPage({
     if (progressRes.status === 'fulfilled') {
       initialCompletions = progressRes.value.completions;
     }
+    if (likeRes.status === 'fulfilled') {
+      initialIsLiked = likeRes.value.isLiked;
+    }
   }
+
+  const hue = journey.title.charCodeAt(0) * 5;
 
   return (
     <main className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
-      <Link href="/" style={{ color: 'var(--color-muted)', fontSize: '0.875rem' }}>
+      <Link href="/" className="animate-fade-in" style={{ color: 'var(--color-muted)', fontSize: '0.875rem' }}>
         ← Back to Discover
       </Link>
 
-      {/* Header */}
-      <div style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
-        {/* Placeholder cover */}
+      {/* ── Curator action bar ──────────────────────────────────────────── */}
+      {isCurator && (
+        <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
+          <span className="curator-bar-label">✨ You are the curator of this journey</span>
+          {journey.status === 'DRAFT' && (
+            <Link href={`/dashboard/journeys/${journey.id}/edit`}>
+              <button className="btn-sm" id="curator-edit-btn">Edit</button>
+            </Link>
+          )}
+          <Link href="/dashboard">
+            <button className="btn-sm" id="curator-dashboard-btn">Dashboard</button>
+          </Link>
+        </div>
+      )}
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="animate-slide-up" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
+        {/* Cover */}
         <div
           style={{
             height: 200,
-            borderRadius: 'var(--radius)',
-            background: `hsl(${journey.title.charCodeAt(0) * 5}, 40%, 18%)`,
+            borderRadius: 'var(--radius-lg)',
+            background: `linear-gradient(135deg, hsl(${hue},50%,16%) 0%, hsl(${hue + 30},40%,12%) 100%)`,
+            border: `1px solid hsl(${hue},40%,22%)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '4rem',
             fontWeight: 700,
-            color: 'rgba(255,255,255,0.12)',
+            color: 'rgba(255,255,255,0.08)',
             marginBottom: '1.5rem',
           }}
         >
@@ -147,11 +177,11 @@ export default async function JourneyDetailPage({
 
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+            <h1 className="page-title" style={{ marginBottom: '0.5rem' }}>
               {journey.title}
             </h1>
             {journey.description && (
-              <p style={{ color: 'var(--color-muted)', marginBottom: '1rem' }}>
+              <p style={{ color: 'var(--color-muted)', marginBottom: '1rem', lineHeight: 1.6 }}>
                 {journey.description}
               </p>
             )}
@@ -171,10 +201,10 @@ export default async function JourneyDetailPage({
               📋 {journey.taskCount} tasks
             </span>
 
-            {/* Like button — works for all users */}
+            {/* Like button — now with correct initial state */}
             <LikeButton
               journeyId={journey.id}
-              initialIsLiked={false}
+              initialIsLiked={initialIsLiked}
               initialLikeCount={journey.likeCount}
             />
 
@@ -191,7 +221,7 @@ export default async function JourneyDetailPage({
         </div>
       </div>
 
-      {/* Tasks */}
+      {/* ── Tasks ──────────────────────────────────────────────────────── */}
       <section>
         <h2 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>
           Tasks
@@ -223,24 +253,16 @@ export default async function JourneyDetailPage({
                         alignItems: 'center',
                         gap: '12px',
                         padding: '12px 16px',
-                        borderRadius: '8px',
-                        background: 'var(--color-surface, rgba(255,255,255,0.04))',
-                        border: '1px solid var(--color-border, rgba(255,255,255,0.08))',
+                        borderRadius: 'var(--radius)',
+                        background: 'var(--color-surface)',
+                        border: '1px solid var(--color-border)',
                       }}
                     >
                       <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>
                         {task.kind === 'RECURRING' ? '🔁' : '◻️'}
                       </span>
                       <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
-                      <span
-                        style={{
-                          fontSize: '11px',
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          background: task.kind === 'RECURRING' ? 'rgba(99,102,241,0.12)' : 'rgba(16,185,129,0.12)',
-                          color: task.kind === 'RECURRING' ? '#818cf8' : '#34d399',
-                        }}
-                      >
+                      <span className={`badge ${task.kind.toLowerCase()}`}>
                         {task.kind === 'RECURRING' ? 'daily' : 'milestone'}
                       </span>
                     </div>
@@ -260,7 +282,11 @@ export default async function JourneyDetailPage({
           </>
         )}
       </section>
+
+      {/* ── Stats panel ────────────────────────────────────────────────── */}
+      {journey.status === 'PUBLISHED' && (
+        <StatsPanel journeyId={journey.id} totalTasks={journey.taskCount} />
+      )}
     </main>
   );
 }
-

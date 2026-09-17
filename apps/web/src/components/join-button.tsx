@@ -56,7 +56,6 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
         style={{
           padding: '10px 24px',
           borderRadius: '8px',
-          border: 'none',
           cursor: isPending ? 'not-allowed' : 'pointer',
           fontWeight: 600,
           fontSize: '15px',

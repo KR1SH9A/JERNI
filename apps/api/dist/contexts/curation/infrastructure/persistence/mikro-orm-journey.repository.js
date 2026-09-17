@@ -121,6 +121,29 @@ let MikroOrmJourneyRepository = class MikroOrmJourneyRepository {
         }
         await em.flush();
     }
+    async findByCuratorId(curatorId) {
+        const em = this.repo.getEntityManager();
+        // Load all journeys for this curator (all statuses)
+        const orms = await this.repo.find({ curatorId }, {
+            populate: ['taskDefinitions'],
+            orderBy: { createdAt: core_1.QueryOrder.DESC },
+        });
+        if (orms.length === 0)
+            return [];
+        // Live member count — one raw query for all journey IDs at once
+        const journeyIds = orms.map((o) => o.id);
+        const countRows = await em.getConnection().execute(`
+      SELECT journey_id, COUNT(*) AS member_count
+      FROM memberships
+      WHERE journey_id = ANY(?) AND status = 'ACTIVE'
+      GROUP BY journey_id
+      `, [journeyIds]);
+        const countMap = new Map(countRows.map((r) => [r.journey_id, parseInt(r.member_count, 10)]));
+        return orms.map((orm) => ({
+            journey: this.toDomain(orm),
+            memberCount: countMap.get(orm.id) ?? 0,
+        }));
+    }
     async nextOrderIndex(journeyId) {
         const tasks = await this.taskRepo.find({ journey: { id: journeyId.value } }, { orderBy: { orderIndex: core_1.QueryOrder.DESC }, limit: 1 });
         return tasks.length > 0 ? tasks[0].orderIndex + 1 : 0;
