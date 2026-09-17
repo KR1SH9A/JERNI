@@ -64,18 +64,6 @@ export class CurationController {
   }
 
   /**
-   * GET /journeys/:id — Journey detail (public, no auth required for public journeys).
-   */
-  @Public()
-  @Get(':id')
-  @ApiOperation({ summary: 'Get journey detail with tasks' })
-  async getDetail(@Param('id', ParseUUIDPipe) id: string) {
-    return this.journeyDetail.execute(id);
-  }
-
-  // ── Authenticated routes ─────────────────────────────────────────────────
-
-  /**
    * GET /journeys/mine — Curator's own journeys (all statuses) with live member count.
    *
    * NOTE: this must be defined BEFORE :id routes or NestJS will try to parse
@@ -86,6 +74,16 @@ export class CurationController {
   @ApiOperation({ summary: "Get the current user's journeys as curator" })
   async getMine(@CurrentUser() user: AuthenticatedUser) {
     return this.myJourneys.execute(user.id);
+  }
+
+  /**
+   * GET /journeys/:id — Journey detail (public, no auth required for public journeys).
+   */
+  @Public()
+  @Get(':id')
+  @ApiOperation({ summary: 'Get journey detail with tasks' })
+  async getDetail(@Param('id', ParseUUIDPipe) id: string) {
+    return this.journeyDetail.execute(id);
   }
 
   /**

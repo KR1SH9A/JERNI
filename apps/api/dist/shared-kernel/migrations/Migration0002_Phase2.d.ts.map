@@ -1,1 +1,0 @@
-{"version":3,"file":"Migration0002_Phase2.d.ts","sourceRoot":"","sources":["../../../src/shared-kernel/migrations/Migration0002_Phase2.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,uBAAuB,CAAC;AAElD;;;;;;;;;;;;;;;;;;;;;GAqBG;AACH,qBAAa,oBAAqB,SAAQ,SAAS;IAC3C,EAAE,IAAI,OAAO,CAAC,IAAI,CAAC;IA+DnB,IAAI,IAAI,OAAO,CAAC,IAAI,CAAC;CAO5B"}

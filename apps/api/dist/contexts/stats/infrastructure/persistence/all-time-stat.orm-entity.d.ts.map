@@ -1,1 +1,0 @@
-{"version":3,"file":"all-time-stat.orm-entity.d.ts","sourceRoot":"","sources":["../../../../../src/contexts/stats/infrastructure/persistence/all-time-stat.orm-entity.ts"],"names":[],"mappings":"AAEA,qBACa,oBAAoB;IAE/B,SAAS,EAAG,MAAM,CAAC;IAGnB,MAAM,EAAG,MAAM,CAAC;IAGhB,WAAW,EAAE,MAAM,CAAM;IAGzB,mBAAmB,EAAE,MAAM,CAAK;IAGhC,kBAAkB,EAAE,MAAM,CAAK;CAChC"}
