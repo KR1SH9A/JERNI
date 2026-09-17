@@ -44,14 +44,17 @@ export default async function DashboardPage() {
       },
     },
   );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
+
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/auth/login');
+  const token = session?.access_token;
 
   // ── Fetch journeys ───────────────────────────────────────────────────────
   let feed: MyJourneysResponse = { journeys: [], total: 0 };
   try {
     feed = await apiClient.get<MyJourneysResponse>('/journeys/mine', {
-      token: session.access_token,
+      token,
     });
   } catch {
     // Show empty state — don't crash the page

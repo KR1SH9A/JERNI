@@ -1,0 +1,100 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+interface CuratorActionsProps {
+  journeyId: string;
+  status: string;
+  taskCount: number;
+}
+
+/**
+ * CuratorActions — client component for curators to trigger state transitions.
+ */
+export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAction = (action: 'publish' | 'archive') => {
+    if (isPending) return;
+
+    if (action === 'publish' && taskCount === 0) {
+      setError('Cannot publish a journey with no tasks. Add at least one task first.');
+      return;
+    }
+
+    if (action === 'archive') {
+      const confirmArchive = window.confirm(
+        'Are you sure you want to archive this journey? This will prevent new users from joining and lock tasks for existing members.'
+      );
+      if (!confirmArchive) return;
+    }
+
+    setError(null);
+    startTransition(async () => {
+      try {
+        const method = action === 'publish' ? 'PATCH' : 'POST';
+        const res = await fetch(`/api/journeys/${journeyId}/${action}`, {
+          method,
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.message ?? `Failed to ${action} journey`);
+        }
+
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error');
+      }
+    });
+  };
+
+  return (
+    <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <span className="curator-bar-label">✨ You are the curator of this journey</span>
+        
+        {status === 'DRAFT' && (
+          <>
+            <button
+              className="btn-sm"
+              onClick={() => handleAction('publish')}
+              disabled={isPending}
+              style={{ background: 'var(--color-primary, #6366f1)', color: 'white', border: 'none' }}
+            >
+              {isPending ? 'Publishing...' : 'Publish'}
+            </button>
+            <Link href={`/dashboard/journeys/${journeyId}/edit`}>
+              <button className="btn-sm" id="curator-edit-btn" disabled={isPending}>Edit</button>
+            </Link>
+          </>
+        )}
+
+        {status === 'PUBLISHED' && (
+          <button
+            className="btn-sm"
+            onClick={() => handleAction('archive')}
+            disabled={isPending}
+            style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+          >
+            {isPending ? 'Archiving...' : 'Archive'}
+          </button>
+        )}
+
+        <Link href="/dashboard">
+          <button className="btn-sm" id="curator-dashboard-btn" disabled={isPending}>Dashboard</button>
+        </Link>
+      </div>
+      
+      {error && (
+        <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', width: '100%' }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}

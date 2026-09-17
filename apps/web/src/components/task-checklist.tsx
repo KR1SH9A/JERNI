@@ -22,6 +22,8 @@ interface TaskChecklistProps {
   tasks: TaskReadModel[];
   /** Server-fetched completions — seeds initial checkbox state */
   initialCompletions: CompletionReadModel[];
+  /** Whether the checklist should be read-only (e.g. for archived journeys) */
+  isReadOnly?: boolean;
 }
 
 function todayUtc(): string {
@@ -37,7 +39,7 @@ function todayUtc(): string {
  * Calls the Next.js route handler on toggle — JWT never touches this component.
  * Optimistic: checkbox state updates immediately, reverts on error.
  */
-export function TaskChecklist({ journeyId, tasks, initialCompletions }: TaskChecklistProps) {
+export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly }: TaskChecklistProps) {
   const today = todayUtc();
 
   // Build initial checked state from server-fetched completions
@@ -57,7 +59,7 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions }: TaskChec
   const [, startTransition] = useTransition();
 
   const toggle = (task: TaskReadModel) => {
-    if (pending[task.id]) return;
+    if (isReadOnly || pending[task.id]) return;
 
     const nextChecked = !checked[task.id];
     setErrors((prev) => ({ ...prev, [task.id]: '' }));
@@ -119,16 +121,16 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions }: TaskChec
           type="checkbox"
           id={`task-${task.id}`}
           checked={isChecked}
-          disabled={isPending}
+          disabled={isPending || isReadOnly}
           onChange={() => toggle(task)}
           aria-label={`Mark "${task.title}" as ${isChecked ? 'incomplete' : 'complete'}`}
-          style={{ marginTop: '2px', accentColor: 'var(--color-primary, #6366f1)', cursor: 'pointer' }}
+          style={{ marginTop: '2px', accentColor: 'var(--color-primary, #6366f1)', cursor: isReadOnly ? 'default' : 'pointer' }}
         />
         <div style={{ flex: 1 }}>
           <label
             htmlFor={`task-${task.id}`}
             style={{
-              cursor: 'pointer',
+              cursor: isReadOnly ? 'default' : 'pointer',
               textDecoration: isChecked ? 'line-through' : 'none',
               color: isChecked ? 'var(--color-muted, #888)' : 'inherit',
               fontSize: '14px',

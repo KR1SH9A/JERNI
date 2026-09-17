@@ -23,7 +23,7 @@ export async function Nav() {
       },
     },
   );
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
   return (
     <header className="global-nav">
@@ -37,7 +37,7 @@ export async function Nav() {
           <Link href="/" id="nav-discover" className="nav-link">
             Discover
           </Link>
-          {session ? (
+          {user ? (
             <>
               <Link href="/dashboard" id="nav-dashboard" className="nav-link">
                 Dashboard
