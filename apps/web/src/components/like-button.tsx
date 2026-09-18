@@ -66,8 +66,8 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
         transition: 'all 0.15s ease',
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: '16px' }}>
-        {isLiked ? '❤️' : '🤍'}
+      <span aria-hidden="true" style={{ fontSize: '14px', fontWeight: 600 }}>
+        {isLiked ? 'Liked' : 'Like'}
       </span>
       <span>{likeCount}</span>
     </button>

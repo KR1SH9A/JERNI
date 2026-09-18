@@ -56,8 +56,8 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '2rem' }}>🗺</span>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span className="jerni-logo-mask" style={{ width: '3rem', height: '3rem', color: 'var(--color-accent)' }}></span>
             <span
               className="logo-text"
               style={{

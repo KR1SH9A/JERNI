@@ -79,8 +79,10 @@ export default async function DashboardPage() {
 
       {/* Journey list */}
       {feed.journeys.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem', marginTop: '2rem' }}>
-          <p style={{ fontSize: '2rem', marginBottom: '1rem' }}>🗺️</p>
+        <div className="card" style={{ textAlign: 'center', padding: '3rem', margin: '2rem auto', maxWidth: '600px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <span className="jerni-logo-mask" style={{ width: '3rem', height: '3rem', color: 'var(--color-muted-2)' }}></span>
+          </div>
           <p style={{ color: 'var(--color-muted)', marginBottom: '1.5rem' }}>
             You haven&apos;t curated any journeys yet.
           </p>
@@ -105,7 +107,7 @@ export default async function DashboardPage() {
                   {journey.status}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
-                  {journey.visibility === 'PRIVATE' ? '🔒 Private' : '🌐 Public'}
+                  {journey.visibility === 'PRIVATE' ? 'Private' : 'Public'}
                 </span>
               </div>
 
@@ -123,9 +125,9 @@ export default async function DashboardPage() {
 
               {/* Stats row */}
               <div className="card-meta">
-                <span>📋 {journey.taskCount} tasks</span>
-                <span>👥 {journey.memberCount} members</span>
-                <span>❤️ {journey.likeCount}</span>
+                <span>{journey.taskCount} tasks</span>
+                <span>{journey.memberCount} members</span>
+                <span>{journey.likeCount} likes</span>
               </div>
 
               {/* Actions */}

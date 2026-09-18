@@ -225,9 +225,9 @@ function FitCamera() {
 export default function JerniBelt({
   logoSrc = '/jerni-logo.svg',
   ribbonSrc = '/work-2.png',
-  bg = '#7a68a8',
-  logoColor = '#ffffff',
-  ribbonColor = '#ffcf33',
+  bg = '#F8F6F0',
+  logoColor = '#e65296',
+  ribbonColor = '#f0a5c3',
   className,
   style,
 }) {

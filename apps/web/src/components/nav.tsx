@@ -28,8 +28,8 @@ export async function Nav() {
   return (
     <header className="global-nav">
       <div className="container nav-inner">
-        <Link href="/" className="nav-logo" id="nav-logo">
-          <span className="logo-icon">🗺</span>
+        <Link href="/" className="nav-logo" id="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="jerni-logo-mask" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--color-accent)' }}></span>
           <span className="logo-text">JERNI</span>
         </Link>
 

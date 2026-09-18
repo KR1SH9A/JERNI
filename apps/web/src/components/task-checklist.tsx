@@ -141,7 +141,7 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
           </label>
           {isRecurring && (
             <p style={{ fontSize: '12px', color: 'var(--color-muted, #888)', margin: '2px 0 0' }}>
-              🔁 Resets daily · Today: {today}
+              Daily · Today: {today}
             </p>
           )}
           {error && (

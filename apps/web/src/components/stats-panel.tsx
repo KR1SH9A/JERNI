@@ -49,7 +49,7 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
   return (
     <section className="stats-panel card" aria-label="Journey stats">
       <div className="stats-header">
-        <h2 className="stats-title">📊 Journey Stats</h2>
+        <h2 className="stats-title">Journey Stats</h2>
         <div className="stats-tabs" role="tablist">
           <button
             role="tab"
@@ -130,12 +130,12 @@ function Leaderboard({ entries }: { entries: LeaderboardEntry[] }) {
       {entries.map((e, i) => (
         <li key={e.userId} className="stats-row">
           <span className="stats-rank">
-            {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+            {`#${i + 1}`}
           </span>
           <span className="stats-name">{e.displayName}</span>
           <div className="stats-meta">
-            <span title="Milestones">🏁 {e.milestonesCompleted}</span>
-            <span title="Recurring today">🔁 {e.recurringDoneToday}</span>
+            <span title="Milestones">Milestones: {e.milestonesCompleted}</span>
+            <span title="Recurring today">Recurring today: {e.recurringDoneToday}</span>
           </div>
         </li>
       ))}

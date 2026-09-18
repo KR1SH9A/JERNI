@@ -45,29 +45,29 @@
   --font-script: 'Flaviotte', cursive;
 
   /* Surfaces */
-  --color-bg:        #FEF8D4; /* Cozy creamy yellow */
-  --color-surface:   #F5EFC7; /* Slightly darker */
-  --color-surface-2: #EAE3B8;
-  --color-border:    #D9D1A2;
+  --color-bg:        #F8F6F0; /* Warm off-white */
+  --color-surface:   #FFFFFF; /* White */
+  --color-surface-2: #F0EDE5;
+  --color-border:    #E2DCD0;
 
   /* Text */
-  --color-text:      #5F4A8B; /* Deep violet */
-  --color-muted:     #7A64A8;
-  --color-muted-2:   #9A88C0;
+  --color-text:      #0C5A4A; /* Dark teal */
+  --color-muted:     #8FB1A6;
+  --color-muted-2:   #AEC7BF;
 
   /* Accents */
-  --color-accent:       #5F4A8B;
-  --color-accent-hover: #45336B;
-  --color-accent-glow:  rgba(95, 74, 139, 0.15);
+  --color-accent:       #14A185; /* Vibrant teal */
+  --color-accent-hover: #0F8069;
+  --color-accent-glow:  rgba(20, 161, 133, 0.15);
 
   /* Semantic */
-  --color-success: #A8C686; /* Soft matcha */
+  --color-success: #14A185;
   --color-warning: #f59e0b;
-  --color-error:   #9F3E47; /* Crimson */
+  --color-error:   #E65296; /* Magenta */
 
   /* Gradients */
-  --gradient-hero:   linear-gradient(135deg, #5F4A8B 0%, #9F3E47 100%);
-  --gradient-card:   linear-gradient(180deg, rgba(95, 74, 139, 0.04) 0%, transparent 100%);
+  --gradient-hero:   linear-gradient(135deg, #14A185 0%, #E65296 100%);
+  --gradient-card:   linear-gradient(180deg, rgba(20, 161, 133, 0.04) 0%, transparent 100%);
 
   /* Shape */
   --radius:    12px;
@@ -75,9 +75,9 @@
   --radius-xl: 40px;
 
   /* Shadows */
-  --shadow-sm:  0 2px 8px rgba(95, 74, 139, 0.06);
-  --shadow-md:  0 12px 32px rgba(95, 74, 139, 0.1);
-  --shadow-glow: 0 0 24px rgba(95, 74, 139, 0.15);
+  --shadow-sm:  0 2px 8px rgba(20, 161, 133, 0.06);
+  --shadow-md:  0 12px 32px rgba(20, 161, 133, 0.1);
+  --shadow-glow: 0 0 24px rgba(20, 161, 133, 0.15);
 
   /* Layout */
   --nav-height: 80px;
@@ -190,22 +190,22 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary {
   background: var(--color-accent);
   border-color: var(--color-accent);
-  color: #FEF8D4;
+  color: #FFFFFF;
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
-  color: #FEF8D4;
+  color: #FFFFFF;
   box-shadow: var(--shadow-md);
 }
 
 .btn-danger {
-  background: rgba(159, 62, 71, 0.1);
-  border-color: rgba(159, 62, 71, 0.3);
+  background: rgba(230, 82, 150, 0.1);
+  border-color: rgba(230, 82, 150, 0.3);
   color: var(--color-error);
 }
 .btn-danger:hover:not(:disabled) {
-  background: rgba(159, 62, 71, 0.2);
+  background: rgba(230, 82, 150, 0.2);
 }
 
 /* ─── Cards ──────────────────────────────────────────────────────────────── */
@@ -221,7 +221,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .card-hover:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(95, 74, 139, 0.2);
+  border-color: rgba(20, 161, 133, 0.2);
 }
 
 /* ─── Utility classes ────────────────────────────────────────────────────── */
@@ -281,4 +281,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     align-items: center;
     padding: 1rem 2rem;
   }
+}
+
+/* ─── Utils ──────────────────────────────────────────────────────────────── */
+.jerni-logo-mask {
+  display: inline-block;
+  background-color: currentColor;
+  mask: url('/jerni-logo.svg') no-repeat center / contain;
+  -webkit-mask: url('/jerni-logo.svg') no-repeat center / contain;
 }
