@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Nav } from '@/components/nav';
 
 export const metadata: Metadata = {
   title: {
@@ -24,10 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Nav />
-        <div id="page-content">
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );
