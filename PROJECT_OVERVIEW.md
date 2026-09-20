@@ -37,13 +37,14 @@ JERNI/
 The backend is built with **NestJS** and follows **Domain-Driven Design (DDD)**. This means code is grouped by *business feature* (Contexts) rather than technical type (Controllers/Services).
 
 ### Bounded Contexts (`apps/api/src/contexts/`)
-Currently, we have 6 main contexts:
+Currently, we have 7 main contexts:
 1. **`identity`**: User authentication, JWT validation, and user profile syncing.
 2. **`curation`**: The core feature — creating Journeys, adding Tasks (Milestones & Recurring), and publishing them.
 3. **`media`**: Handles image uploads (covers, avatars) via Cloudinary using a feature flag toggle (`media_uploads`).
 4. **`participation`**: Membership lifecycle — joining and leaving journeys. Enforces the one-active-membership-per-(journey, user) invariant via a DB partial unique index.
 5. **`engagement`**: Like/unlike journeys. Fully idempotent. Publishes `JourneyLiked`/`JourneyUnliked` events that drive the denormalized `likeCount` in Curation via the `LikeCountProjection` event handler.
 6. **`execution`**: Task completions. The `TaskCompletion` aggregate uses a single DB unique constraint (`UNIQUE NULLS NOT DISTINCT`) to handle both MILESTONE (forDate = NULL, unique once) and RECURRING (forDate = today, resets daily) tasks in one table.
+7. **`realtime`**: Socket.io WebSocket gateway (`/journeys` namespace). Authenticates connections via Supabase JWKS, assigns users to `journey:{id}` (member) or `journey:{id}:observe` (non-member) rooms, and bridges CQRS `EventBus` domain events → socket room emissions via six `@EventsHandler` classes. No business logic lives here — it is a pure delivery mechanism.
 
 ### Inside a Context (The DDD Layers)
 Every context is split into three strict layers to keep code clean and testable:
@@ -86,6 +87,7 @@ The frontend is a **Next.js 15** application using the App Router.
   - A lightweight, typed fetch wrapper used to call the NestJS API.
   - Server Components fetch data directly from the API before sending HTML to the browser.
 - **Styling**: Currently using minimal, vanilla CSS in `globals.css` (tokens and variables) to keep things simple until a full UI pass is done.
+- **Real-Time (`src/lib/use-journey-socket.ts`)**: React hook wrapping `socket.io-client`. Connects to the NestJS `/journeys` namespace with the user's Supabase JWT, emits a `join` event (room assigned server-side), and fires stable callbacks (`onStatsUpdated`, etc.) when domain events arrive. `StatsPanel` uses this to refresh without polling on every `stats.updated` signal. A pulsing green **Live** dot is shown when the socket is connected.
 
 ---
 
@@ -104,9 +106,9 @@ If you change an ORM entity in `apps/api/src/.../*.orm-entity.ts`:
 
 ---
 
-## 6. What's Next? (Phase 3)
+## 6. What's Done & What's Next
 
-We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (Cloudinary Integration), Phase 2 (Participation, Execution & Engagement), and are largely finished with **Phase 3 (Stats & Analytics)**.
+We have completed **Phase 0** (Scaffolding), **Phase 1** (Domain Core & DB), **Phase 1.5** (Cloudinary Integration), **Phase 2** (Participation, Execution & Engagement), **Phase 3** (Stats & Analytics), and **Phase 4** (Real-Time Layer).
 
 **Phase 2 added:**
 - **Participation context**: `Membership` aggregate, join/leave endpoints, unique-active-membership DB partial index constraint.
@@ -120,8 +122,19 @@ We have completed Phase 0 (Scaffolding), Phase 1 (Domain Core & DB), Phase 1.5 (
 - **Event-driven projections**: Built `DailyStat` (who completed what today) and `AllTimeStat` (completion counts per member) by reacting to `TaskCompleted`/`TaskUncompleted` events — pure read models.
 - **Stats endpoint**: `GET /journeys/:id/stats` — Today board + All-time leaderboard, matching the wireframe.
 - **Frontend**: `StatsPanel` client component on the Journey detail page fetching live data.
-- *(Note: The automated Replay Test for the projection has been postponed for a future pass).*
+- *(Note: The automated Replay Test for the projection has been postponed for a future pass.)*
 
-**Next up is Phase 4: Real-Time Layer**
-- **Socket.io gateway**: Room-scoped auth, event bridging from EventBus.
-- **Frontend**: Subscribes and updates the Today board / join count live without refresh.
+**Phase 4 added:**
+- **`realtime` context**: New bounded context at `apps/api/src/contexts/realtime/` — `RealtimeGateway`, `RealtimeService`, and six CQRS event-listener handlers (`TaskCompleted`, `TaskUncompleted`, `MemberJoined`, `MemberLeft`, `JourneyLiked`, `JourneyUnliked`).
+- **Socket.io gateway** (`/journeys` namespace): Verifies Supabase JWT from `socket.handshake.auth.token` via JWKS on every connection. On `join` message, checks `MEMBERSHIP_REPOSITORY.findActive()` server-side and places the user in `journey:{id}` (member) or `journey:{id}:observe` (observer) — client cannot declare its own room.
+- **Event bridging**: Each domain event handler emits the raw payload to the journey room, then always follows with a lightweight `stats.updated` signal so the frontend knows to re-fetch via REST (gateway remains stateless — no DB reads).
+- **CORS**: Enabled in `main.ts` for the Next.js origin so socket handshake and API requests from the browser succeed.
+- **Frontend — `useJourneySocket` hook** (`src/lib/use-journey-socket.ts`): Handles connection lifecycle, auth, room joining, reconnect (re-fetches REST on reconnect then re-joins), and stable callback dispatch.
+- **Frontend — live `StatsPanel`**: Wired to `useJourneySocket`; `loadStats()` is called on mount and on every `stats.updated` socket event. Shows a pulsing green **Live** dot when connected.
+- **New env var**: `NEXT_PUBLIC_API_URL` — public-facing API URL for client-side socket connections (default `http://localhost:3001`).
+
+**Next up is Phase 5: Gemini Onboarding Recommendations**
+- **Onboarding screen**: Free-text "what are you trying to get better at?" + a prominent **Skip** button. Skipping must complete onboarding with zero API calls made.
+- **`recommendation` context**: `RecommendationService` sends interest text + a curated list of public journey titles/tags to Gemini with a schema-constrained prompt. Strictly validates response, cross-checks against real Journey IDs, falls back to "most popular journeys" on any failure.
+- **Timeout budget**: ~3s with popular-journeys fallback — onboarding must never feel blocked on a third-party API.
+- **Rate limiting**: Per-user throttle (NestJS Throttler) on the recommendation endpoint to control cost/abuse.

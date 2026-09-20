@@ -36,7 +36,9 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // Securely refresh session (extends cookie expiry) and get the latest session
+  // getUser() hits the Supabase auth server and may rotate the token.
+  // We call getSession() AFTER it so x-user-token always carries the
+  // freshest access token, not the one that was in the cookie at request start.
   await supabase.auth.getUser();
   const { data: { session } } = await supabase.auth.getSession();
   
@@ -50,7 +52,6 @@ export async function middleware(request: NextRequest) {
       request: { headers: requestHeaders },
     });
     existingCookies.forEach((cookie) => {
-      // Need to cast to any to pass the entire cookie options safely
       supabaseResponse.cookies.set(cookie.name, cookie.value, cookie as any);
     });
   }

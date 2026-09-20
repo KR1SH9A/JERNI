@@ -34,7 +34,7 @@ export async function Nav() {
         </Link>
 
         <nav className="nav-links" aria-label="Main navigation">
-          <Link href="/" id="nav-discover" className="nav-link">
+          <Link href="/discover" id="nav-discover" className="nav-link">
             Discover
           </Link>
           {user ? (

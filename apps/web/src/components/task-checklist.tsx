@@ -76,15 +76,23 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
         );
 
         if (!res.ok && res.status !== 204) {
+          if (res.status === 401) {
+            throw new Error('SESSION_EXPIRED');
+          }
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Failed to update task');
         }
       } catch (err) {
         // Roll back
         setChecked((prev) => ({ ...prev, [task.id]: !nextChecked }));
+        const msg = err instanceof Error
+          ? err.message === 'SESSION_EXPIRED'
+            ? 'Session expired — sign in again'
+            : err.message
+          : 'Error';
         setErrors((prev) => ({
           ...prev,
-          [task.id]: err instanceof Error ? err.message : 'Error',
+          [task.id]: msg,
         }));
       } finally {
         setPending((prev) => ({ ...prev, [task.id]: false }));

@@ -6,7 +6,16 @@ import { AppModule } from './app.module';
 import { DomainErrorFilter } from './shared-kernel/errors/domain-error.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    // Enable CORS so the Next.js frontend (port 3000) can hit this API and
+    // establish Socket.io WebSocket connections. Credentials are needed so
+    // cookies / Authorization headers pass through correctly.
+    cors: {
+      origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
+      credentials: true,
+    },
+  });
+
 
   // Global validation pipe — rejects any request with invalid payload shapes
   app.useGlobalPipes(

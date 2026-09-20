@@ -66,6 +66,10 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
         }
 
         if (!res.ok) {
+          if (res.status === 401) {
+            setError('Your session has expired. Please sign in again to continue.');
+            return;
+          }
           const data = await res.json().catch(() => ({}));
           setError(data.message ?? 'Something went wrong. Please try again.');
           return;

@@ -290,3 +290,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   mask: url('/jerni-logo.svg') no-repeat center / contain;
   -webkit-mask: url('/jerni-logo.svg') no-repeat center / contain;
 }
+
+/* ─── Realtime live indicator ────────────────────────────────────────────── */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
