@@ -13,7 +13,10 @@ export async function GET(
   const { id } = await params;
 
   const res = await fetch(`${API_BASE}/journeys/${id}/stats`, {
-    next: { revalidate: 30 }, // Cache for 30 seconds — stats are near-realtime
+    // Must NOT be cached — this route is called on every stats.updated socket
+    // event and needs a fresh response every time. The 30s revalidate was
+    // silently returning stale data and defeating the real-time layer.
+    cache: 'no-store',
   });
 
   const data = await res.json().catch(() => ({}));

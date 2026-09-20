@@ -19,9 +19,11 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
   const [isMember, setIsMember] = useState(initialIsMember);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const handleClick = () => {
     setError(null);
+    setSessionExpired(false);
     const nextState = !isMember;
 
     startTransition(async () => {
@@ -34,6 +36,11 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
         });
 
         if (!res.ok) {
+          if (res.status === 401) {
+            setIsMember(!nextState); // roll back
+            setSessionExpired(true);
+            return;
+          }
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Something went wrong');
         }
@@ -68,6 +75,18 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
       >
         {isPending ? '...' : isMember ? 'Leave Journey' : 'Join Journey'}
       </button>
+
+      {sessionExpired && (
+        <p role="alert" style={{ fontSize: '13px', color: '#ef4444', marginTop: '6px' }}>
+          Your session has expired.{' '}
+          <a
+            href={`/auth/login?returnTo=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '')}`}
+            style={{ textDecoration: 'underline' }}
+          >
+            Sign in again
+          </a>
+        </p>
+      )}
       {error && (
         <p role="alert" style={{ color: 'var(--color-error, #ef4444)', fontSize: '13px', marginTop: '6px' }}>
           {error}

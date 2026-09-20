@@ -71,8 +71,8 @@ export default function SignupPage() {
       >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '2rem' }}>🗺</span>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span className="jerni-logo-mask" style={{ width: '3rem', height: '3rem', color: 'var(--color-accent)' }}></span>
             <span
               className="logo-text"
               style={{ display: 'block', fontSize: '1.5rem', fontWeight: 700, marginTop: '0.25rem' }}
@@ -96,7 +96,9 @@ export default function SignupPage() {
               border: '1px solid rgba(34,197,94,0.2)',
             }}
           >
-            <p style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>🎉</p>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+              <span className="jerni-logo-mask" style={{ width: '2.5rem', height: '2.5rem', color: '#22c55e' }}></span>
+            </div>
             <p style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Account created!</p>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.875rem' }}>
               Check your email for a confirmation link, then{' '}

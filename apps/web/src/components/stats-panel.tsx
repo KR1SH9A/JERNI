@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useJourneySocket } from '@/lib/use-journey-socket';
 import type { JourneyStatsReadModel, TodayBoardEntry, LeaderboardEntry } from '@jerni/shared-types';
 
 interface StatsPanelProps {
@@ -24,32 +25,65 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
   );
 }
 
+/** Small animated dot shown when the socket connection is live. */
+function LiveIndicator() {
+  return (
+    <span
+      title="Live updates active"
+      aria-label="Live"
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: '#34d399' }}
+    >
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          background: '#34d399',
+          display: 'inline-block',
+          animation: 'live-pulse 1.8s ease-in-out infinite',
+        }}
+      />
+      Live
+    </span>
+  );
+}
+
 export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
   const [stats, setStats] = useState<JourneyStatsReadModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'today' | 'alltime'>('today');
 
-  useEffect(() => {
-    let cancelled = false;
+  /** Fetch (or re-fetch) stats from the REST endpoint — the source of truth. */
+  const loadStats = useCallback(() => {
     setLoading(true);
     fetch(`/api/journeys/${journeyId}/stats`)
       .then((r) => r.json())
       .then((data: JourneyStatsReadModel) => {
-        if (!cancelled) {
-          setStats(data);
-          setLoading(false);
-        }
+        setStats(data);
+        setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       });
-    return () => { cancelled = true; };
   }, [journeyId]);
+
+  // Initial load
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+
+  // Real-time: re-fetch whenever any member completes/uncompletes a task
+  const { isConnected } = useJourneySocket(journeyId, {
+    onStatsUpdated: loadStats,
+  });
 
   return (
     <section className="stats-panel card" aria-label="Journey stats">
       <div className="stats-header">
-        <h2 className="stats-title">📊 Journey Stats</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <h2 className="stats-title">Journey Stats</h2>
+          {isConnected && <LiveIndicator />}
+        </div>
         <div className="stats-tabs" role="tablist">
           <button
             role="tab"
@@ -130,12 +164,12 @@ function Leaderboard({ entries }: { entries: LeaderboardEntry[] }) {
       {entries.map((e, i) => (
         <li key={e.userId} className="stats-row">
           <span className="stats-rank">
-            {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+            {`#${i + 1}`}
           </span>
           <span className="stats-name">{e.displayName}</span>
           <div className="stats-meta">
-            <span title="Milestones">🏁 {e.milestonesCompleted}</span>
-            <span title="Recurring today">🔁 {e.recurringDoneToday}</span>
+            <span title="Milestones">Milestones: {e.milestonesCompleted}</span>
+            <span title="Recurring today">Recurring today: {e.recurringDoneToday}</span>
           </div>
         </li>
       ))}

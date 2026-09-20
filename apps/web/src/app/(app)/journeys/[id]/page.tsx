@@ -195,7 +195,7 @@ export default async function JourneyDetailPage({
               {journey.status}
             </span>
             <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', textAlign: 'center' }}>
-              📋 {journey.taskCount} tasks
+              Tasks: {journey.taskCount}
             </span>
 
             {/* Like button — now with correct initial state */}
@@ -257,7 +257,7 @@ export default async function JourneyDetailPage({
                       }}
                     >
                       <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>
-                        {task.kind === 'RECURRING' ? '🔁' : '◻️'}
+                        {task.kind === 'RECURRING' ? 'O' : '◻'}
                       </span>
                       <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
                       <span className={`badge ${task.kind.toLowerCase()}`}>

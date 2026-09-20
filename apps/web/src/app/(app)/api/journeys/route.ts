@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from '@/lib/auth';
 
-const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
 /**
  * POST /api/journeys — Create a new journey.
@@ -9,7 +9,7 @@ const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
  */
 export async function POST(req: NextRequest) {
   const token = getToken(req);
-  console.log('[route.ts] Token being sent to NestJS:', token ? `${token.substring(0, 15)}...` : 'null');
+  // console.log('[route.ts] Token being sent to NestJS:', token ? `${token.substring(0, 15)}...` : 'null');
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));

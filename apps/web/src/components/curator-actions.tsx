@@ -56,7 +56,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
   return (
     <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-        <span className="curator-bar-label">✨ You are the curator of this journey</span>
+        <span className="curator-bar-label">You are the curator of this journey</span>
         
         {status === 'DRAFT' && (
           <>

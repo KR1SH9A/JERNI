@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -18,7 +19,7 @@ export const CONFIG = {
 }
 /* ────────────────────────────────────────────── */
 
-const loadImg = (src) =>
+const loadImg = (src: string): Promise<HTMLImageElement> =>
   new Promise((res, rej) => {
     const i = new Image()
     i.onload = () => res(i)
@@ -26,13 +27,26 @@ const loadImg = (src) =>
     i.src = src
   })
 
+interface ArtworkConfig {
+  logoSrc: string;
+  ribbonSrc: string;
+  logoColor: string;
+  ribbonColor: string;
+}
+
+interface ArtworkResult {
+  ribbon: HTMLCanvasElement;
+  logo: HTMLCanvasElement;
+  logoAspect: number;
+}
+
 /**
  * Loads both images and paints them onto canvases:
  *  - the logo, recoloured (white by default)
  *  - the ribbon tile: your PNG cropped to its lettering, on a solid colour
  */
-function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }) {
-  const [art, setArt] = useState(null)
+function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }: ArtworkConfig) {
+  const [art, setArt] = useState<ArtworkResult | null>(null)
 
   useEffect(() => {
     let dead = false
@@ -44,6 +58,7 @@ function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }) {
       probe.width = ribbonImg.width
       probe.height = ribbonImg.height
       const pc = probe.getContext('2d', { willReadFrequently: true })
+      if (!pc) return
       pc.drawImage(ribbonImg, 0, 0)
       const px = pc.getImageData(0, 0, probe.width, probe.height).data
       let x0 = probe.width, y0 = probe.height, x1 = 0, y1 = 0
@@ -65,7 +80,8 @@ function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }) {
       const ribbon = document.createElement('canvas')
       ribbon.width = Math.round((bw + padX * 2) * S)
       ribbon.height = Math.round((bh + padY * 2) * S)
-      let c = ribbon.getContext('2d')
+      const c = ribbon.getContext('2d')
+      if (!c) return
       c.fillStyle = ribbonColor
       c.fillRect(0, 0, ribbon.width, ribbon.height)
       c.imageSmoothingQuality = 'high'
@@ -76,11 +92,12 @@ function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }) {
       const logo = document.createElement('canvas')
       logo.width = 2048
       logo.height = Math.round(2048 / logoAspect)
-      c = logo.getContext('2d')
-      c.drawImage(logoImg, 0, 0, logo.width, logo.height)
-      c.globalCompositeOperation = 'source-in'
-      c.fillStyle = logoColor
-      c.fillRect(0, 0, logo.width, logo.height)
+      const lc = logo.getContext('2d')
+      if (!lc) return
+      lc.drawImage(logoImg, 0, 0, logo.width, logo.height)
+      lc.globalCompositeOperation = 'source-in'
+      lc.fillStyle = logoColor
+      lc.fillRect(0, 0, logo.width, logo.height)
 
       setArt({ ribbon, logo, logoAspect })
     })
@@ -90,17 +107,21 @@ function useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor }) {
   return art
 }
 
-function Scene({ art }) {
+interface SceneProps {
+  art: ArtworkResult;
+}
+
+function Scene({ art }: SceneProps) {
   const gl = useThree((s) => s.gl)
-  const tilter = useRef()
-  const logoRef = useRef()
+  const tilter = useRef<THREE.Group>(null)
+  const logoRef = useRef<THREE.Mesh>(null)
   const look = useRef({ x: 0, y: 0 })
   const boost = useRef(0)
   const reduce = useRef(false)
 
   useEffect(() => {
     reduce.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const onWheel = (e) => { boost.current += e.deltaY * 0.004 }
+    const onWheel = (e: WheelEvent) => { boost.current += e.deltaY * 0.004 }
     window.addEventListener('wheel', onWheel, { passive: true })
     return () => window.removeEventListener('wheel', onWheel)
   }, [])
@@ -108,7 +129,7 @@ function Scene({ art }) {
   // textures + wavy geometry, rebuilt only when the artwork changes
   const built = useMemo(() => {
     const aniso = gl.capabilities.getMaxAnisotropy()
-    const makeTex = (canvas) => {
+    const makeTex = (canvas: HTMLCanvasElement) => {
       const t = new THREE.CanvasTexture(canvas)
       t.colorSpace = THREE.SRGBColorSpace
       t.anisotropy = aniso
@@ -139,7 +160,7 @@ function Scene({ art }) {
       theta[i] = Math.atan2(pos.getX(i), pos.getZ(i))
     }
     const W = Math.round(CONFIG.waveCount)
-    const wave = (t) => {
+    const wave = (t: number) => {
       for (let i = 0; i < pos.count; i++) {
         const a = theta[i]
         const w =
@@ -179,11 +200,15 @@ function Scene({ art }) {
     // pointer parallax
     look.current.x += (state.pointer.x - look.current.x) * 0.06
     look.current.y += (-state.pointer.y - look.current.y) * 0.06
-    tilter.current.rotation.x = CONFIG.tilt + look.current.y * 0.12
-    tilter.current.rotation.y = look.current.x * 0.22
-    logoRef.current.rotation.y = look.current.x * 0.12
-    logoRef.current.rotation.x = look.current.y * 0.06
-    logoRef.current.position.y = reduce.current ? 0 : Math.sin(t * 0.9) * 0.05
+    if (tilter.current) {
+      tilter.current.rotation.x = CONFIG.tilt + look.current.y * 0.12
+      tilter.current.rotation.y = look.current.x * 0.22
+    }
+    if (logoRef.current) {
+      logoRef.current.rotation.y = look.current.x * 0.12
+      logoRef.current.rotation.x = look.current.y * 0.06
+      logoRef.current.position.y = reduce.current ? 0 : Math.sin(t * 0.9) * 0.05
+    }
   })
 
   return (
@@ -208,7 +233,7 @@ function Scene({ art }) {
 
 /** Keeps the whole belt in view on any screen shape. */
 function FitCamera() {
-  const camera = useThree((s) => s.camera)
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
   const size = useThree((s) => s.size)
   useEffect(() => {
     const R = CONFIG.radius
@@ -222,15 +247,25 @@ function FitCamera() {
   return null
 }
 
+export interface JerniBeltProps {
+  logoSrc?: string;
+  ribbonSrc?: string;
+  bg?: string;
+  logoColor?: string;
+  ribbonColor?: string;
+  className?: string;
+  style?: CSSProperties;
+}
+
 export default function JerniBelt({
   logoSrc = '/jerni-logo.svg',
   ribbonSrc = '/work-2.png',
-  bg = '#7a68a8',
-  logoColor = '#ffffff',
-  ribbonColor = '#ffcf33',
+  bg = '#F8F6F0',
+  logoColor = '#0C5A4A',
+  ribbonColor = '#f0a5c3',
   className,
   style,
-}) {
+}: JerniBeltProps) {
   const art = useArtwork({ logoSrc, ribbonSrc, logoColor, ribbonColor })
 
   return (
