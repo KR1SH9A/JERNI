@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from '@/lib/auth';
+import { proxyFetch } from '@/lib/proxy-fetch';
 
 const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
 
@@ -17,11 +18,15 @@ export async function PATCH(
 
   const body = await req.json().catch(() => ({}));
 
-  const res = await fetch(`${API_BASE}/journeys/${id}`, {
-    method: 'PATCH',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const res = await proxyFetch(
+    `${API_BASE}/journeys/${id}`,
+    {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    `PATCH /journeys/${id}`,
+  );
 
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });

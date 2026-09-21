@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from '@/lib/auth';
+import { proxyFetch } from '@/lib/proxy-fetch';
 
 const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
 
@@ -22,14 +23,15 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const res = await fetch(`${API_BASE}/journeys/${id}/tasks`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+  const res = await proxyFetch(
+    `${API_BASE}/journeys/${id}/tasks`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  });
+    `POST /journeys/${id}/tasks`,
+  );
 
   const data = await res.json().catch(() => ({}));
   return NextResponse.json(data, { status: res.status });
