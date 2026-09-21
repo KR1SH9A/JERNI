@@ -45,25 +45,26 @@
   --font-script: 'Flaviotte', cursive;
 
   /* Surfaces */
-  --color-bg:        #F8F6F0; /* Warm off-white */
-  --color-surface:   #FFFFFF; /* White */
-  --color-surface-2: #F0EDE5;
-  --color-border:    #E2DCD0;
+  --color-bg:        #000F0F; /* Rich Black */
+  --color-surface:   #0a1414; /* Slightly lighter for cards */
+  --color-surface-2: #142828;
+  --color-border:    #1f3d3d;
 
   /* Text */
-  --color-text:      #0C5A4A; /* Dark teal */
-  --color-muted:     #8FB1A6;
-  --color-muted-2:   #AEC7BF;
+  --color-text:      #FFFFFF; /* Pure White */
+  --color-muted:     #A0AAB2;
+  --color-muted-2:   #73838E;
 
   /* Accents */
-  --color-accent:       #14A185; /* Vibrant teal */
-  --color-accent-hover: #0F8069;
-  --color-accent-glow:  rgba(20, 161, 133, 0.15);
+  --color-accent:       #68C7EC; /* Pale Azure */
+  --color-accent-hover: #4ea8cc;
+  --color-accent-glow:  rgba(104, 199, 236, 0.15);
 
   /* Semantic */
-  --color-success: #14A185;
-  --color-warning: #f59e0b;
-  --color-error:   #E65296; /* Magenta */
+  --color-success: #008080; /* Teal */
+  --color-warning: #FFA500; /* Orange */
+  --color-error:   #D2042D; /* Cherry Red */
+  --color-info:    #00FFFF; /* Aqua */
 
   /* Gradients */
   --gradient-hero:   linear-gradient(135deg, #14A185 0%, #E65296 100%);
@@ -143,7 +144,7 @@ img, video { max-width: 100%; display: block; }
   top: 0;
   left: 0;
   background: var(--color-bg);
-  border-right: 1px solid var(--color-border);
+  /* Removed border-right for a seamless blend */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -248,6 +249,26 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 1.5em;
   color: var(--color-error); /* Crimson pop */
   line-height: 0.8;
+}
+
+/* Swiss Style Typography Utilities */
+.heading-swiss-hero {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: clamp(4rem, 10vw, 8.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.text-swiss-lead {
+  font-family: var(--font-sans);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-muted);
 }
 
 /* Redis Agency inspired grid */
