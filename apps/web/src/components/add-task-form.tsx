@@ -37,6 +37,10 @@ export function AddTaskForm({ journeyId }: AddTaskFormProps) {
         });
 
         if (!res.ok) {
+          if (res.status === 401) {
+            setError('Your session has expired. Please sign in again to add tasks.');
+            return;
+          }
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Failed to add task');
         }

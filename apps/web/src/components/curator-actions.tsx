@@ -42,6 +42,10 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
         });
 
         if (!res.ok) {
+          if (res.status === 401) {
+            setError('Your session has expired. Please sign in again.');
+            return;
+          }
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? `Failed to ${action} journey`);
         }

@@ -260,7 +260,7 @@ export interface JerniBeltProps {
 
 function PostProcessingEffects() {
   return (
-    <EffectComposer disableNormalPass>
+    <EffectComposer enableNormalPass={false}>
       <Bloom luminanceThreshold={0.1} luminanceSmoothing={0.9} intensity={0.2} />
     </EffectComposer>
   )

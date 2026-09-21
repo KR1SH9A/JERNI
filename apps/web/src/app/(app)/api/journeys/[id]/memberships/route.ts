@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from '@/lib/auth';
+import { proxyFetch } from '@/lib/proxy-fetch';
 
 const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
 
@@ -15,10 +16,11 @@ export async function POST(
   const token = getToken(req);
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const res = await fetch(`${API_BASE}/journeys/${id}/memberships`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-  });
+  const res = await proxyFetch(
+    `${API_BASE}/journeys/${id}/memberships`,
+    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    `POST /journeys/${id}/memberships`,
+  );
 
   const body = await res.json().catch(() => ({}));
   return NextResponse.json(body, { status: res.status });
@@ -35,10 +37,11 @@ export async function DELETE(
   const token = getToken(req);
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const res = await fetch(`${API_BASE}/journeys/${id}/memberships/me`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await proxyFetch(
+    `${API_BASE}/journeys/${id}/memberships/me`,
+    { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } },
+    `DELETE /journeys/${id}/memberships/me`,
+  );
 
   return new NextResponse(null, { status: res.status });
 }
