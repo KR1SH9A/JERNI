@@ -32,7 +32,10 @@ export class RealtimeService {
     const memberRoom = `journey:${journeyId}`;
     const observerRoom = `journey:${journeyId}:observe`;
 
-    this.server.of('/journeys').to(memberRoom).to(observerRoom).emit(event, payload);
+    // this.server is already the /journeys namespace (injected by @WebSocketServer()
+    // inside a @WebSocketGateway({ namespace: '/journeys' }) class). Calling .of()
+    // on a namespace returns undefined and throws. Emit directly on this.server.
+    this.server.to(memberRoom).to(observerRoom).emit(event, payload);
     this.logger.debug(`Emitted "${event}" to rooms [${memberRoom}, ${observerRoom}]`);
   }
 }

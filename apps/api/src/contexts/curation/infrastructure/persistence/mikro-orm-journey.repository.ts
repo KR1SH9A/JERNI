@@ -159,23 +159,27 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
 
     if (orms.length === 0) return [];
 
-    // Live member count — one raw query for all journey IDs at once
+    // Live member count — one raw query for all journey IDs at once.
+    //
+    // Bug fix: MikroORM execute() with ANY(?) and a JS array parameter
+    // sends the array as a bare comma-separated string, which PostgreSQL
+    // rejects with syntax error 42601. Using the explicit pg-native ARRAY[]
+    // constructor with positional $1 parameter instead.
     const journeyIds = orms.map((o) => o.id);
+    const placeholders = journeyIds.map((_, i) => `$${i + 1}`).join(', ');
     const countRows = await em.getConnection().execute<
       { journey_id: string; member_count: string }[]
     >(
-      `
-      SELECT journey_id, COUNT(*) AS member_count
-      FROM memberships
-      WHERE journey_id = ANY(?) AND status = 'ACTIVE'
-      GROUP BY journey_id
-      `,
-      [journeyIds],
+      `SELECT journey_id, COUNT(*)::int AS member_count
+       FROM memberships
+       WHERE journey_id IN (${placeholders}) AND status = 'ACTIVE'
+       GROUP BY journey_id`,
+      journeyIds,
     );
 
     const countMap = new Map<string, number>(
-      countRows.map((r: { journey_id: string; member_count: string }) =>
-        [r.journey_id, parseInt(r.member_count, 10)] as [string, number],
+      countRows.map((r: { journey_id: string; member_count: string | number }) =>
+        [r.journey_id, Number(r.member_count)] as [string, number],
       ),
     );
 
