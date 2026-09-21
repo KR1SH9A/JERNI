@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
 /* ── Tweak these ─────────────────────────────── */
 export const CONFIG = {
@@ -207,7 +208,7 @@ function Scene({ art }: SceneProps) {
     if (logoRef.current) {
       logoRef.current.rotation.y = look.current.x * 0.12
       logoRef.current.rotation.x = look.current.y * 0.06
-      logoRef.current.position.y = reduce.current ? 0 : Math.sin(t * 0.9) * 0.05
+      logoRef.current.position.y = 0 // No vertical bobbing
     }
   })
 
@@ -257,12 +258,20 @@ export interface JerniBeltProps {
   style?: CSSProperties;
 }
 
+function PostProcessingEffects() {
+  return (
+    <EffectComposer disableNormalPass>
+      <Bloom luminanceThreshold={0.1} luminanceSmoothing={0.9} intensity={0.2} />
+    </EffectComposer>
+  )
+}
+
 export default function JerniBelt({
   logoSrc = '/jerni-logo.svg',
-  ribbonSrc = '/work-2.png',
-  bg = '#F8F6F0',
-  logoColor = '#0C5A4A',
-  ribbonColor = '#f0a5c3',
+  ribbonSrc = '/work-1.png',
+  bg = '#000000ff',
+  logoColor = '#ffffffff',
+  ribbonColor = '#ffffffff',
   className,
   style,
 }: JerniBeltProps) {
@@ -273,6 +282,7 @@ export default function JerniBelt({
       <Canvas camera={{ fov: 35, position: [0, 0, 8] }} dpr={[1, 2]} gl={{ alpha: true }}>
         <FitCamera />
         {art && <Scene art={art} />}
+        <PostProcessingEffects />
       </Canvas>
     </div>
   )
