@@ -28,6 +28,7 @@ import {
 } from '../../application/use-cases/journey.queries';
 import { CreateJourneyDto, AddTaskDto, UpdateJourneyDto } from './curation.dto';
 
+
 @ApiTags('Journeys')
 @Controller('journeys')
 export class CurationController {
@@ -40,7 +41,7 @@ export class CurationController {
     private readonly discoverFeed: GetDiscoverFeedQuery,
     private readonly journeyDetail: GetJourneyDetailQuery,
     private readonly myJourneys: GetMyJourneysQuery,
-  ) {}
+  ) { }
 
   // ── Public routes ────────────────────────────────────────────────────────
 
@@ -75,6 +76,8 @@ export class CurationController {
   async getMine(@CurrentUser() user: AuthenticatedUser) {
     return this.myJourneys.execute(user.id);
   }
+
+
 
   /**
    * GET /journeys/:id — Journey detail (public, no auth required for public journeys).
@@ -121,9 +124,13 @@ export class CurationController {
       requestedBy: user.id,
       ...dto,
     });
+    const newTask = journey.taskDefinitions[journey.taskDefinitions.length - 1];
     return {
-      journeyId: journey.id.value,
-      taskCount: journey.taskDefinitions.length,
+      id: newTask.id,
+      title: newTask.title,
+      orderIndex: newTask.orderIndex,
+      kind: newTask.kind,
+      recurrenceRule: newTask.recurrenceRule,
     };
   }
 

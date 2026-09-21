@@ -9,6 +9,12 @@ export interface MembershipRepository {
    */
   findActive(journeyId: JourneyId, userId: UserId): Promise<Membership | null>;
 
+  /**
+   * Find all ACTIVE memberships for a given user across all journeys.
+   * Used to build the "journeys I joined" section on the user dashboard.
+   */
+  findAllActiveByUserId(userId: UserId): Promise<Membership[]>;
+
   /** Persist a membership (create or update). */
   save(membership: Membership): Promise<void>;
 }

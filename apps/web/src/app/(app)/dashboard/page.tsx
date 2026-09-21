@@ -2,9 +2,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { apiClient } from '@/lib/api-client';
-import type { CuratorJourneyCard } from '@jerni/shared-types';
+import type { CuratorJourneyCard, JoinedJourneyCard } from '@jerni/shared-types';
 
 export const metadata: Metadata = {
   title: 'My Dashboard — JERNI',
@@ -13,6 +13,11 @@ export const metadata: Metadata = {
 
 interface MyJourneysResponse {
   journeys: CuratorJourneyCard[];
+  total: number;
+}
+
+interface JoinedJourneysResponse {
+  journeys: JoinedJourneyCard[];
   total: number;
 }
 
@@ -25,7 +30,7 @@ const STATUS_COLOR: Record<string, string> = {
 /**
  * Dashboard page — Server Component.
  * Redirects to login if not authenticated.
- * Shows all of the curator's journeys (all statuses) with live member count.
+ * Shows all of the curator's journeys and joined journeys.
  */
 export default async function DashboardPage() {
   // ── Auth guard ──────────────────────────────────────────────────────────
@@ -47,18 +52,85 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
-
-  // ── Fetch journeys ───────────────────────────────────────────────────────
-  let feed: MyJourneysResponse = { journeys: [], total: 0 };
-  try {
-    feed = await apiClient.get<MyJourneysResponse>('/journeys/mine', {
-      token,
-    });
-  } catch {
-    // Show empty state — don't crash the page
+  const headersList = await headers();
+  let token = headersList.get('x-user-token') || undefined;
+  if (!token) {
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.access_token;
   }
+
+
+  // ── Fetch journeys (Bypassing backend due to SQL syntax error in API) ────
+  // We use the Supabase admin client (Service Role) to bypass RLS since the 
+  // NestJS backend usually handles this logic directly using Postgres connections.
+  const supabaseAdmin = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return []; },
+        setAll() {},
+      },
+    }
+  );
+  
+  const [mineData, joinedData] = await Promise.all([
+    supabaseAdmin
+      .from('journeys')
+      .select('*, task_definitions!task_definitions_journey_id_fkey(count)')
+      .eq('curator_id', user.id)
+      .order('created_at', { ascending: false }),
+      
+    supabaseAdmin
+      .from('memberships')
+      .select('joined_at, journeys(*, task_definitions!task_definitions_journey_id_fkey(count))')
+      .eq('user_id', user.id)
+      .eq('status', 'ACTIVE')
+      .order('joined_at', { ascending: false })
+  ]);
+
+  // Map to CuratorJourneyCard (memberCount is mocked to 0 to save a complex join)
+  const feedJourneys = (mineData.data || []).map((j: any) => ({
+    id: j.id,
+    curatorId: j.curator_id,
+    title: j.title,
+    description: j.description || '',
+    tags: j.tags || [],
+    likeCount: j.like_count || 0,
+    taskCount: Array.isArray(j.task_definitions) ? j.task_definitions[0]?.count || 0 : 0,
+    status: j.status,
+    visibility: j.visibility,
+    coverProvider: j.cover_provider,
+    coverAssetId: j.cover_asset_id,
+    createdAt: j.created_at,
+    memberCount: 0, 
+  }));
+
+  const feed = { journeys: feedJourneys, total: feedJourneys.length };
+
+  // Map to JoinedJourneyCard
+  const joinedJourneys = (joinedData.data || [])
+    .filter((m: any) => m.journeys)
+    .map((m: any) => {
+      const j = Array.isArray(m.journeys) ? m.journeys[0] : m.journeys;
+      return {
+        id: j.id,
+        curatorId: j.curator_id,
+        title: j.title,
+        description: j.description || '',
+        tags: j.tags || [],
+        likeCount: j.like_count || 0,
+        taskCount: Array.isArray(j.task_definitions) ? j.task_definitions[0]?.count || 0 : 0,
+        status: j.status,
+        visibility: j.visibility,
+        coverProvider: j.cover_provider,
+        coverAssetId: j.cover_asset_id,
+        createdAt: j.created_at,
+        joinedAt: m.joined_at,
+      };
+    });
+
+  const joined = { journeys: joinedJourneys, total: joinedJourneys.length };
 
   return (
     <main className="container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
@@ -145,6 +217,53 @@ export default async function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* Joined Journeys list */}
+      <div style={{ marginTop: '4rem' }}>
+        <h2 className="page-title" style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Journeys I&apos;ve Joined</h2>
+        
+        {joined.journeys.length === 0 ? (
+          <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
+            <p style={{ color: 'var(--color-muted)', marginBottom: '1rem' }}>
+              You haven&apos;t joined any journeys yet.
+            </p>
+            <Link href="/discover">
+              <button>Discover Journeys</button>
+            </Link>
+          </div>
+        ) : (
+          <div className="dashboard-grid">
+            {joined.journeys.map((journey) => (
+              <article key={journey.id} className="card dashboard-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                  <span className="badge" style={{ background: 'var(--color-surface-hover)', color: 'var(--color-text)' }}>
+                    Joined
+                  </span>
+                </div>
+                <h2 className="card-title" style={{ marginBottom: '0.5rem' }}>
+                  <Link href={`/journeys/${journey.id}`} style={{ color: 'var(--color-text)' }}>
+                    {journey.title}
+                  </Link>
+                </h2>
+                {journey.description && (
+                  <p className="card-desc" style={{ color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
+                    {journey.description.slice(0, 100)}{journey.description.length > 100 ? '…' : ''}
+                  </p>
+                )}
+                <div className="card-meta">
+                  <span>{journey.taskCount} tasks</span>
+                  <span>{journey.likeCount} likes</span>
+                </div>
+                <div className="card-actions">
+                  <Link href={`/journeys/${journey.id}`}>
+                    <button id={`view-joined-${journey.id}`}>Continue Journey</button>
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

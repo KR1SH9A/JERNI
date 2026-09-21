@@ -3,13 +3,14 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { JoinButton } from '@/components/join-button';
 import { LikeButton } from '@/components/like-button';
 import { TaskChecklist } from '@/components/task-checklist';
 import { StatsPanel } from '@/components/stats-panel';
 import { CuratorActions } from '@/components/curator-actions';
 import { AddTaskForm } from '@/components/add-task-form';
+import { TaskManager } from '@/components/task-manager';
 
 interface TaskReadModel {
   id: string;
@@ -97,8 +98,12 @@ export default async function JourneyDetailPage({
     },
   );
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const headersList = await headers();
+  let token = headersList.get('x-user-token') || undefined;
+  if (!token) {
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.access_token;
+  }
   const userId = user?.id;
   const isCurator = Boolean(userId && userId === journey.curatorId);
 
@@ -144,10 +149,10 @@ export default async function JourneyDetailPage({
 
       {/* ── Curator action bar ──────────────────────────────────────────── */}
       {isCurator && (
-        <CuratorActions 
-          journeyId={journey.id} 
-          status={journey.status} 
-          taskCount={journey.taskCount} 
+        <CuratorActions
+          journeyId={journey.id}
+          status={journey.status}
+          taskCount={journey.taskCount}
         />
       )}
 
@@ -183,7 +188,7 @@ export default async function JourneyDetailPage({
               </p>
             )}
             <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-              {journey.tags.map((tag) => (
+              {Array.from(new Set(journey.tags)).map((tag) => (
                 <span key={tag} className="badge">{tag}</span>
               ))}
             </div>
@@ -224,66 +229,15 @@ export default async function JourneyDetailPage({
           Tasks
         </h2>
 
-        {journey.tasks.length === 0 && (
-          <p style={{ color: 'var(--color-muted)' }}>No tasks yet.</p>
-        )}
-
-        {journey.tasks.length > 0 && (
-          <>
-            {/* Interactive checklist — only for members */}
-            {token && initialIsMember ? (
-              <TaskChecklist
-                journeyId={journey.id}
-                tasks={journey.tasks}
-                initialCompletions={initialCompletions}
-                isReadOnly={journey.status !== 'PUBLISHED'}
-              />
-            ) : (
-              /* Read-only task list for non-members */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: token ? 1 : 0.8 }}>
-                {[...journey.tasks]
-                  .sort((a, b) => a.orderIndex - b.orderIndex)
-                  .map((task) => (
-                    <div
-                      key={task.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px 16px',
-                        borderRadius: 'var(--radius)',
-                        background: 'var(--color-surface)',
-                        border: '1px solid var(--color-border)',
-                      }}
-                    >
-                      <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>
-                        {task.kind === 'RECURRING' ? 'O' : '◻'}
-                      </span>
-                      <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
-                      <span className={`badge ${task.kind.toLowerCase()}`}>
-                        {task.kind === 'RECURRING' ? 'daily' : 'milestone'}
-                      </span>
-                    </div>
-                  ))}
-                {!token && journey.status === 'PUBLISHED' && (
-                  <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
-                    <Link href="/auth/login">Sign in</Link> and join this journey to track your progress.
-                  </p>
-                )}
-                {token && !initialIsMember && journey.status === 'PUBLISHED' && (
-                  <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
-                    Join this journey to start tracking your progress.
-                  </p>
-                )}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Add Task Form — only for the curator on DRAFT or PUBLISHED journeys */}
-        {isCurator && journey.status !== 'ARCHIVED' && (
-          <AddTaskForm journeyId={journey.id} />
-        )}
+        <TaskManager
+          journeyId={journey.id}
+          initialTasks={journey.tasks}
+          initialCompletions={initialCompletions}
+          token={token}
+          initialIsMember={initialIsMember}
+          status={journey.status}
+          isCurator={isCurator}
+        />
       </section>
 
       {/* ── Stats panel ────────────────────────────────────────────────── */}

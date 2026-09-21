@@ -22,7 +22,7 @@ export class ParticipationController {
     private readonly joinJourney: JoinJourneyUseCase,
     private readonly leaveJourney: LeaveJourneyUseCase,
     private readonly membershipStatus: GetMembershipStatusQuery,
-  ) {}
+  ) { }
 
   /**
    * POST /journeys/:id/memberships — Join a journey.

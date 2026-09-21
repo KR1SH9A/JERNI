@@ -17,6 +17,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [currentStatus, setCurrentStatus] = useState(status);
 
   const handleAction = (action: 'publish' | 'archive') => {
     if (isPending) return;
@@ -50,7 +51,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           throw new Error(body?.message ?? `Failed to ${action} journey`);
         }
 
-        router.refresh();
+        setCurrentStatus(action === 'publish' ? 'PUBLISHED' : 'ARCHIVED');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error');
       }
@@ -61,8 +62,8 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
     <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
         <span className="curator-bar-label">You are the curator of this journey</span>
-        
-        {status === 'DRAFT' && (
+
+        {currentStatus === 'DRAFT' && (
           <>
             <button
               className="btn-sm"
@@ -78,7 +79,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           </>
         )}
 
-        {status === 'PUBLISHED' && (
+        {currentStatus === 'PUBLISHED' && (
           <button
             className="btn-sm"
             onClick={() => handleAction('archive')}
@@ -93,7 +94,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           <button className="btn-sm" id="curator-dashboard-btn" disabled={isPending}>Dashboard</button>
         </Link>
       </div>
-      
+
       {error && (
         <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', width: '100%' }}>
           {error}

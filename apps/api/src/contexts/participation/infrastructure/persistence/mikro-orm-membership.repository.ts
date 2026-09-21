@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, QueryOrder } from '@mikro-orm/core';
 import { MembershipRepository } from '../../application/ports/membership.repository';
 import { Membership } from '../../domain/membership.aggregate';
 import { JourneyId } from '../../../../shared-kernel/value-objects/journey-id.vo';
@@ -22,6 +22,14 @@ export class MikroOrmMembershipRepository implements MembershipRepository {
     });
     if (!orm) return null;
     return this.toDomain(orm);
+  }
+
+  async findAllActiveByUserId(userId: UserId): Promise<Membership[]> {
+    const orms = await this.repo.find(
+      { userId: userId.value, status: 'ACTIVE' },
+      { orderBy: { joinedAt: QueryOrder.DESC } },
+    );
+    return orms.map((o) => this.toDomain(o));
   }
 
   async save(membership: Membership): Promise<void> {
