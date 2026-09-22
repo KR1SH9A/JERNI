@@ -259,7 +259,7 @@ export default function JerniBelt({
       style={{
         width: '100%',
         height: '100%',
-        background: '#000000ff',
+        background: '#ffce39ff',
         ...style
       }}
     >
@@ -272,7 +272,6 @@ export default function JerniBelt({
         </React.Suspense>
         <FitCamera />
         {art && < Scene art={art} />}
-        <PostProcessingEffects />
       </Canvas>
     </div>
   )
