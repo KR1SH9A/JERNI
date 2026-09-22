@@ -8,12 +8,8 @@ interface JoinButtonProps {
 }
 
 /**
- * JoinButton — client component for joining/leaving a journey.
- *
- * Calls the Next.js route handler (not NestJS directly), so the JWT
- * never touches this component or the browser bundle.
- *
- * Optimistic UI: toggles state immediately, rolls back on error.
+ * JoinButton — optimistic join/leave toggle with proper loading and hover states.
+ * JWT is handled server-side through the Next.js route handler.
  */
 export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
   const [isMember, setIsMember] = useState(initialIsMember);
@@ -27,17 +23,14 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
     const nextState = !isMember;
 
     startTransition(async () => {
-      // Optimistic update
       setIsMember(nextState);
-
       try {
         const res = await fetch(`/api/journeys/${journeyId}/memberships`, {
           method: nextState ? 'POST' : 'DELETE',
         });
-
         if (!res.ok) {
           if (res.status === 401) {
-            setIsMember(!nextState); // roll back
+            setIsMember(!nextState);
             setSessionExpired(true);
             return;
           }
@@ -45,7 +38,6 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
           throw new Error(body?.message ?? 'Something went wrong');
         }
       } catch (err) {
-        // Roll back optimistic update on error
         setIsMember(!nextState);
         setError(err instanceof Error ? err.message : 'Failed to update membership');
       }
@@ -60,38 +52,35 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
         disabled={isPending}
         aria-busy={isPending}
         aria-label={isMember ? 'Leave journey' : 'Join journey'}
-        style={{
-          padding: '10px 24px',
-          borderRadius: '8px',
-          cursor: isPending ? 'not-allowed' : 'pointer',
-          fontWeight: 600,
-          fontSize: '15px',
-          opacity: isPending ? 0.7 : 1,
-          background: isMember ? 'transparent' : 'var(--color-primary, #6366f1)',
-          color: isMember ? 'var(--color-text-secondary, #888)' : '#fff',
-          border: isMember ? '1.5px solid var(--color-border, #333)' : 'none',
-          transition: 'all 0.15s ease',
-        }}
+        className={`join-btn${isMember ? ' is-member' : ' btn-primary'}`}
+        style={{ opacity: isPending ? 0.6 : 1 }}
       >
-        {isPending ? '...' : isMember ? 'Leave Journey' : 'Join Journey'}
+        {isPending ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{
+              width: '12px', height: '12px',
+              border: `2px solid ${isMember ? 'rgba(52,211,153,0.3)' : 'rgba(5,19,26,0.3)'}`,
+              borderTopColor: isMember ? '#34d399' : '#05131a',
+              borderRadius: '50%',
+              display: 'inline-block',
+              animation: 'spin 0.6s linear infinite',
+            }} />
+          </span>
+        ) : isMember ? '✓ Joined' : 'Join Journey'}
       </button>
 
       {sessionExpired && (
-        <p role="alert" style={{ fontSize: '13px', color: '#ef4444', marginTop: '6px' }}>
-          Your session has expired.{' '}
-          <a
-            href={`/auth/login?returnTo=${encodeURIComponent(typeof window !== 'undefined' ? window.location.pathname : '')}`}
-            style={{ textDecoration: 'underline' }}
-          >
-            Sign in again
-          </a>
+        <p role="alert" style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.35rem', textAlign: 'center' }}>
+          Session expired.{' '}
+          <a href="/auth/login" style={{ color: '#f87171', textDecoration: 'underline' }}>Sign in</a>
         </p>
       )}
       {error && (
-        <p role="alert" style={{ color: 'var(--color-error, #ef4444)', fontSize: '13px', marginTop: '6px' }}>
+        <p role="alert" style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.35rem', textAlign: 'center' }}>
           {error}
         </p>
       )}
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

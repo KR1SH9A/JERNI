@@ -8024,12 +8024,48 @@
         },
         {
           "columnNames": [
+            "bucket_id",
+            "name"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_objects_current_version",
+          "unique": true,
+          "primary": false,
+          "expression": "CREATE UNIQUE INDEX idx_objects_current_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (archived_at IS NULL)"
+        },
+        {
+          "columnNames": [
+            "bucket_id",
+            "name"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_objects_null_version",
+          "unique": true,
+          "primary": false,
+          "expression": "CREATE UNIQUE INDEX idx_objects_null_version ON storage.objects USING btree (bucket_id, name COLLATE \"C\") WHERE (NOT is_versioned)"
+        },
+        {
+          "columnNames": [
             "name"
           ],
           "composite": false,
           "constraint": false,
           "keyName": "name_prefix_search",
           "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "bucket_id",
+            "name",
+            "version"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "objects_bucket_id_name_version_key",
+          "unique": true,
           "primary": false
         },
         {
@@ -8375,6 +8411,269 @@
           "constraintName": "one_time_tokens_user_id_fkey",
           "localTableName": "auth.one_time_tokens",
           "referencedTableName": "auth.users",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "updateRule": "no action",
+          "deleteRule": "cascade"
+        }
+      },
+      "nativeEnums": {
+        "auth.aal_level": {
+          "name": "aal_level",
+          "schema": "auth",
+          "items": [
+            "aal1",
+            "aal2",
+            "aal3"
+          ]
+        },
+        "realtime.action": {
+          "name": "action",
+          "schema": "realtime",
+          "items": [
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "TRUNCATE",
+            "ERROR"
+          ]
+        },
+        "storage.buckettype": {
+          "name": "buckettype",
+          "schema": "storage",
+          "items": [
+            "STANDARD",
+            "ANALYTICS",
+            "VECTOR"
+          ]
+        },
+        "auth.code_challenge_method": {
+          "name": "code_challenge_method",
+          "schema": "auth",
+          "items": [
+            "s256",
+            "plain"
+          ]
+        },
+        "realtime.equality_op": {
+          "name": "equality_op",
+          "schema": "realtime",
+          "items": [
+            "eq",
+            "neq",
+            "lt",
+            "lte",
+            "gt",
+            "gte",
+            "in",
+            "like",
+            "ilike",
+            "is",
+            "match",
+            "imatch",
+            "isdistinct"
+          ]
+        },
+        "auth.factor_status": {
+          "name": "factor_status",
+          "schema": "auth",
+          "items": [
+            "unverified",
+            "verified"
+          ]
+        },
+        "auth.factor_type": {
+          "name": "factor_type",
+          "schema": "auth",
+          "items": [
+            "totp",
+            "webauthn",
+            "phone",
+            "recovery_code"
+          ]
+        },
+        "auth.oauth_authorization_status": {
+          "name": "oauth_authorization_status",
+          "schema": "auth",
+          "items": [
+            "pending",
+            "approved",
+            "denied",
+            "expired"
+          ]
+        },
+        "auth.oauth_client_type": {
+          "name": "oauth_client_type",
+          "schema": "auth",
+          "items": [
+            "public",
+            "confidential"
+          ]
+        },
+        "auth.oauth_registration_type": {
+          "name": "oauth_registration_type",
+          "schema": "auth",
+          "items": [
+            "dynamic",
+            "manual"
+          ]
+        },
+        "auth.oauth_response_type": {
+          "name": "oauth_response_type",
+          "schema": "auth",
+          "items": [
+            "code"
+          ]
+        },
+        "auth.one_time_token_type": {
+          "name": "one_time_token_type",
+          "schema": "auth",
+          "items": [
+            "confirmation_token",
+            "reauthentication_token",
+            "recovery_token",
+            "email_change_token_new",
+            "email_change_token_current",
+            "phone_change_token"
+          ]
+        }
+      },
+      "comment": null
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": true,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "gen_random_uuid()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "interests_text": {
+          "name": "interests_text",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text"
+        },
+        "suggested_journey_ids": {
+          "name": "suggested_journey_ids",
+          "type": "uuid[]",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "'{}'",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "array"
+        },
+        "skipped": {
+          "name": "skipped",
+          "type": "bool",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": "false",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(6)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": 6,
+          "precision": null,
+          "scale": null,
+          "default": "now()",
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "datetime"
+        }
+      },
+      "name": "recommendation_logs",
+      "schema": "public",
+      "indexes": [
+        {
+          "columnNames": [
+            "user_id",
+            "created_at"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_recommendation_logs_user_created",
+          "unique": false,
+          "primary": false
+        },
+        {
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": false,
+          "keyName": "recommendation_logs_pkey",
+          "unique": true,
+          "primary": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "recommendation_logs_user_id_fkey": {
+          "columnNames": [
+            "user_id"
+          ],
+          "constraintName": "recommendation_logs_user_id_fkey",
+          "localTableName": "public.recommendation_logs",
+          "referencedTableName": "public.user_profiles",
           "referencedColumnNames": [
             "id"
           ],

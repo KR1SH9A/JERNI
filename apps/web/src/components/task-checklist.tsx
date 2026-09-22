@@ -22,7 +22,7 @@ interface TaskChecklistProps {
   tasks: TaskReadModel[];
   /** Server-fetched completions — seeds initial checkbox state */
   initialCompletions: CompletionReadModel[];
-  /** Whether the checklist should be read-only (e.g. for archived journeys) */
+  /** Whether the checklist should be read-only */
   isReadOnly?: boolean;
 }
 
@@ -31,18 +31,12 @@ function todayUtc(): string {
 }
 
 /**
- * TaskChecklist — client component rendering task checkboxes.
- *
- * MILESTONE tasks: checked if any active completion exists (forDate = null).
- * RECURRING tasks: checked if an active completion exists with forDate = today.
- *
- * Calls the Next.js route handler on toggle — JWT never touches this component.
- * Optimistic: checkbox state updates immediately, reverts on error.
+ * TaskChecklist — styled task checkboxes with MILESTONE/RECURRING visual distinction.
+ * Custom checkbox design; optimistic updates with rollback on error.
  */
 export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly }: TaskChecklistProps) {
   const today = todayUtc();
 
-  // Build initial checked state from server-fetched completions
   const initialChecked: Record<string, boolean> = {};
   for (const c of initialCompletions) {
     if (!c.isActive) continue;
@@ -60,12 +54,10 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
 
   const toggle = (task: TaskReadModel) => {
     if (isReadOnly || pending[task.id]) return;
-
     const nextChecked = !checked[task.id];
     setErrors((prev) => ({ ...prev, [task.id]: '' }));
 
     startTransition(async () => {
-      // Optimistic update
       setChecked((prev) => ({ ...prev, [task.id]: nextChecked }));
       setPending((prev) => ({ ...prev, [task.id]: true }));
 
@@ -74,26 +66,17 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
           `/api/journeys/${journeyId}/tasks/${task.id}/complete`,
           { method: nextChecked ? 'POST' : 'DELETE' },
         );
-
         if (!res.ok && res.status !== 204) {
-          if (res.status === 401) {
-            throw new Error('SESSION_EXPIRED');
-          }
+          if (res.status === 401) throw new Error('SESSION_EXPIRED');
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Failed to update task');
         }
       } catch (err) {
-        // Roll back
         setChecked((prev) => ({ ...prev, [task.id]: !nextChecked }));
         const msg = err instanceof Error
-          ? err.message === 'SESSION_EXPIRED'
-            ? 'Session expired — sign in again'
-            : err.message
+          ? err.message === 'SESSION_EXPIRED' ? 'Session expired — sign in again' : err.message
           : 'Error';
-        setErrors((prev) => ({
-          ...prev,
-          [task.id]: msg,
-        }));
+        setErrors((prev) => ({ ...prev, [task.id]: msg }));
       } finally {
         setPending((prev) => ({ ...prev, [task.id]: false }));
       }
@@ -113,84 +96,76 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
     return (
       <li
         key={task.id}
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '12px',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          background: 'var(--color-surface, rgba(255,255,255,0.04))',
-          border: '1px solid var(--color-border, rgba(255,255,255,0.08))',
-          opacity: isPending ? 0.7 : 1,
-          transition: 'opacity 0.15s ease',
-        }}
+        className={`task-item${isChecked ? ' completed' : ''}`}
+        style={{ opacity: isPending ? 0.65 : 1 }}
       >
-        <input
-          type="checkbox"
-          id={`task-${task.id}`}
-          checked={isChecked}
+        {/* Custom checkbox */}
+        <button
+          type="button"
+          id={`task-checkbox-${task.id}`}
+          className={`task-checkbox${isChecked ? ' checked' : ''}`}
           disabled={isPending || isReadOnly}
-          onChange={() => toggle(task)}
+          onClick={() => toggle(task)}
+          aria-pressed={isChecked}
           aria-label={`Mark "${task.title}" as ${isChecked ? 'incomplete' : 'complete'}`}
-          style={{ marginTop: '2px', accentColor: 'var(--color-primary, #6366f1)', cursor: isReadOnly ? 'default' : 'pointer' }}
         />
-        <div style={{ flex: 1 }}>
+
+        <div className="task-body">
           <label
-            htmlFor={`task-${task.id}`}
-            style={{
-              cursor: isReadOnly ? 'default' : 'pointer',
-              textDecoration: isChecked ? 'line-through' : 'none',
-              color: isChecked ? 'var(--color-muted, #888)' : 'inherit',
-              fontSize: '14px',
-              fontWeight: 500,
-            }}
+            htmlFor={`task-checkbox-${task.id}`}
+            className="task-title"
+            style={{ cursor: isReadOnly ? 'default' : 'pointer' }}
           >
             {task.title}
           </label>
-          {isRecurring && (
-            <p style={{ fontSize: '12px', color: 'var(--color-muted, #888)', margin: '2px 0 0' }}>
-              Daily · Today: {today}
-            </p>
-          )}
+
+          <div className="task-meta">
+            <span className={`task-kind-pill ${isRecurring ? 'recurring' : 'milestone'}`}>
+              {isRecurring ? '↻ Daily' : '◆ Milestone'}
+            </span>
+            {isRecurring && (
+              <span style={{ color: 'var(--color-muted-2)', fontSize: '0.72rem' }}>
+                {today}
+              </span>
+            )}
+          </div>
+
           {error && (
-            <p role="alert" style={{ fontSize: '12px', color: '#ef4444', margin: '2px 0 0' }}>
+            <p role="alert" style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.15rem' }}>
               {error}
             </p>
           )}
         </div>
-        <span
-          style={{
-            fontSize: '11px',
-            padding: '2px 8px',
-            borderRadius: '4px',
-            background: isRecurring ? 'rgba(99,102,241,0.12)' : 'rgba(16,185,129,0.12)',
-            color: isRecurring ? '#818cf8' : '#34d399',
-          }}
-        >
-          {isRecurring ? 'daily' : 'milestone'}
-        </span>
       </li>
     );
   };
 
+  if (tasks.length === 0) {
+    return (
+      <div className="empty-state" style={{ padding: '2rem' }}>
+        <p style={{ color: 'var(--color-muted-2)', fontSize: '0.875rem' }}>No tasks added yet.</p>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       {milestones.length > 0 && (
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
-            Milestones
-          </h3>
-          <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-muted-2)', marginBottom: '0.75rem' }}>
+            Milestones — {milestones.filter(t => checked[t.id]).length}/{milestones.length} done
+          </p>
+          <ol style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {milestones.map(renderTask)}
           </ol>
         </section>
       )}
       {recurring.length > 0 && (
         <section>
-          <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>
-            Daily Recurring
-          </h3>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-muted-2)', marginBottom: '0.75rem' }}>
+            Daily Recurring — {recurring.filter(t => checked[t.id]).length}/{recurring.length} done today
+          </p>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {recurring.map(renderTask)}
           </ul>
         </section>

@@ -9,10 +9,8 @@ interface LikeButtonProps {
 }
 
 /**
- * LikeButton — client component for liking/unliking a journey.
- *
- * Optimistic: updates count instantly, rolls back on error.
- * Idempotent: the backend handles double-like/unlike gracefully.
+ * LikeButton — optimistic like/unlike with heart icon and count.
+ * Rolls back on error; 401 shows a session-expired inline message.
  */
 export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: LikeButtonProps) {
   const [isLiked, setIsLiked] = useState(initialIsLiked);
@@ -22,13 +20,10 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
 
   const handleClick = () => {
     const nextLiked = !isLiked;
-    // Snapshot the delta at click time so the rollback uses the same value
-    // regardless of how many re-renders happen while the request is in-flight.
     const delta = nextLiked ? 1 : -1;
-
     setError(null);
+
     startTransition(async () => {
-      // Optimistic update — use functional form to avoid stale closure bug
       setIsLiked(nextLiked);
       setLikeCount((prev) => Math.max(0, prev + delta));
 
@@ -36,22 +31,16 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
         const res = await fetch(`/api/journeys/${journeyId}/likes`, {
           method: nextLiked ? 'POST' : 'DELETE',
         });
-
         if (!res.ok && res.status !== 204) {
-          if (res.status === 401) {
-            throw new Error('SESSION_EXPIRED');
-          }
+          if (res.status === 401) throw new Error('SESSION_EXPIRED');
           throw new Error('Failed');
         }
       } catch (err) {
-        // Roll back using the same delta
         setIsLiked(!nextLiked);
         setLikeCount((prev) => Math.max(0, prev - delta));
-
         if (err instanceof Error && err.message === 'SESSION_EXPIRED') {
-          setError('Your session has expired. Please sign in again.');
+          setError('Session expired — sign in again');
         }
-        // Non-401 errors are silent (idempotent action — not worth alarming the user)
       }
     });
   };
@@ -64,34 +53,17 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
         disabled={isPending}
         aria-pressed={isLiked}
         aria-label={isLiked ? 'Unlike this journey' : 'Like this journey'}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '8px 16px',
-          borderRadius: '8px',
-          border: '1.5px solid var(--color-border, #333)',
-          background: isLiked ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-          color: isLiked ? '#ef4444' : 'var(--color-text-secondary, #888)',
-          cursor: isPending ? 'not-allowed' : 'pointer',
-          fontSize: '14px',
-          fontWeight: 500,
-          opacity: isPending ? 0.7 : 1,
-          transition: 'all 0.15s ease',
-        }}
+        className={`like-btn${isLiked ? ' liked' : ''}`}
+        style={{ width: '100%', justifyContent: 'center', opacity: isPending ? 0.6 : 1 }}
       >
-        <span aria-hidden="true" style={{ fontSize: '14px', fontWeight: 600 }}>
-          {isLiked ? 'Liked' : 'Like'}
+        <span className="heart-icon" aria-hidden="true">
+          {isLiked ? '♥' : '♡'}
         </span>
         <span>{likeCount}</span>
       </button>
       {error && (
-        <p role="alert" style={{ fontSize: '12px', color: '#ef4444', marginTop: '4px' }}>
-          {error}{' '}
-          <a href={`/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
-             style={{ textDecoration: 'underline' }}>
-            Sign in
-          </a>
+        <p role="alert" style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.35rem', textAlign: 'center' }}>
+          {error}
         </p>
       )}
     </div>
