@@ -13,7 +13,7 @@ export default function SignupPage() {
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  
+
   const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,8 +31,8 @@ export default function SignupPage() {
 
     setLoading(true);
     const supabase = createSupabaseBrowserClient();
-    const { data, error: authError } = await supabase.auth.signUp({ 
-      email, 
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
       password,
       options: {
         emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || 'https://jerni.purpl.online',
@@ -83,24 +83,26 @@ export default function SignupPage() {
               width={72}
               height={46}
               priority
-              style={{ height: '3rem', width: 'auto', display: 'block' }}
+              style={{ height: '4.5rem', width: 'auto', display: 'block' }}
             />
           </Link>
 
-          <h1
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '2.5rem',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: 'var(--color-text)',
-              marginBottom: '2.5rem',
-              textAlign: 'center',
-              lineHeight: 1.1,
-            }}
-          >
-            Start your journey.
-          </h1>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <h1
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: 'var(--color-text)',
+                marginBottom: '0.35rem',
+              }}
+            >
+              Start your journey
+            </h1>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+              Create a free account to join and track journeys
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
@@ -179,8 +181,8 @@ export default function SignupPage() {
               disabled={loading}
               style={{
                 marginTop: '1rem',
-                width: '100%',
-                padding: '1rem',
+                alignSelf: 'center',
+                padding: '1rem 4rem',
                 borderRadius: '999px',
                 background: 'var(--color-accent)',
                 color: 'var(--color-bg)',
@@ -199,7 +201,6 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <div style={{ marginTop: '2.5rem', width: '100%', height: '1px', background: 'var(--color-border)' }} />
 
           <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '1rem', color: 'var(--color-muted)' }}>
             Already have an account?{' '}

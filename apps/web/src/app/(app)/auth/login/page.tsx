@@ -14,7 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  
+
   const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,24 +92,26 @@ export default function LoginPage() {
               width={72}
               height={46}
               priority
-              style={{ height: '3rem', width: 'auto', display: 'block' }}
+              style={{ height: '4.5rem', width: 'auto', display: 'block' }}
             />
           </Link>
 
-          <h1
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '2.5rem',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: 'var(--color-text)',
-              marginBottom: '2.5rem',
-              textAlign: 'center',
-              lineHeight: 1.1,
-            }}
-          >
-            Welcome back.
-          </h1>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <h1
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: 'var(--color-text)',
+                marginBottom: '0.35rem',
+              }}
+            >
+              Welcome back
+            </h1>
+            <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+              Sign in to continue your journey
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
@@ -164,8 +166,8 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 marginTop: '1rem',
-                width: '100%',
-                padding: '1rem',
+                alignSelf: 'center',
+                padding: '1rem 4rem',
                 borderRadius: '999px',
                 background: 'var(--color-accent)',
                 color: 'var(--color-bg)',
@@ -184,7 +186,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div style={{ marginTop: '2.5rem', width: '100%', height: '1px', background: 'var(--color-border)' }} />
+
 
           <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '1rem', color: 'var(--color-muted)' }}>
             Don&apos;t have an account?{' '}
