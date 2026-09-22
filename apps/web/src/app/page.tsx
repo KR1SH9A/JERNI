@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
+import gsap from "gsap";
+import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrambleTextPlugin);
+}
 import dynamic from "next/dynamic";
 
 // Dynamically import the 3D scene to avoid SSR mismatch issues with Canvas
@@ -14,6 +20,9 @@ const JerniBelt = dynamic(() => import("@/components/JerniBelt"), {
 });
 
 export default function LandingPage() {
+  const topicRef = useRef<HTMLSpanElement>(null);
+  const topics = ["Journey", "Routine", "Path", "Workflow", "Curriculum"];
+
   // Initialize Lenis for smooth scrolling
   useEffect(() => {
     (async () => {
@@ -36,11 +45,54 @@ export default function LandingPage() {
     })();
   }, []);
 
+  // Flipping text effect with GSAP ScrambleText
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % topics.length;
+      if (topicRef.current) {
+        gsap.to(topicRef.current, {
+          duration: 0.8,
+          scrambleText: {
+            text: topics[index],
+            chars: "lowerCase",
+            revealDelay: 0.1,
+            speed: 0.5,
+          },
+        });
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [topics.length]);
+
+  const handleNavHover = (e: React.MouseEvent<HTMLAnchorElement>, text: string) => {
+    gsap.to(e.currentTarget, {
+      duration: 0.5,
+      scrambleText: { text, chars: "lowerCase", speed: 1 },
+    });
+  };
+
   return (
     <main style={{ background: 'var(--color-bg)', minHeight: '100vh', width: '100vw', overflowX: 'hidden' }}>
       {/* Section 1: Hero with 3D Typography */}
       <section style={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
         <JerniBelt />
+        
+        {/* Overlay Navigation */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '2.5rem 3.5rem', display: 'flex', justifyContent: 'flex-end', zIndex: 10, color: '#4C5372', pointerEvents: 'none' }}>
+           <nav style={{ display: 'flex', gap: '3rem', fontSize: '1.1rem', fontWeight: 500, pointerEvents: 'auto' }}>
+             <a href="#about" onMouseEnter={(e) => handleNavHover(e, 'What is JERNI?')} style={{ textDecoration: 'none', color: 'inherit' }}>What is JERNI?</a>
+             <a href="/auth/login" onMouseEnter={(e) => handleNavHover(e, 'Log in')} style={{ textDecoration: 'none', color: 'inherit' }}>Log in</a>
+             <a href="/auth/signup" onMouseEnter={(e) => handleNavHover(e, 'Join today')} style={{ textDecoration: 'none', color: '#7C7E9D' }}>Join today</a>
+           </nav>
+        </div>
+
+        {/* Overlay Bottom Left */}
+        <div style={{ position: 'absolute', bottom: '3.5rem', left: '3.5rem', zIndex: 10, color: '#4C5372', pointerEvents: 'none', maxWidth: '30vw' }}>
+           <h1 style={{ fontSize: 'clamp(1rem, 2vw, 2.5rem)', fontWeight: 600, margin: 0, lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
+              Join or Create your own <span ref={topicRef} style={{ color: '#949AB1', display: 'inline-block', minWidth: '150px' }}>{topics[0]}</span>
+           </h1>
+        </div>
       </section>
 
       {/* Section 2 & 3: Swiss Information Grid */}
