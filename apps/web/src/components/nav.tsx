@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
+import Image from 'next/image';
 
 /**
  * Nav — Server Component (glassmorphism top bar).
@@ -29,11 +30,14 @@ export async function Nav() {
       <div className="container nav-inner">
         {/* Wordmark */}
         <Link href="/" className="nav-logo" id="nav-logo">
-          <span
-            className="jerni-logo-mask"
-            style={{ width: '1.25rem', height: '1.25rem', color: 'var(--color-accent)' }}
+          <Image
+            src="/new-logo.svg"
+            alt="JERNI logo"
+            width={72}
+            height={46}
+            priority
+            style={{ height: '1.25rem', width: 'auto', display: 'block' }}
           />
-          <span className="logo-text">JERNI</span>
         </Link>
 
         {/* Links */}

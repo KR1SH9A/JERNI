@@ -3,94 +3,115 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
+import { OnboardingModal } from '@/components/onboarding-modal';
+import { Toast, ToastType } from '@/components/ui/toast';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setToast(null);
     setLoading(true);
 
     const supabase = createSupabaseBrowserClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
     setLoading(false);
 
     if (authError) {
-      setError(authError.message);
+      if (authError.message === 'Email not confirmed') {
+        setLoading(true);
+        const { error: resendError } = await supabase.auth.resend({
+          type: 'signup',
+          email,
+          options: {
+            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || 'https://jerni.purpl.online',
+          }
+        });
+        setLoading(false);
+        if (resendError) {
+          setToast({ message: resendError.message, type: 'error' });
+        } else {
+          setToast({ message: 'Successfully sent mail, check your inbox.', type: 'success' });
+        }
+      } else if (authError.message === 'Invalid login credentials') {
+        setToast({ message: "Can't find this mail or wrong password. Try a different one.", type: 'error' });
+      } else {
+        setToast({ message: authError.message, type: 'error' });
+      }
       return;
+    }
+
+    if (data.user) {
+      const created = new Date(data.user.created_at).getTime();
+      const now = new Date().getTime();
+      if (now - created < 1000 * 60 * 10) {
+        setShowOnboarding(true);
+        return;
+      }
     }
 
     router.push('/dashboard');
   }
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
-        background: 'radial-gradient(ellipse 80% 60% at 50% -20%, rgba(104,199,236,0.06) 0%, transparent 70%)',
-      }}
-    >
-      <div className="auth-card animate-slide-up">
-        {/* Logo */}
-        <Link
-          href="/"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textDecoration: 'none',
-            marginBottom: '2rem',
-          }}
-        >
-          <span
-            className="jerni-logo-mask"
-            style={{ width: '2.5rem', height: '2.5rem', color: 'var(--color-accent)' }}
-          />
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontWeight: 700,
-              fontSize: '1rem',
-              letterSpacing: '0.12em',
-              color: 'var(--color-text)',
-              marginTop: '0.5rem',
-            }}
-          >
-            JERNI
-          </span>
-        </Link>
+    <>
+      <main
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem',
+          background: 'var(--color-bg)',
+        }}
+      >
+        <div style={{
+          width: '100%',
+          maxWidth: '400px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}>
+          {/* Logo */}
+          <Link href="/" style={{ marginBottom: '2rem' }}>
+            <Image
+              src="/new-logo.svg"
+              alt="JERNI logo"
+              width={72}
+              height={46}
+              priority
+              style={{ height: '3rem', width: 'auto', display: 'block' }}
+            />
+          </Link>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1
             style={{
-              fontFamily: 'var(--font-serif)',
-              fontSize: '1.75rem',
-              fontWeight: 400,
+              fontFamily: 'var(--font-sans)',
+              fontSize: '2.5rem',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
               color: 'var(--color-text)',
-              marginBottom: '0.35rem',
+              marginBottom: '2.5rem',
+              textAlign: 'center',
+              lineHeight: 1.1,
             }}
           >
-            Welcome back
+            Welcome back.
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-            Sign in to continue your journey
-          </p>
-        </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div className="form-group">
-            <label htmlFor="login-email" className="form-label">Email</label>
+          <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <input
               id="login-email"
               type="email"
@@ -98,13 +119,22 @@ export default function LoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="form-input"
+              placeholder="Email address"
+              style={{
+                width: '100%',
+                padding: '1rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
             />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="login-password" className="form-label">Password</label>
             <input
               id="login-password"
               type="password"
@@ -112,45 +142,68 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="form-input"
+              placeholder="Password"
+              style={{
+                width: '100%',
+                padding: '1rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
             />
-          </div>
 
-          {error && (
-            <span id="login-error" className="form-error">{error}</span>
-          )}
+            <button
+              id="login-submit"
+              type="submit"
+              disabled={loading}
+              style={{
+                marginTop: '1rem',
+                width: '100%',
+                padding: '1rem',
+                borderRadius: '999px',
+                background: 'var(--color-accent)',
+                color: 'var(--color-bg)',
+                border: 'none',
+                fontSize: '1rem',
+                fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+                transition: 'opacity 0.2s, transform 0.1s',
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {loading ? 'Signing in…' : 'Log in'}
+            </button>
+          </form>
 
-          <button
-            id="login-submit"
-            type="submit"
-            disabled={loading}
-            className="btn-primary"
-            style={{ marginTop: '0.25rem', width: '100%' }}
-          >
-            {loading ? (
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <span style={{
-                  width: '14px', height: '14px', border: '2px solid rgba(5,19,26,0.3)',
-                  borderTopColor: '#05131a', borderRadius: '50%',
-                  display: 'inline-block',
-                  animation: 'spin 0.6s linear infinite',
-                }} />
-                Signing in…
-              </span>
-            ) : 'Sign in'}
-          </button>
-        </form>
+          <div style={{ marginTop: '2.5rem', width: '100%', height: '1px', background: 'var(--color-border)' }} />
 
-        <p style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-          Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-            Get started →
-          </Link>
-        </p>
-      </div>
+          <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '1rem', color: 'var(--color-muted)' }}>
+            Don&apos;t have an account?{' '}
+            <Link href="/auth/signup" style={{ color: 'var(--color-text)', fontWeight: 700, textDecoration: 'underline' }}>
+              Sign up free
+            </Link>
+          </p>
+        </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </main>
+        <style>{`
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+      </main>
+
+      {showOnboarding && <OnboardingModal />}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </>
   );
 }
