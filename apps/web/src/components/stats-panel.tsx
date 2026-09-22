@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useJourneySocket } from '@/lib/use-journey-socket';
 import type { JourneyStatsReadModel, TodayBoardEntry, LeaderboardEntry } from '@jerni/shared-types';
 
@@ -25,25 +25,21 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
   );
 }
 
-/** Small animated dot shown when the socket connection is live. */
 function LiveIndicator() {
   return (
     <span
       title="Live updates active"
       aria-label="Live"
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: '#34d399' }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.73rem', color: '#34d399', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.05em' }}
     >
       <span
         style={{
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: '#34d399',
+          width: 7, height: 7, borderRadius: '50%', background: '#34d399',
           display: 'inline-block',
           animation: 'live-pulse 1.8s ease-in-out infinite',
         }}
       />
-      Live
+      LIVE
     </span>
   );
 }
@@ -52,30 +48,32 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
   const [stats, setStats] = useState<JourneyStatsReadModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'today' | 'alltime'>('today');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** Fetch (or re-fetch) stats from the REST endpoint — the source of truth. */
-  const loadStats = useCallback(() => {
+  const fetchStats = useCallback(() => {
     setLoading(true);
     fetch(`/api/journeys/${journeyId}/stats`)
       .then((r) => r.json())
-      .then((data: JourneyStatsReadModel) => {
-        setStats(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      .then((data: JourneyStatsReadModel) => { setStats(data); setLoading(false); })
+      .catch(() => setLoading(false));
   }, [journeyId]);
 
-  // Initial load
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+  /**
+   * Debounced version — socket events may arrive in bursts (multiple members
+   * completing tasks at once). This collapses them into one fetch 400ms after
+   * the last event rather than firing one fetch per event.
+   */
+  const debouncedFetch = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchStats, 400);
+  }, [fetchStats]);
 
-  // Real-time: re-fetch whenever any member completes/uncompletes a task
-  const { isConnected } = useJourneySocket(journeyId, {
-    onStatsUpdated: loadStats,
-  });
+  useEffect(() => {
+    fetchStats();
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [fetchStats]);
+
+  const { isConnected } = useJourneySocket(journeyId, { onStatsUpdated: debouncedFetch });
 
   return (
     <section className="stats-panel card" aria-label="Journey stats">
@@ -89,7 +87,7 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
             role="tab"
             id="tab-today"
             aria-selected={tab === 'today'}
-            className={`stats-tab ${tab === 'today' ? 'active' : ''}`}
+            className={`stats-tab${tab === 'today' ? ' active' : ''}`}
             onClick={() => setTab('today')}
           >
             Today
@@ -98,7 +96,7 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
             role="tab"
             id="tab-alltime"
             aria-selected={tab === 'alltime'}
-            className={`stats-tab ${tab === 'alltime' ? 'active' : ''}`}
+            className={`stats-tab${tab === 'alltime' ? ' active' : ''}`}
             onClick={() => setTab('alltime')}
           >
             All Time
@@ -113,7 +111,7 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
           ))}
         </div>
       ) : !stats ? (
-        <p style={{ color: 'var(--color-muted)', padding: '1rem 0' }}>
+        <p style={{ color: 'var(--color-muted)', padding: '1rem 0', fontSize: '0.875rem' }}>
           Could not load stats.
         </p>
       ) : tab === 'today' ? (
@@ -128,9 +126,11 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
 function TodayBoard({ entries, totalTasks }: { entries: TodayBoardEntry[]; totalTasks: number }) {
   if (entries.length === 0) {
     return (
-      <p style={{ color: 'var(--color-muted)', padding: '0.75rem 0', fontSize: '0.9rem' }}>
-        No activity yet today. Be the first to check off a task!
-      </p>
+      <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-muted-2)', fontSize: '0.875rem' }}>
+          No activity yet today. Be the first to check off a task!
+        </p>
+      </div>
     );
   }
   return (
@@ -142,9 +142,7 @@ function TodayBoard({ entries, totalTasks }: { entries: TodayBoardEntry[]; total
             <span className="stats-name">{e.displayName}</span>
             <ProgressBar value={e.completedToday} max={totalTasks} />
           </div>
-          <span className="stats-count">
-            {e.completedToday}/{totalTasks}
-          </span>
+          <span className="stats-count">{e.completedToday}/{totalTasks}</span>
         </li>
       ))}
     </ol>
@@ -154,22 +152,20 @@ function TodayBoard({ entries, totalTasks }: { entries: TodayBoardEntry[]; total
 function Leaderboard({ entries }: { entries: LeaderboardEntry[] }) {
   if (entries.length === 0) {
     return (
-      <p style={{ color: 'var(--color-muted)', padding: '0.75rem 0', fontSize: '0.9rem' }}>
-        No completions recorded yet.
-      </p>
+      <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-muted-2)', fontSize: '0.875rem' }}>No completions recorded yet.</p>
+      </div>
     );
   }
   return (
     <ol className="stats-list" aria-label="All-time leaderboard">
       {entries.map((e, i) => (
         <li key={e.userId} className="stats-row">
-          <span className="stats-rank">
-            {`#${i + 1}`}
-          </span>
-          <span className="stats-name">{e.displayName}</span>
+          <span className="stats-rank">#{i + 1}</span>
+          <span className="stats-name" style={{ flex: 1 }}>{e.displayName}</span>
           <div className="stats-meta">
-            <span title="Milestones">Milestones: {e.milestonesCompleted}</span>
-            <span title="Recurring today">Recurring today: {e.recurringDoneToday}</span>
+            <span title="Milestones">◆ {e.milestonesCompleted}</span>
+            <span title="Recurring done today">↻ {e.recurringDoneToday}</span>
           </div>
         </li>
       ))}

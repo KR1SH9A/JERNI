@@ -3,9 +3,8 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 
 /**
- * Nav — Server Component.
- * Reads session server-side so we never expose the JWT to the client.
- * Shows Dashboard link if logged in; login link otherwise.
+ * Nav — Server Component (glassmorphism top bar).
+ * Reads session server-side so the JWT never reaches client JS.
  */
 export async function Nav() {
   const cookieStore = await cookies();
@@ -28,30 +27,48 @@ export async function Nav() {
   return (
     <header className="global-nav">
       <div className="container nav-inner">
-        <Link href="/" className="nav-logo" id="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span className="jerni-logo-mask" style={{ width: '1.5rem', height: '1.5rem', color: 'var(--color-accent)' }}></span>
+        {/* Wordmark */}
+        <Link href="/" className="nav-logo" id="nav-logo">
+          <span
+            className="jerni-logo-mask"
+            style={{ width: '1.25rem', height: '1.25rem', color: 'var(--color-accent)' }}
+          />
           <span className="logo-text">JERNI</span>
         </Link>
 
+        {/* Links */}
         <nav className="nav-links" aria-label="Main navigation">
           <Link href="/discover" id="nav-discover" className="nav-link">
             Discover
           </Link>
+
           {user ? (
             <>
               <Link href="/dashboard" id="nav-dashboard" className="nav-link">
                 Dashboard
               </Link>
-              <form action="/auth/signout" method="post">
-                <button type="submit" className="nav-link nav-link-btn" id="nav-signout">
+              <form action="/auth/signout" method="post" style={{ display: 'contents' }}>
+                <button
+                  type="submit"
+                  className="nav-link-btn"
+                  id="nav-signout"
+                  aria-label="Sign out"
+                >
                   Sign out
                 </button>
               </form>
             </>
           ) : (
-            <Link href="/auth/login" id="nav-login">
-              <button className="btn-primary btn-sm" id="nav-login-btn">Sign in</button>
-            </Link>
+            <>
+              <Link href="/auth/login" id="nav-login" className="nav-link">
+                Sign in
+              </Link>
+              <Link href="/auth/signup" id="nav-signup">
+                <button className="btn-primary btn-sm" id="nav-signup-btn">
+                  Get started
+                </button>
+              </Link>
+            </>
           )}
         </nav>
       </div>

@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface AddTaskFormProps {
   journeyId: string;
+  onTaskAdded?: (task: any) => void;
 }
 
-export function AddTaskForm({ journeyId }: AddTaskFormProps) {
-  const router = useRouter();
+export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +44,15 @@ export function AddTaskForm({ journeyId }: AddTaskFormProps) {
           throw new Error(body?.message ?? 'Failed to add task');
         }
 
+        const task = await res.json();
+        
         // Reset form on success
         setTitle('');
         setKind('MILESTONE');
-        router.refresh();
+        
+        if (onTaskAdded) {
+          onTaskAdded(task);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong');
       }
@@ -56,18 +60,18 @@ export function AddTaskForm({ journeyId }: AddTaskFormProps) {
   }
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
-      className="card animate-fade-in" 
-      style={{ 
-        marginTop: '1.5rem', 
-        padding: '1.5rem', 
-        border: '1px dashed var(--color-border)', 
-        background: 'transparent' 
+    <form
+      onSubmit={handleSubmit}
+      className="card animate-fade-in"
+      style={{
+        marginTop: '1.5rem',
+        padding: '1.5rem',
+        border: '1px dashed var(--color-border)',
+        background: 'transparent'
       }}
     >
       <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Add a Task</h3>
-      
+
       {error && (
         <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '1rem' }}>
           {error}
@@ -85,22 +89,22 @@ export function AddTaskForm({ journeyId }: AddTaskFormProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={isPending}
-            style={{ 
-              width: '100%', 
-              padding: '0.5rem 0.75rem', 
-              borderRadius: '6px', 
-              border: '1px solid var(--color-border)' 
+            style={{
+              width: '100%',
+              padding: '0.5rem 0.75rem',
+              borderRadius: '6px',
+              border: '1px solid var(--color-border)'
             }}
           />
         </div>
-        
+
         <select
           value={kind}
           onChange={(e) => setKind(e.target.value as 'MILESTONE' | 'RECURRING')}
           disabled={isPending}
-          style={{ 
-            padding: '0.5rem', 
-            borderRadius: '6px', 
+          style={{
+            padding: '0.5rem',
+            borderRadius: '6px',
             border: '1px solid var(--color-border)',
             background: 'var(--color-surface)'
           }}
@@ -109,8 +113,8 @@ export function AddTaskForm({ journeyId }: AddTaskFormProps) {
           <option value="RECURRING">Recurring (Daily)</option>
         </select>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isPending || !title.trim()}
           style={{
             padding: '0.5rem 1rem',

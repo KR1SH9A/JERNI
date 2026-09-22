@@ -27,6 +27,10 @@ export interface CuratorJourneyCard extends JourneyCard {
   memberCount: number;
 }
 
+export interface JoinedJourneyCard extends JourneyCard {
+  joinedAt: string; // ISO date string
+}
+
 export interface TaskSummary {
   id: string;
   title: string;

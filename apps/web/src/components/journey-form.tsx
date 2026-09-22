@@ -77,7 +77,6 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
 
         const data = await res.json();
         router.push(`/journeys/${data.id ?? journeyId}`);
-        router.refresh();
       } catch {
         setError('Network error. Please try again.');
       }

@@ -9,6 +9,8 @@ import { GetMembershipStatusQuery } from './application/use-cases/participation.
 import { MembershipOrmEntity } from './infrastructure/persistence/membership.orm-entity';
 import { MikroOrmMembershipRepository } from './infrastructure/persistence/mikro-orm-membership.repository';
 import { ParticipationController } from './infrastructure/http/participation.controller';
+import { JoinedJourneysController } from './infrastructure/http/joined-journeys.controller';
+import { GetJoinedJourneysQuery } from './application/use-cases/participation.queries';
 
 @Module({
   imports: [
@@ -21,9 +23,10 @@ import { ParticipationController } from './infrastructure/http/participation.con
     JoinJourneyUseCase,
     LeaveJourneyUseCase,
     GetMembershipStatusQuery,
+    GetJoinedJourneysQuery,
   ],
-  controllers: [ParticipationController],
+  controllers: [JoinedJourneysController, ParticipationController],
   // Export repo + query so ExecutionModule can verify membership before task completion
   exports: [MEMBERSHIP_REPOSITORY, GetMembershipStatusQuery],
 })
-export class ParticipationModule {}
+export class ParticipationModule { }

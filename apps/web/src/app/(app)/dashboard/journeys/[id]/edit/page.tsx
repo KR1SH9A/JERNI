@@ -1,7 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { apiClient } from '@/lib/api-client';
 import { JourneyForm } from '@/components/journey-form';
 
@@ -49,8 +49,12 @@ export default async function EditJourneyPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
+  const headersList = await headers();
+  let token = headersList.get('x-user-token') || undefined;
+  if (!token) {
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.access_token;
+  }
 
   // ── Load journey ─────────────────────────────────────────────────────────
   let journey: JourneyDetail;

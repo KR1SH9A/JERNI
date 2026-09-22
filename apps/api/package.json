@@ -16,6 +16,7 @@
     "db:schema:fresh": "mikro-orm migration:fresh --seed"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@mikro-orm/core": "^6.4.0",
     "@mikro-orm/migrations": "^6.4.0",
     "@mikro-orm/nestjs": "^6.1.1",

@@ -13,6 +13,7 @@ import { EngagementModule } from './contexts/engagement/engagement.module';
 import { ExecutionModule } from './contexts/execution/execution.module';
 import { StatsModule } from './contexts/stats/stats.module';
 import { RealtimeModule } from './contexts/realtime/realtime.module';
+import { RecommendationModule } from './contexts/recommendation/recommendation.module';
 
 // Shared infra
 import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
@@ -42,6 +43,7 @@ import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
     ExecutionModule,
     StatsModule,
     RealtimeModule,
+    RecommendationModule,
   ],
 })
 export class AppModule {}

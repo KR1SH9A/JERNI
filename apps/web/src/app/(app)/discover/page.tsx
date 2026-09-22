@@ -5,7 +5,7 @@ import type { CuratorJourneyCard } from '@jerni/shared-types';
 
 export const metadata: Metadata = {
   title: 'Discover — JERNI',
-  description: 'Discover new journeys.',
+  description: 'Find your next curated learning journey.',
 };
 
 interface DiscoverFeedResponse {
@@ -15,59 +15,125 @@ interface DiscoverFeedResponse {
   pageSize: number;
 }
 
+function JourneyCard({ journey }: { journey: CuratorJourneyCard }) {
+  const hue = journey.title.charCodeAt(0) * 5;
+  const hue2 = (journey.title.charCodeAt(1) || hue + 40) * 5;
+
+  return (
+    <article className="journey-card" aria-label={journey.title}>
+      {/* Cover gradient */}
+      <div
+        className="journey-card-cover"
+        style={{
+          background: `linear-gradient(135deg, hsl(${hue},45%,14%) 0%, hsl(${hue2 % 360},35%,10%) 100%)`,
+        }}
+      >
+        <span className="journey-card-cover-initials">
+          {journey.title.slice(0, 2).toUpperCase()}
+        </span>
+        {/* Subtle grid overlay */}
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.04,
+          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px)',
+        }} />
+      </div>
+
+      <div className="journey-card-body">
+        {/* Tags */}
+        {journey.tags?.length > 0 && (
+          <div className="journey-card-tags">
+            {journey.tags.slice(0, 3).map((tag, i) => (
+              <span key={`${tag}-${i}`} className="badge">{tag}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Title */}
+        <Link href={`/journeys/${journey.id}`} style={{ textDecoration: 'none' }}>
+          <h2 className="journey-card-title">{journey.title}</h2>
+        </Link>
+
+        {/* Description */}
+        {journey.description && (
+          <p className="journey-card-desc">
+            {journey.description.length > 90
+              ? `${journey.description.slice(0, 90)}…`
+              : journey.description}
+          </p>
+        )}
+
+        {/* Meta */}
+        <div className="journey-card-meta">
+          <span className="journey-card-meta-item">
+            <span>✦</span>
+            {journey.taskCount} task{journey.taskCount !== 1 ? 's' : ''}
+          </span>
+          <span className="journey-card-meta-item">
+            <span>♥</span>
+            {journey.likeCount}
+          </span>
+        </div>
+
+        {/* CTA */}
+        <div className="journey-card-cta">
+          <Link href={`/journeys/${journey.id}`}>
+            <button
+              id={`view-journey-${journey.id}`}
+              style={{ width: '100%', fontSize: '0.825rem', padding: '0.55rem 1rem' }}
+            >
+              View journey →
+            </button>
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default async function DiscoverPage() {
   let feed: DiscoverFeedResponse = { journeys: [], total: 0, page: 1, pageSize: 20 };
   try {
-    // The endpoint is /journeys (public)
-    feed = await apiClient.get<DiscoverFeedResponse>('/journeys');
+    feed = await apiClient.get<DiscoverFeedResponse>('/journeys', {
+      next: { revalidate: 60 }, // public feed — cache 60s, instant back-navigation
+    });
   } catch (error) {
     console.error('Error fetching discover feed:', error);
   }
 
   return (
-    <main className="container" style={{ paddingTop: '2.5rem', paddingBottom: '4rem' }}>
-      <div className="dashboard-header">
-        <div>
-          <h1 className="page-title">Discover</h1>
-          <p style={{ color: 'var(--color-muted)', marginTop: '0.25rem' }}>
-            Find your next journey
+    <main style={{ paddingTop: 'var(--nav-height)', minHeight: '100vh' }}>
+      {/* Page header — Swiss editorial style */}
+      <div style={{ borderBottom: '1px solid var(--color-border-subtle)', padding: '3rem 0 2.5rem' }}>
+        <div className="container">
+          <p className="page-header-label">Browse</p>
+          <h1 className="page-title">Discover Journeys</h1>
+          <p className="page-subtitle">
+            Curated learning paths crafted by the community.
+            {feed.total > 0 && ` ${feed.total} journeys available.`}
           </p>
         </div>
       </div>
 
-      {feed.journeys.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem', margin: '2rem auto', maxWidth: '600px' }}>
-          <p style={{ color: 'var(--color-muted)', marginBottom: '1.5rem' }}>
-            No journeys found.
-          </p>
-        </div>
-      ) : (
-        <div className="dashboard-grid" style={{ marginTop: '1.5rem' }}>
-          {feed.journeys.map((journey) => (
-            <article key={journey.id} className="card dashboard-card">
-              <h2 className="card-title" style={{ marginBottom: '0.5rem' }}>
-                <Link href={`/journeys/${journey.id}`} style={{ color: 'var(--color-text)' }}>
-                  {journey.title}
-                </Link>
-              </h2>
-              {journey.description && (
-                <p className="card-desc" style={{ color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
-                  {journey.description.slice(0, 100)}{journey.description.length > 100 ? '…' : ''}
-                </p>
-              )}
-              <div className="card-meta">
-                <span>{journey.taskCount} tasks</span>
-                <span>{journey.likeCount} likes</span>
-              </div>
-              <div className="card-actions">
-                <Link href={`/journeys/${journey.id}`}>
-                  <button id={`view-journey-${journey.id}`}>View</button>
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
+      <div className="container" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
+        {feed.journeys.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state-icon">✦</div>
+            <h2 className="empty-state-title">No journeys yet</h2>
+            <p className="empty-state-desc">
+              Be the first to create a journey and share your knowledge with the community.
+            </p>
+            <Link href="/dashboard">
+              <button className="btn-primary" id="discover-create-btn">Create a journey</button>
+            </Link>
+          </div>
+        ) : (
+          <div className="journey-grid">
+            {feed.journeys.map((journey) => (
+              <JourneyCard key={journey.id} journey={journey} />
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

@@ -10,10 +10,11 @@ const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
 
 interface ApiOptions extends RequestInit {
   token?: string; // Supabase JWT — injected from server-side session
+  next?: NextFetchRequestConfig; // Next.js cache control (revalidate, tags)
 }
 
 async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
-  const { token, ...fetchOptions } = options;
+  const { token, next, ...fetchOptions } = options;
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -21,7 +22,11 @@ async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
     ...fetchOptions.headers,
   };
 
-  const res = await fetch(`${API_BASE}${path}`, { ...fetchOptions, headers });
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...fetchOptions,
+    headers,
+    ...(next ? { next } : { cache: 'no-store' }), // default: no-store (auth-gated data)
+  });
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Unknown error' }));
