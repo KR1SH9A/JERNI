@@ -132,7 +132,12 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-serif);
   font-weight: 400;
   line-height: 1.2;
@@ -148,7 +153,8 @@ a:hover {
   color: var(--color-accent-hover);
 }
 
-img, video {
+img,
+video {
   max-width: 100%;
   display: block;
 }
@@ -545,9 +551,23 @@ button:disabled {
 }
 
 /* Status-specific badges */
-.badge.published { background: var(--color-success-dim); border-color: rgba(20,161,133,0.25); color: #34d399; }
-.badge.draft { background: var(--color-warning-dim); border-color: rgba(232,146,44,0.3); color: var(--color-warning); }
-.badge.archived { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); color: var(--color-muted-2); }
+.badge.published {
+  background: var(--color-success-dim);
+  border-color: rgba(20, 161, 133, 0.25);
+  color: #34d399;
+}
+
+.badge.draft {
+  background: var(--color-warning-dim);
+  border-color: rgba(232, 146, 44, 0.3);
+  color: var(--color-warning);
+}
+
+.badge.archived {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-muted-2);
+}
 
 /* ─── Page Headers ───────────────────────────────────────────────────────── */
 .page-header {
@@ -772,17 +792,20 @@ button:disabled {
 
 /* ─── Skeleton loaders ───────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-2) 25%,
-    var(--color-surface-3) 50%,
-    var(--color-surface-2) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--color-surface-2) 25%,
+      var(--color-surface-3) 50%,
+      var(--color-surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
   border-radius: var(--radius);
@@ -798,12 +821,10 @@ button:disabled {
 .skeleton-row {
   height: 52px;
   border-radius: var(--radius);
-  background: linear-gradient(
-    90deg,
-    var(--color-surface-2) 25%,
-    var(--color-surface-3) 50%,
-    var(--color-surface-2) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--color-surface-2) 25%,
+      var(--color-surface-3) 50%,
+      var(--color-surface-2) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s infinite;
 }
@@ -1135,23 +1156,47 @@ button:disabled {
 
 /* ─── Animations ─────────────────────────────────────────────────────────── */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes animate-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes animate-slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -1214,11 +1259,18 @@ button:disabled {
   gap: 2rem;
 }
 
-.grid-item-featured { grid-column: span 12; }
-.grid-item-half { grid-column: span 6; }
+.grid-item-featured {
+  grid-column: span 12;
+}
+
+.grid-item-half {
+  grid-column: span 6;
+}
 
 @media (max-width: 768px) {
-  .grid-item-half { grid-column: span 12; }
+  .grid-item-half {
+    grid-column: span 12;
+  }
 }
 
 /* ─── Utils ──────────────────────────────────────────────────────────────── */
@@ -1231,8 +1283,17 @@ button:disabled {
 
 /* ─── Realtime live indicator ────────────────────────────────────────────── */
 @keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.75); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.75);
+  }
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */

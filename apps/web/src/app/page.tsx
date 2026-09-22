@@ -115,7 +115,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section 2 & 3: Swiss Information Grid */}
-      <section style={{ padding: '8rem 2rem' }}>
+      <section id="about" style={{ padding: '8rem 2rem' }}>
         <div className="container" style={{ padding: 0 }}>
 
           {/* Boxed Grid Container for true Swiss feel */}
