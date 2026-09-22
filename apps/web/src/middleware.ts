@@ -54,6 +54,11 @@ export async function middleware(request: NextRequest) {
     existingCookies.forEach((cookie) => {
       supabaseResponse.cookies.set(cookie.name, cookie.value, cookie as any);
     });
+
+    const url = request.nextUrl;
+    if (url.pathname.startsWith('/auth/login') || url.pathname.startsWith('/auth/signup')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
   return supabaseResponse;
