@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useJourneySocket } from '@/lib/use-journey-socket';
 import type { JourneyStatsReadModel, TodayBoardEntry, LeaderboardEntry } from '@jerni/shared-types';
 
@@ -48,8 +48,9 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
   const [stats, setStats] = useState<JourneyStatsReadModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'today' | 'alltime'>('today');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadStats = useCallback(() => {
+  const fetchStats = useCallback(() => {
     setLoading(true);
     fetch(`/api/journeys/${journeyId}/stats`)
       .then((r) => r.json())
@@ -57,9 +58,22 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
       .catch(() => setLoading(false));
   }, [journeyId]);
 
-  useEffect(() => { loadStats(); }, [loadStats]);
+  /**
+   * Debounced version — socket events may arrive in bursts (multiple members
+   * completing tasks at once). This collapses them into one fetch 400ms after
+   * the last event rather than firing one fetch per event.
+   */
+  const debouncedFetch = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchStats, 400);
+  }, [fetchStats]);
 
-  const { isConnected } = useJourneySocket(journeyId, { onStatsUpdated: loadStats });
+  useEffect(() => {
+    fetchStats();
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [fetchStats]);
+
+  const { isConnected } = useJourneySocket(journeyId, { onStatsUpdated: debouncedFetch });
 
   return (
     <section className="stats-panel card" aria-label="Journey stats">

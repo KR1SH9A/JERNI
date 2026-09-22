@@ -54,8 +54,8 @@ function JourneyCard({ journey, variant }: { journey: CuratorJourneyCard | Joine
         {/* Tags */}
         {journey.tags?.length > 0 && (
           <div className="journey-card-tags">
-            {journey.tags.slice(0, 2).map((tag) => (
-              <span key={tag} className="badge">{tag}</span>
+            {journey.tags.slice(0, 2).map((tag, i) => (
+              <span key={`${tag}-${i}`} className="badge">{tag}</span>
             ))}
           </div>
         )}

@@ -42,8 +42,8 @@ function JourneyCard({ journey }: { journey: CuratorJourneyCard }) {
         {/* Tags */}
         {journey.tags?.length > 0 && (
           <div className="journey-card-tags">
-            {journey.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="badge">{tag}</span>
+            {journey.tags.slice(0, 3).map((tag, i) => (
+              <span key={`${tag}-${i}`} className="badge">{tag}</span>
             ))}
           </div>
         )}
@@ -93,7 +93,9 @@ function JourneyCard({ journey }: { journey: CuratorJourneyCard }) {
 export default async function DiscoverPage() {
   let feed: DiscoverFeedResponse = { journeys: [], total: 0, page: 1, pageSize: 20 };
   try {
-    feed = await apiClient.get<DiscoverFeedResponse>('/journeys');
+    feed = await apiClient.get<DiscoverFeedResponse>('/journeys', {
+      next: { revalidate: 60 }, // public feed — cache 60s, instant back-navigation
+    });
   } catch (error) {
     console.error('Error fetching discover feed:', error);
   }
