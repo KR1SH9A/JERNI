@@ -6,7 +6,7 @@
  * client is only used server-side in Phase 1.
  */
 
-const API_BASE = process.env.API_INTERNAL_URL ?? 'http://localhost:3001';
+const API_BASE = process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 interface ApiOptions extends RequestInit {
   token?: string; // Supabase JWT — injected from server-side session
