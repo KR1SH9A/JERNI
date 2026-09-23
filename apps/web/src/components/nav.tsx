@@ -1,12 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import Link from 'next/link';
-import Image from 'next/image';
-import { createClient } from '@/utils/supabase/server';
-import { SignoutButton } from './signout-button';
+import { NavClient } from './nav-client';
 
 /**
- * Nav — Server Component (glassmorphism top bar).
+ * Nav — Server Component (renders the PillNav via NavClient).
  * Reads session server-side so the JWT never reaches client JS.
  */
 export async function Nav() {
@@ -28,47 +25,9 @@ export async function Nav() {
   const { data: { user } } = await supabase.auth.getUser();
 
   return (
-    <header className="global-nav">
-      <div className="container nav-inner">
-        {/* Wordmark */}
-        <Link href="/dashboard" className="nav-logo" id="nav-logo">
-          <Image
-            src="/new-logo.svg"
-            alt="JERNI logo"
-            width={72}
-            height={46}
-            priority
-            style={{ height: '3rem', width: 'auto', display: 'block' }}
-          />
-        </Link>
-
-        {/* Links */}
-        <nav className="nav-links" aria-label="Main navigation">
-          <Link href="/discover" id="nav-discover" className="nav-link">
-            Discover
-          </Link>
-
-          {user ? (
-            <>
-              <Link href="/dashboard" id="nav-dashboard" className="nav-link">
-                Dashboard
-              </Link>
-              <SignoutButton />
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login" id="nav-login" className="nav-link">
-                Sign in
-              </Link>
-              <Link href="/auth/signup" id="nav-signup">
-                <button className="btn-primary btn-sm" id="nav-signup-btn">
-                  Get started
-                </button>
-              </Link>
-            </>
-          )}
-        </nav>
-      </div>
-    </header>
+    <>
+      {/* Spacer for the fixed floating nav if needed, or simply render NavClient */}
+      <NavClient isLoggedIn={!!user} />
+    </>
   );
 }
