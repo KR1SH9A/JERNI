@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -45,6 +46,7 @@ import { mikroOrmConfig } from './shared-kernel/database/mikro-orm.config';
     RealtimeModule,
     RecommendationModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
 
