@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface JoinButtonProps {
   journeyId: string;
@@ -16,14 +17,15 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const router = useRouter();
 
   const handleClick = () => {
     setError(null);
     setSessionExpired(false);
     const nextState = !isMember;
 
+    setIsMember(nextState);
     startTransition(async () => {
-      setIsMember(nextState);
       try {
         const res = await fetch(`/api/journeys/${journeyId}/memberships`, {
           method: nextState ? 'POST' : 'DELETE',
@@ -37,6 +39,8 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Something went wrong');
         }
+        
+        router.refresh();
       } catch (err) {
         setIsMember(!nextState);
         setError(err instanceof Error ? err.message : 'Failed to update membership');

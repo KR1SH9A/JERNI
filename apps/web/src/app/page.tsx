@@ -8,6 +8,7 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrambleTextPlugin);
 }
 import dynamic from "next/dynamic";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 // Dynamically import the 3D scene to avoid SSR mismatch issues with Canvas
 const JerniBelt = dynamic(() => import("@/components/JerniBelt"), {
@@ -22,6 +23,16 @@ const JerniBelt = dynamic(() => import("@/components/JerniBelt"), {
 export default function LandingPage() {
   const topicRef = useRef<HTMLSpanElement>(null);
   const topics = ["Journey", "Routine", "Path", "Workflow", "Curriculum"];
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        setUser(data.user);
+      }
+    });
+  }, []);
 
   // Initialize Lenis for smooth scrolling
   useEffect(() => {
@@ -84,8 +95,14 @@ export default function LandingPage() {
             <a href="#about" onMouseEnter={(e) => handleNavHover(e, 'What is JERNI?')} style={{ textDecoration: 'none', color: 'inherit' }}>What is JERNI?</a>
           </div>
           <nav style={{ display: 'flex', gap: '3rem', fontSize: '1.1rem', fontWeight: 500, pointerEvents: 'auto' }}>
-            <a href="/auth/login" onMouseEnter={(e) => handleNavHover(e, 'Log in')} style={{ textDecoration: 'none', color: 'inherit' }}>Log in</a>
-            <a href="/auth/signup" onMouseEnter={(e) => handleNavHover(e, 'Join today')} style={{ textDecoration: 'none', color: '#7C7E9D' }}>Join today</a>
+            {user ? (
+              <a href="/dashboard" onMouseEnter={(e) => handleNavHover(e, 'Dashboard')} style={{ textDecoration: 'none', color: 'inherit' }}>Dashboard</a>
+            ) : (
+              <>
+                <a href="/auth/login" onMouseEnter={(e) => handleNavHover(e, 'Log in')} style={{ textDecoration: 'none', color: 'inherit' }}>Log in</a>
+                <a href="/auth/signup" onMouseEnter={(e) => handleNavHover(e, 'Join today')} style={{ textDecoration: 'none', color: '#7C7E9D' }}>Join today</a>
+              </>
+            )}
           </nav>
         </div>
 
@@ -98,7 +115,7 @@ export default function LandingPage() {
       </section>
 
       {/* Section 2 & 3: Swiss Information Grid */}
-      <section style={{ padding: '8rem 2rem' }}>
+      <section id="about" style={{ padding: '8rem 2rem' }}>
         <div className="container" style={{ padding: 0 }}>
 
           {/* Boxed Grid Container for true Swiss feel */}

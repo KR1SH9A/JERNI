@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { animate } from "motion";
+import Image from "next/image";
 
 export function Sidebar() {
   const router = useRouter();
@@ -38,10 +39,14 @@ export function Sidebar() {
       <div className="sidebar-top">
         {/* Logo area */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
-          <span className="jerni-logo-mask" style={{ width: '2rem', height: '2rem', color: 'var(--color-accent)' }}></span>
-          <h2 style={{ fontFamily: 'var(--font-sans)', fontWeight: 700, fontSize: '1.25rem', color: 'var(--color-text)' }}>
-            JERNI
-          </h2>
+          <Image
+            src="/new-logo.svg"
+            alt="JERNI logo"
+            width={72}
+            height={46}
+            priority
+            style={{ height: '2rem', width: 'auto', display: 'block' }}
+          />
         </div>
         
         <p style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem', color: 'var(--color-muted)', lineHeight: 1.4 }}>

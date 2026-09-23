@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface LikeButtonProps {
   journeyId: string;
@@ -17,15 +18,17 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleClick = () => {
     const nextLiked = !isLiked;
     const delta = nextLiked ? 1 : -1;
     setError(null);
 
+    setIsLiked(nextLiked);
+    setLikeCount((prev) => Math.max(0, prev + delta));
+
     startTransition(async () => {
-      setIsLiked(nextLiked);
-      setLikeCount((prev) => Math.max(0, prev + delta));
 
       try {
         const res = await fetch(`/api/journeys/${journeyId}/likes`, {
@@ -35,6 +38,8 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
           if (res.status === 401) throw new Error('SESSION_EXPIRED');
           throw new Error('Failed');
         }
+        
+        router.refresh();
       } catch (err) {
         setIsLiked(!nextLiked);
         setLikeCount((prev) => Math.max(0, prev - delta));

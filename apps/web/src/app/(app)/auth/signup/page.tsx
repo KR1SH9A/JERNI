@@ -2,46 +2,56 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import { OnboardingModal } from '@/components/onboarding-modal';
+import { Toast, ToastType } from '@/components/ui/toast';
 
-/**
- * /auth/signup — Sign-up page.
- * On success: shows the onboarding recommendation modal before sending to dashboard.
- */
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
+    setToast(null);
 
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setToast({ message: 'Passwords do not match.', type: 'error' });
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setToast({ message: 'Password must be at least 8 characters.', type: 'error' });
       return;
     }
 
     setLoading(true);
     const supabase = createSupabaseBrowserClient();
-    const { error: authError } = await supabase.auth.signUp({ email, password });
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || 'https://jerni.purpl.online',
+      }
+    });
     setLoading(false);
 
     if (authError) {
-      setError(authError.message);
+      setToast({ message: authError.message, type: 'error' });
       return;
     }
 
-    // Show the onboarding modal immediately after signup
-    setShowOnboarding(true);
+    if (data?.session === null) {
+      // Email confirmation is required by Supabase
+      setToast({ message: 'Successfully sent mail, check your inbox.', type: 'success' });
+    } else {
+      // Auto logged in (email confirmation disabled)
+      setShowOnboarding(true);
+    }
   }
 
   return (
@@ -50,48 +60,39 @@ export default function SignupPage() {
         style={{
           minHeight: '100vh',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           padding: '1.5rem',
-          background: 'radial-gradient(ellipse 80% 60% at 50% -20%, rgba(104,199,236,0.06) 0%, transparent 70%)',
+          background: 'var(--color-bg)', // match platform dark theme
         }}
       >
-        <div className="auth-card animate-slide-up">
+        <div style={{
+          width: '100%',
+          maxWidth: '400px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          animation: 'slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}>
           {/* Logo */}
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textDecoration: 'none',
-              marginBottom: '2rem',
-            }}
-          >
-            <span
-              className="jerni-logo-mask"
-              style={{ width: '2.5rem', height: '2.5rem', color: 'var(--color-accent)' }}
+          <Link href="/" style={{ marginBottom: '2rem' }}>
+            <Image
+              src="/new-logo.svg"
+              alt="JERNI logo"
+              width={72}
+              height={46}
+              priority
+              style={{ height: '4.5rem', width: 'auto', display: 'block' }}
             />
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontWeight: 700,
-                fontSize: '1rem',
-                letterSpacing: '0.12em',
-                color: 'var(--color-text)',
-                marginTop: '0.5rem',
-              }}
-            >
-              JERNI
-            </span>
           </Link>
 
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <h1
               style={{
                 fontFamily: 'var(--font-serif)',
-                fontSize: '1.75rem',
-                fontWeight: 400,
+                fontSize: '2.5rem',
+                fontWeight: 700,
                 color: 'var(--color-text)',
                 marginBottom: '0.35rem',
               }}
@@ -103,88 +104,122 @@ export default function SignupPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div className="form-group">
-              <label htmlFor="signup-email" className="form-label">Email</label>
-              <input
-                id="signup-email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="form-input"
-              />
-            </div>
+          <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <input
+              id="signup-email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              style={{
+                width: '100%',
+                padding: '1rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
+            />
 
-            <div className="form-group">
-              <label htmlFor="signup-password" className="form-label">Password</label>
-              <input
-                id="signup-password"
-                type="password"
-                autoComplete="new-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 8 characters"
-                className="form-input"
-              />
-            </div>
+            <input
+              id="signup-password"
+              type="password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              style={{
+                width: '100%',
+                padding: '1rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
+            />
 
-            <div className="form-group">
-              <label htmlFor="signup-confirm" className="form-label">Confirm password</label>
-              <input
-                id="signup-confirm"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                placeholder="••••••••"
-                className="form-input"
-              />
-            </div>
-
-            {error && (
-              <span id="signup-error" className="form-error">{error}</span>
-            )}
+            <input
+              id="signup-confirm"
+              type="password"
+              autoComplete="new-password"
+              required
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Confirm password"
+              style={{
+                width: '100%',
+                padding: '1rem 1.25rem',
+                borderRadius: '999px',
+                border: '1px solid var(--color-border)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--color-border)'}
+            />
 
             <button
               id="signup-submit"
               type="submit"
               disabled={loading}
-              className="btn-primary"
-              style={{ marginTop: '0.25rem', width: '100%' }}
+              style={{
+                marginTop: '1rem',
+                alignSelf: 'center',
+                padding: '1rem 4rem',
+                borderRadius: '999px',
+                background: 'var(--color-accent)',
+                color: 'var(--color-bg)',
+                border: 'none',
+                fontSize: '1rem',
+                fontWeight: 700,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.7 : 1,
+                transition: 'opacity 0.2s, transform 0.1s',
+              }}
+              onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
-              {loading ? (
-                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                  <span style={{
-                    width: '14px', height: '14px', border: '2px solid rgba(5,19,26,0.3)',
-                    borderTopColor: '#05131a', borderRadius: '50%',
-                    display: 'inline-block',
-                    animation: 'spin 0.6s linear infinite',
-                  }} />
-                  Creating account…
-                </span>
-              ) : 'Create account'}
+              {loading ? 'Creating account…' : 'Sign up free'}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: '1.75rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+
+          <p style={{ textAlign: 'center', marginTop: '2.5rem', fontSize: '1rem', color: 'var(--color-muted)' }}>
             Already have an account?{' '}
-            <Link href="/auth/login" style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
-              Sign in →
+            <Link href="/auth/login" style={{ color: 'var(--color-text)', fontWeight: 700, textDecoration: 'underline' }}>
+              Log in
             </Link>
           </p>
         </div>
 
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <style>{`
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
       </main>
 
-      {/* Onboarding modal — appears immediately after signup */}
       {showOnboarding && <OnboardingModal />}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );
 }
