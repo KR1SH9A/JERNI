@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'JERNI — Curated Learning Journeys',
+    default: 'JERNI',
     template: '%s — JERNI',
   },
   description:
@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: 'JERNI',
     type: 'website',
+  },
+  icons: {
+    icon: '/nav-logo.png',
   },
 };
 

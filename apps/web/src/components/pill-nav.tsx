@@ -22,6 +22,7 @@ export interface PillNavProps {
   pillColor?: string;
   hoveredPillTextColor?: string;
   pillTextColor?: string;
+  logoBg?: string;
   onMobileMenuClick?: () => void;
   initialLoadAnimation?: boolean;
 }
@@ -37,13 +38,13 @@ const PillNav: React.FC<PillNavProps> = ({
   pillColor = '#120F17',
   hoveredPillTextColor = '#120F17',
   pillTextColor,
+  logoBg,
   onMobileMenuClick,
   initialLoadAnimation = true
 }) => {
   const resolvedPillTextColor = pillTextColor ?? baseColor;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const tlRefs = useRef<Array<gsap.core.Timeline | null>>([]);
   const activeTweenRefs = useRef<Array<gsap.core.Tween | null>>([]);
@@ -154,12 +155,12 @@ const PillNav: React.FC<PillNavProps> = ({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isCollapsed = isScrolled && !isHovered;
+  const isCollapsed = isScrolled;
 
   useEffect(() => {
     const container = containerRef.current;
     const navItems = navItemsRef.current;
-    
+
     if (!container || !navItems) return;
     if (typeof window === 'undefined' || window.innerWidth < 768) return;
 
@@ -173,7 +174,7 @@ const PillNav: React.FC<PillNavProps> = ({
         overwrite: 'auto'
       });
       gsap.to(container, {
-        left: '2rem',
+        left: '0',
         xPercent: 0,
         x: 0,
         duration: 0.5,
@@ -303,7 +304,7 @@ const PillNav: React.FC<PillNavProps> = ({
     ['--hover-text' as string]: hoveredPillTextColor,
     ['--pill-text' as string]: resolvedPillTextColor,
     ['--nav-h' as string]: '42px',
-    ['--logo-size' as string]: '60px',
+    ['--logo-size' as string]: '70px',
     ['--pill-pad-x' as string]: '18px',
     ['--pill-gap' as string]: '3px'
   } as React.CSSProperties;
@@ -338,11 +339,9 @@ const PillNav: React.FC<PillNavProps> = ({
         .pill-label-hover { position: absolute; left: 0; top: 0; z-index: 3; display: inline-block; }
         .active-indicator { position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); width: 0.75rem; height: 0.75rem; border-radius: 9999px; z-index: 4; }
       `}</style>
-      <div 
+      <div
         className={`pill-nav-container ${className}`}
         ref={containerRef}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
         <nav
           className="pill-nav-inner"
@@ -362,10 +361,10 @@ const PillNav: React.FC<PillNavProps> = ({
               style={{
                 width: 'var(--logo-size)',
                 height: 'var(--logo-size)',
-                background: 'var(--base, #000)'
+                background: logoBg || 'var(--base, #000)'
               }}
             >
-              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '70%', height: '70%', objectFit: 'contain', display: 'block' }} />
             </Link>
           ) : (
             <a
@@ -379,10 +378,10 @@ const PillNav: React.FC<PillNavProps> = ({
               style={{
                 width: 'var(--logo-size)',
                 height: 'var(--logo-size)',
-                background: 'var(--base, #000)'
+                background: logoBg || 'var(--base, #ffed65ff)'
               }}
             >
-              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '70%', height: '70%', objectFit: 'contain', display: 'block' }} />
             </a>
           )}
 
@@ -391,7 +390,7 @@ const PillNav: React.FC<PillNavProps> = ({
             className="pill-nav-items"
             style={{
               height: 'var(--nav-h)',
-              background: 'var(--base, #000)'
+              background: 'var(--base, #ffce39ff)'
             }}
           >
             <ul
@@ -403,8 +402,8 @@ const PillNav: React.FC<PillNavProps> = ({
                 const isActive = activeHref === item.href;
 
                 const pillStyle: React.CSSProperties = {
-                  background: 'var(--pill-bg, #fff)',
-                  color: 'var(--pill-text, var(--base, #000))',
+                  background: isActive ? '#ffce39ff' : 'var(--pill-bg, #fff)',
+                  color: isActive ? '#120F17' : 'var(--pill-text, var(--base, #000))',
                   paddingLeft: 'var(--pill-pad-x)',
                   paddingRight: 'var(--pill-pad-x)'
                 };
