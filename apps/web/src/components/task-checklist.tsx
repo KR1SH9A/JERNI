@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCompletions } from '@/lib/queries/use-completions';
 
 interface TaskReadModel {
   id: string;
@@ -33,60 +32,14 @@ function todayUtc(): string {
 
 /**
  * TaskChecklist — styled task checkboxes with MILESTONE/RECURRING visual distinction.
- * Custom checkbox design; optimistic updates with rollback on error.
+ *
+ * State is owned by the TanStack Query cache (via useCompletions).
+ * Optimistic per-task toggles with rollback on error + toast notification.
+ * No router.refresh() needed.
  */
 export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly }: TaskChecklistProps) {
   const today = todayUtc();
-
-  const initialChecked: Record<string, boolean> = {};
-  for (const c of initialCompletions) {
-    if (!c.isActive) continue;
-    if (c.taskKindSnapshot === 'MILESTONE') {
-      initialChecked[c.taskDefinitionId] = true;
-    } else if (c.taskKindSnapshot === 'RECURRING' && c.forDate === today) {
-      initialChecked[c.taskDefinitionId] = true;
-    }
-  }
-
-  const [checked, setChecked] = useState<Record<string, boolean>>(initialChecked);
-  const [pending, setPending] = useState<Record<string, boolean>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [, startTransition] = useTransition();
-  const router = useRouter();
-
-  const toggle = (task: TaskReadModel) => {
-    if (isReadOnly || pending[task.id]) return;
-    const nextChecked = !checked[task.id];
-    setErrors((prev) => ({ ...prev, [task.id]: '' }));
-
-    setChecked((prev) => ({ ...prev, [task.id]: nextChecked }));
-    setPending((prev) => ({ ...prev, [task.id]: true }));
-
-    startTransition(async () => {
-
-      try {
-        const res = await fetch(
-          `/api/journeys/${journeyId}/tasks/${task.id}/complete`,
-          { method: nextChecked ? 'POST' : 'DELETE' },
-        );
-        if (!res.ok && res.status !== 204) {
-          if (res.status === 401) throw new Error('SESSION_EXPIRED');
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? 'Failed to update task');
-        }
-        
-        router.refresh();
-      } catch (err) {
-        setChecked((prev) => ({ ...prev, [task.id]: !nextChecked }));
-        const msg = err instanceof Error
-          ? err.message === 'SESSION_EXPIRED' ? 'Session expired — sign in again' : err.message
-          : 'Error';
-        setErrors((prev) => ({ ...prev, [task.id]: msg }));
-      } finally {
-        setPending((prev) => ({ ...prev, [task.id]: false }));
-      }
-    });
-  };
+  const { checked, isPending, toggle } = useCompletions(journeyId, initialCompletions);
 
   const sorted = [...tasks].sort((a, b) => a.orderIndex - b.orderIndex);
   const milestones = sorted.filter((t) => t.kind === 'MILESTONE');
@@ -94,23 +47,22 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
 
   const renderTask = (task: TaskReadModel) => {
     const isChecked = checked[task.id] ?? false;
-    const isPending = pending[task.id] ?? false;
-    const error = errors[task.id];
+    const isTaskPending = isPending(task.id);
     const isRecurring = task.kind === 'RECURRING';
 
     return (
       <li
         key={task.id}
         className={`task-item${isChecked ? ' completed' : ''}`}
-        style={{ opacity: isPending ? 0.65 : 1 }}
+        style={{ opacity: isTaskPending ? 0.65 : 1 }}
       >
         {/* Custom checkbox */}
         <button
           type="button"
           id={`task-checkbox-${task.id}`}
           className={`task-checkbox${isChecked ? ' checked' : ''}`}
-          disabled={isPending || isReadOnly}
-          onClick={() => toggle(task)}
+          disabled={isTaskPending || isReadOnly}
+          onClick={() => toggle(task.id, isChecked)}
           aria-pressed={isChecked}
           aria-label={`Mark "${task.title}" as ${isChecked ? 'incomplete' : 'complete'}`}
         />
@@ -134,12 +86,6 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
               </span>
             )}
           </div>
-
-          {error && (
-            <p role="alert" style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.15rem' }}>
-              {error}
-            </p>
-          )}
         </div>
       </li>
     );

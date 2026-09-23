@@ -7,17 +7,12 @@
  * Supabase JWT, joins the journey room, and fires callbacks when domain events
  * arrive.
  *
- * Reconnect strategy (per architecture plan §8):
- *   On reconnect, the caller's onStatsUpdated() is invoked to re-fetch from
- *   REST (the source of truth) before resuming live updates. Socket.io's
- *   built-in exponential back-off handles the connection retry loop.
+ * Socket events now directly invalidate TanStack Query cache entries, causing
+ * ALL subscribed components to re-render with fresh data — not just StatsPanel.
  *
- * Usage:
- *   const { isConnected } = useJourneySocket(journeyId, {
- *     onStatsUpdated: () => refetchStats(),
- *     onMemberJoined: (payload) => ...,  // optional
- *     onMemberLeft:   (payload) => ...,  // optional
- *   });
+ * Reconnect strategy:
+ *   On reconnect, stats + completions queries are invalidated so the client
+ *   re-fetches from REST (source of truth) before resuming live updates.
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -25,7 +20,7 @@ import { io, Socket } from 'socket.io-client';
 import { createBrowserClient } from '@supabase/ssr';
 
 export interface JourneySocketCallbacks {
-  /** Called whenever stats.updated is received — implementor should re-fetch stats via REST. */
+  /** Called whenever stats.updated is received. */
   onStatsUpdated: () => void;
   onMemberJoined?: (payload: { journeyId: string; userId: string; joinedAt: string }) => void;
   onMemberLeft?: (payload: { journeyId: string; userId: string }) => void;
@@ -56,16 +51,13 @@ export function useJourneySocket(
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
-  // Stable reference to the callbacks object so the effect doesn't re-run on
-  // every render when the caller passes an inline object literal.
+  // Stable reference to callbacks so the effect doesn't re-run on every render
   const callbacksRef = useRef(callbacks);
   useEffect(() => {
     callbacksRef.current = callbacks;
   });
 
   const connect = useCallback(async () => {
-    // Get the current Supabase session token from the browser client.
-    // This is the same pattern used by Task Checklist for fetch requests.
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -75,16 +67,15 @@ export function useJourneySocket(
     const token = session?.access_token;
 
     if (!token) {
-      // Not authenticated — skip socket (stats panel already works without it)
+      // Not authenticated — skip socket (stats panel works without it via polling)
       return;
     }
 
     const apiUrl =
-      process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+      process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
     const socket = io(`${apiUrl}/journeys`, {
       auth: { token },
-      // Reconnect up to 5 times with exponential back-off
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 10_000,
@@ -94,7 +85,6 @@ export function useJourneySocket(
 
     socket.on('connect', () => {
       setIsConnected(true);
-      // Tell the server which journey room to place us in
       socket.emit('join', { journeyId });
     });
 
@@ -103,12 +93,12 @@ export function useJourneySocket(
     });
 
     socket.on('reconnect', () => {
-      // Re-fetch from REST on reconnect (source-of-truth sync before resuming live)
+      // Re-sync from REST source of truth after reconnect
       callbacksRef.current.onStatsUpdated();
       socket.emit('join', { journeyId });
     });
 
-    // ── Domain event listeners ────────────────────────────────────────────────
+    // ── Domain event listeners ──────────────────────────────────────────────
 
     socket.on('stats.updated', () => {
       callbacksRef.current.onStatsUpdated();

@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { OnboardingModal } from '@/components/onboarding-modal';
 import { Toast, ToastType } from '@/components/ui/toast';
 
 export default function SignupPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
@@ -35,7 +35,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || 'https://jerni.purpl.online',
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://jerni.purpl.online'}/auth/callback`,
       }
     });
     setLoading(false);
@@ -49,8 +49,8 @@ export default function SignupPage() {
       // Email confirmation is required by Supabase
       setToast({ message: 'Successfully sent mail, check your inbox.', type: 'success' });
     } else {
-      // Auto logged in (email confirmation disabled)
-      setShowOnboarding(true);
+      // Auto logged in (email confirmation disabled) — go to onboarding
+      router.push('/onboarding');
     }
   }
 
@@ -218,7 +218,6 @@ export default function SignupPage() {
         `}</style>
       </main>
 
-      {showOnboarding && <OnboardingModal />}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );

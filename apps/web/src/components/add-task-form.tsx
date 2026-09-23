@@ -1,62 +1,68 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queries/query-keys';
+
+interface TaskReadModel {
+  id: string;
+  title: string;
+  orderIndex: number;
+  kind: 'MILESTONE' | 'RECURRING';
+  recurrenceRule: string | null;
+}
 
 interface AddTaskFormProps {
   journeyId: string;
-  onTaskAdded?: (task: any) => void;
+  onTaskAdded?: (task: TaskReadModel) => void;
 }
 
 export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [kind, setKind] = useState<'MILESTONE' | 'RECURRING'>('MILESTONE');
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim()) return;
-    setError(null);
+  const mutation = useMutation({
+    mutationFn: async (payload: { title: string; kind: string; recurrenceRule?: string }) => {
+      const res = await fetch(`/api/journeys/${journeyId}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('Your session has expired. Please sign in again to add tasks.');
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? 'Failed to add task');
+      }
+      return res.json() as Promise<TaskReadModel>;
+    },
 
-    const payload: any = {
+    onSuccess: (newTask) => {
+      // Reset form
+      setTitle('');
+      setKind('MILESTONE');
+      toast.success('Task added!');
+      // Notify parent (TaskManager) to update its task list in cache
+      onTaskAdded?.(newTask);
+      // Invalidate journey so taskCount stays accurate
+      queryClient.invalidateQueries({ queryKey: queryKeys.journey(journeyId) });
+    },
+
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong');
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim() || mutation.isPending) return;
+    const payload: { title: string; kind: string; recurrenceRule?: string } = {
       title: title.trim(),
       kind,
     };
-    if (kind === 'RECURRING') {
-      payload.recurrenceRule = 'DAILY';
-    }
-
-    startTransition(async () => {
-      try {
-        const res = await fetch(`/api/journeys/${journeyId}/tasks`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            setError('Your session has expired. Please sign in again to add tasks.');
-            return;
-          }
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? 'Failed to add task');
-        }
-
-        const task = await res.json();
-        
-        // Reset form on success
-        setTitle('');
-        setKind('MILESTONE');
-        
-        if (onTaskAdded) {
-          onTaskAdded(task);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong');
-      }
-    });
+    if (kind === 'RECURRING') payload.recurrenceRule = 'DAILY';
+    mutation.mutate(payload);
   }
 
   return (
@@ -67,16 +73,10 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
         marginTop: '1.5rem',
         padding: '1.5rem',
         border: '1px dashed var(--color-border)',
-        background: 'transparent'
+        background: 'transparent',
       }}
     >
       <h3 style={{ fontSize: '1rem', marginBottom: '1rem' }}>Add a Task</h3>
-
-      {error && (
-        <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '1rem' }}>
-          {error}
-        </div>
-      )}
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
         <div style={{ flex: 1 }}>
@@ -88,12 +88,12 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
             placeholder="e.g. Read Chapter 1"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            disabled={isPending}
+            disabled={mutation.isPending}
             style={{
               width: '100%',
               padding: '0.5rem 0.75rem',
               borderRadius: '6px',
-              border: '1px solid var(--color-border)'
+              border: '1px solid var(--color-border)',
             }}
           />
         </div>
@@ -101,12 +101,12 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
         <select
           value={kind}
           onChange={(e) => setKind(e.target.value as 'MILESTONE' | 'RECURRING')}
-          disabled={isPending}
+          disabled={mutation.isPending}
           style={{
             padding: '0.5rem',
             borderRadius: '6px',
             border: '1px solid var(--color-border)',
-            background: 'var(--color-surface)'
+            background: 'var(--color-surface)',
           }}
         >
           <option value="MILESTONE">Milestone (Once)</option>
@@ -115,7 +115,7 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
 
         <button
           type="submit"
-          disabled={isPending || !title.trim()}
+          disabled={mutation.isPending || !title.trim()}
           style={{
             padding: '0.5rem 1rem',
             borderRadius: '6px',
@@ -123,11 +123,11 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
             color: 'white',
             border: 'none',
             fontWeight: 500,
-            cursor: (isPending || !title.trim()) ? 'not-allowed' : 'pointer',
-            opacity: (isPending || !title.trim()) ? 0.6 : 1
+            cursor: (mutation.isPending || !title.trim()) ? 'not-allowed' : 'pointer',
+            opacity: (mutation.isPending || !title.trim()) ? 0.6 : 1,
           }}
         >
-          {isPending ? 'Adding...' : 'Add Task'}
+          {mutation.isPending ? 'Adding...' : 'Add Task'}
         </button>
       </div>
     </form>
