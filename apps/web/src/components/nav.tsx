@@ -2,6 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
+import { createClient } from '@/utils/supabase/server';
+import { SignoutButton } from './signout-button';
 
 /**
  * Nav — Server Component (glassmorphism top bar).
@@ -29,14 +31,14 @@ export async function Nav() {
     <header className="global-nav">
       <div className="container nav-inner">
         {/* Wordmark */}
-        <Link href="/" className="nav-logo" id="nav-logo">
+        <Link href="/dashboard" className="nav-logo" id="nav-logo">
           <Image
             src="/new-logo.svg"
             alt="JERNI logo"
             width={72}
             height={46}
             priority
-            style={{ height: '1.25rem', width: 'auto', display: 'block' }}
+            style={{ height: '3rem', width: 'auto', display: 'block' }}
           />
         </Link>
 
@@ -51,16 +53,7 @@ export async function Nav() {
               <Link href="/dashboard" id="nav-dashboard" className="nav-link">
                 Dashboard
               </Link>
-              <form action="/auth/signout" method="post" style={{ display: 'contents' }}>
-                <button
-                  type="submit"
-                  className="nav-link-btn"
-                  id="nav-signout"
-                  aria-label="Sign out"
-                >
-                  Sign out
-                </button>
-              </form>
+              <SignoutButton />
             </>
           ) : (
             <>

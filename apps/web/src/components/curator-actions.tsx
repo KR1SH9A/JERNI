@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { ConfirmModal } from './ui/confirm-modal';
 
 interface CuratorActionsProps {
   journeyId: string;
@@ -18,6 +19,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = useState(status);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
 
   const handleAction = (action: 'publish' | 'archive') => {
     if (isPending) return;
@@ -28,12 +30,14 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
     }
 
     if (action === 'archive') {
-      const confirmArchive = window.confirm(
-        'Are you sure you want to archive this journey? This will prevent new users from joining and lock tasks for existing members.'
-      );
-      if (!confirmArchive) return;
+      setShowArchiveModal(true);
+      return;
     }
 
+    executeAction(action);
+  };
+
+  const executeAction = (action: 'publish' | 'archive') => {
     setError(null);
     startTransition(async () => {
       try {
@@ -54,6 +58,10 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
         setCurrentStatus(action === 'publish' ? 'PUBLISHED' : 'ARCHIVED');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error');
+      } finally {
+        if (action === 'archive') {
+          setShowArchiveModal(false);
+        }
       }
     });
   };
@@ -100,6 +108,17 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           {error}
         </p>
       )}
+
+      <ConfirmModal
+        isOpen={showArchiveModal}
+        title="Archive Journey"
+        description="Are you sure you want to archive this journey? This will prevent new users from joining and lock tasks for existing members."
+        confirmText="Archive"
+        cancelText="Cancel"
+        isPending={isPending}
+        onConfirm={() => executeAction('archive')}
+        onCancel={() => setShowArchiveModal(false)}
+      />
     </div>
   );
 }

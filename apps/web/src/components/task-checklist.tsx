@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface TaskReadModel {
   id: string;
@@ -51,15 +52,17 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [, startTransition] = useTransition();
+  const router = useRouter();
 
   const toggle = (task: TaskReadModel) => {
     if (isReadOnly || pending[task.id]) return;
     const nextChecked = !checked[task.id];
     setErrors((prev) => ({ ...prev, [task.id]: '' }));
 
+    setChecked((prev) => ({ ...prev, [task.id]: nextChecked }));
+    setPending((prev) => ({ ...prev, [task.id]: true }));
+
     startTransition(async () => {
-      setChecked((prev) => ({ ...prev, [task.id]: nextChecked }));
-      setPending((prev) => ({ ...prev, [task.id]: true }));
 
       try {
         const res = await fetch(
@@ -71,6 +74,8 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
           const body = await res.json().catch(() => ({}));
           throw new Error(body?.message ?? 'Failed to update task');
         }
+        
+        router.refresh();
       } catch (err) {
         setChecked((prev) => ({ ...prev, [task.id]: !nextChecked }));
         const msg = err instanceof Error
