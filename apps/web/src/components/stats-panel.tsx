@@ -1,8 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useJourneySocket } from '@/lib/use-journey-socket';
-import type { JourneyStatsReadModel, TodayBoardEntry, LeaderboardEntry } from '@jerni/shared-types';
+import { useStats } from '@/lib/queries/use-stats';
+import { queryKeys } from '@/lib/queries/query-keys';
+import type { TodayBoardEntry, LeaderboardEntry } from '@jerni/shared-types';
 
 interface StatsPanelProps {
   journeyId: string;
@@ -45,35 +48,19 @@ function LiveIndicator() {
 }
 
 export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
-  const [stats, setStats] = useState<JourneyStatsReadModel | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<'today' | 'alltime'>('today');
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchStats = useCallback(() => {
-    setLoading(true);
-    fetch(`/api/journeys/${journeyId}/stats`)
-      .then((r) => r.json())
-      .then((data: JourneyStatsReadModel) => { setStats(data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [journeyId]);
+  // TanStack Query handles loading, error, and background refetching.
+  const { data: stats, isLoading } = useStats(journeyId);
 
-  /**
-   * Debounced version — socket events may arrive in bursts (multiple members
-   * completing tasks at once). This collapses them into one fetch 400ms after
-   * the last event rather than firing one fetch per event.
-   */
-  const debouncedFetch = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(fetchStats, 400);
-  }, [fetchStats]);
-
-  useEffect(() => {
-    fetchStats();
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [fetchStats]);
-
-  const { isConnected } = useJourneySocket(journeyId, { onStatsUpdated: debouncedFetch });
+  // Socket integration: events invalidate the stats query key directly,
+  // causing TanStack Query to background-refetch for all subscribers.
+  const { isConnected } = useJourneySocket(journeyId, {
+    onStatsUpdated: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.stats(journeyId) });
+    },
+  });
 
   return (
     <section className="stats-panel card" aria-label="Journey stats">
@@ -104,7 +91,7 @@ export function StatsPanel({ journeyId, totalTasks }: StatsPanelProps) {
         </div>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="stats-skeleton">
           {[1, 2, 3].map((i) => (
             <div key={i} className="skeleton-row" />

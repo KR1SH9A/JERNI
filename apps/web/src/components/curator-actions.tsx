@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ConfirmModal } from './ui/confirm-modal';
+import { queryKeys } from '@/lib/queries/query-keys';
 
 interface CuratorActionsProps {
   journeyId: string;
@@ -12,20 +14,55 @@ interface CuratorActionsProps {
 }
 
 /**
- * CuratorActions — client component for curators to trigger state transitions.
+ * CuratorActions — curator state transitions (publish / archive).
+ *
+ * Uses TanStack Query mutation to optimistically update local status in cache.
+ * No router.refresh() needed — status is reflected via the mutation's onMutate.
  */
 export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
   const [currentStatus, setCurrentStatus] = useState(status);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
 
+  const mutation = useMutation({
+    mutationFn: async (action: 'publish' | 'archive') => {
+      const method = action === 'publish' ? 'PATCH' : 'POST';
+      const res = await fetch(`/api/journeys/${journeyId}/${action}`, { method });
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('Your session has expired. Please sign in again.');
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message ?? `Failed to ${action} journey`);
+      }
+    },
+
+    onMutate: (action) => {
+      // Optimistically update local status display
+      setCurrentStatus(action === 'publish' ? 'PUBLISHED' : 'ARCHIVED');
+    },
+
+    onError: (err, action) => {
+      // Roll back status on failure
+      setCurrentStatus(status);
+      toast.error(err instanceof Error ? err.message : `Failed to ${action} journey`);
+    },
+
+    onSuccess: (_, action) => {
+      toast.success(action === 'publish' ? 'Journey published!' : 'Journey archived');
+      // Invalidate dashboard + discover so cards reflect new status
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.discover() });
+    },
+
+    onSettled: () => {
+      setShowArchiveModal(false);
+    },
+  });
+
   const handleAction = (action: 'publish' | 'archive') => {
-    if (isPending) return;
+    if (mutation.isPending) return;
 
     if (action === 'publish' && taskCount === 0) {
-      setError('Cannot publish a journey with no tasks. Add at least one task first.');
+      toast.error('Cannot publish a journey with no tasks. Add at least one task first.');
       return;
     }
 
@@ -34,36 +71,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
       return;
     }
 
-    executeAction(action);
-  };
-
-  const executeAction = (action: 'publish' | 'archive') => {
-    setError(null);
-    startTransition(async () => {
-      try {
-        const method = action === 'publish' ? 'PATCH' : 'POST';
-        const res = await fetch(`/api/journeys/${journeyId}/${action}`, {
-          method,
-        });
-
-        if (!res.ok) {
-          if (res.status === 401) {
-            setError('Your session has expired. Please sign in again.');
-            return;
-          }
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body?.message ?? `Failed to ${action} journey`);
-        }
-
-        setCurrentStatus(action === 'publish' ? 'PUBLISHED' : 'ARCHIVED');
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error');
-      } finally {
-        if (action === 'archive') {
-          setShowArchiveModal(false);
-        }
-      }
-    });
+    mutation.mutate(action);
   };
 
   return (
@@ -76,13 +84,13 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             <button
               className="btn-sm"
               onClick={() => handleAction('publish')}
-              disabled={isPending}
+              disabled={mutation.isPending}
               style={{ background: 'var(--color-primary, #6366f1)', color: 'white', border: 'none' }}
             >
-              {isPending ? 'Publishing...' : 'Publish'}
+              {mutation.isPending ? 'Publishing...' : 'Publish'}
             </button>
             <Link href={`/dashboard/journeys/${journeyId}/edit`}>
-              <button className="btn-sm" id="curator-edit-btn" disabled={isPending}>Edit</button>
+              <button className="btn-sm" id="curator-edit-btn" disabled={mutation.isPending}>Edit</button>
             </Link>
           </>
         )}
@@ -91,23 +99,17 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           <button
             className="btn-sm"
             onClick={() => handleAction('archive')}
-            disabled={isPending}
+            disabled={mutation.isPending}
             style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
           >
-            {isPending ? 'Archiving...' : 'Archive'}
+            {mutation.isPending ? 'Archiving...' : 'Archive'}
           </button>
         )}
 
         <Link href="/dashboard">
-          <button className="btn-sm" id="curator-dashboard-btn" disabled={isPending}>Dashboard</button>
+          <button className="btn-sm" id="curator-dashboard-btn" disabled={mutation.isPending}>Dashboard</button>
         </Link>
       </div>
-
-      {error && (
-        <p style={{ color: '#ef4444', fontSize: '13px', marginTop: '8px', width: '100%' }}>
-          {error}
-        </p>
-      )}
 
       <ConfirmModal
         isOpen={showArchiveModal}
@@ -115,8 +117,8 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
         description="Are you sure you want to archive this journey? This will prevent new users from joining and lock tasks for existing members."
         confirmText="Archive"
         cancelText="Cancel"
-        isPending={isPending}
-        onConfirm={() => executeAction('archive')}
+        isPending={mutation.isPending}
+        onConfirm={() => mutation.mutate('archive')}
         onCancel={() => setShowArchiveModal(false)}
       />
     </div>

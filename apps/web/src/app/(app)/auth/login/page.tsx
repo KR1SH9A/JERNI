@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
-import { OnboardingModal } from '@/components/onboarding-modal';
 import { Toast, ToastType } from '@/components/ui/toast';
 
 export default function LoginPage() {
@@ -13,7 +12,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const [toast, setToast] = useState<{ message: string, type: ToastType } | null>(null);
 
@@ -52,12 +50,10 @@ export default function LoginPage() {
     }
 
     if (data.user) {
-      const created = new Date(data.user.created_at).getTime();
-      const now = new Date().getTime();
-      if (now - created < 1000 * 60 * 10) {
-        setShowOnboarding(true);
-        return;
-      }
+      // Route based on persistent onboarding_completed flag
+      const hasOnboarded = data.user.user_metadata?.onboarding_completed === true;
+      router.push(hasOnboarded ? '/dashboard' : '/onboarding');
+      return;
     }
 
     router.push('/dashboard');
@@ -204,7 +200,6 @@ export default function LoginPage() {
         `}</style>
       </main>
 
-      {showOnboarding && <OnboardingModal />}
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   );

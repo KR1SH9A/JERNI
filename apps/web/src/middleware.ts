@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
   if (session?.access_token) {
     // Forward the access token to downstream Route Handlers to avoid race conditions
     requestHeaders.set('x-user-token', session.access_token);
-    
+
     // Recreate response with updated request headers so Route Handlers see them
     const existingCookies = supabaseResponse.cookies.getAll();
     supabaseResponse = NextResponse.next({
@@ -57,9 +57,14 @@ export async function middleware(request: NextRequest) {
 
     const url = request.nextUrl;
     if (url.pathname.startsWith('/auth/login') || url.pathname.startsWith('/auth/signup')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+      // Logged-in users trying to visit auth pages: check onboarding status
+      const { data: { user } } = await supabase.auth.getUser();
+      const hasOnboarded = user?.user_metadata?.onboarding_completed === true;
+      const destination = hasOnboarded ? '/dashboard' : '/onboarding';
+      return NextResponse.redirect(new URL(destination, request.url));
     }
   }
+
 
   return supabaseResponse;
 }
