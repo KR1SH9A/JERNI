@@ -35,9 +35,10 @@ export function NavClient({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000, pointerEvents: 'none' }}>
         <div className="container" style={{ position: 'relative', pointerEvents: 'auto' }}>
           <PillNav
-            logo="/new-logo.svg"
-            logoAlt="JERNI Logo"
+            logo="/jerni-logo.svg"
+            logoAlt="jerni"
             items={items}
+            logoBg="#ffce39ff"
           />
         </div>
       </div>

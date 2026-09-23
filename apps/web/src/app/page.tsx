@@ -10,20 +10,36 @@ if (typeof window !== "undefined") {
 import dynamic from "next/dynamic";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-// Dynamically import the 3D scene to avoid SSR mismatch issues with Canvas
 const JerniBelt = dynamic(() => import("@/components/JerniBelt"), {
   ssr: false,
-  loading: () => (
-    <div className="w-full h-screen" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-sans)', color: 'var(--color-muted)' }}>
-      Loading 3D Scene...
-    </div>
-  ),
 });
 
 export default function LandingPage() {
   const topicRef = useRef<HTMLSpanElement>(null);
   const topics = ["Journey", "Routine", "Path", "Workflow", "Curriculum"];
   const [user, setUser] = useState<any>(null);
+
+  const [loaderVisible, setLoaderVisible] = useState(true);
+  const [loaderOpacity, setLoaderOpacity] = useState(1);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress(p => {
+        const next = p + Math.floor(Math.random() * 10) + 1;
+        if (next >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            setLoaderOpacity(0);
+            setTimeout(() => setLoaderVisible(false), 800);
+          }, 200); // short delay at 100% before fading
+          return 100;
+        }
+        return next;
+      });
+    }, 40);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
@@ -84,9 +100,32 @@ export default function LandingPage() {
   };
 
   return (
-    <main style={{ background: 'var(--color-bg)', minHeight: '100vh', width: '100vw', overflowX: 'hidden' }}>
-      {/* Section 1: Hero with 3D Typography */}
-      <section style={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <>
+      {loaderVisible && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 9999,
+          background: 'var(--color-bg)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'var(--font-script)',
+          fontSize: 'clamp(4rem, 10vw, 8rem)',
+          color: 'var(--color-text)',
+          opacity: loaderOpacity,
+          transition: 'opacity 0.8s ease-in-out',
+          pointerEvents: 'none',
+        }}>
+          {Math.min(progress, 100)}%
+        </div>
+      )}
+      <main style={{ background: 'var(--color-bg)', minHeight: '100vh', width: '100vw', overflowX: 'hidden' }}>
+        {/* Section 1: Hero with 3D Typography */}
+        <section style={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
         <JerniBelt />
 
         {/* Overlay Navigation */}
@@ -177,6 +216,7 @@ export default function LandingPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }
 
