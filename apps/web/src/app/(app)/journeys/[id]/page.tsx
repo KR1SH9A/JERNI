@@ -196,41 +196,6 @@ export default async function JourneyDetailPage({
               </div>
             )}
           </div>
-
-          {/* Action sidebar */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', minWidth: 180, flexShrink: 0 }}>
-            {/* Status */}
-            <span
-              className={`badge ${journey.status.toLowerCase()}`}
-              style={{ textAlign: 'center', justifyContent: 'center' }}
-            >
-              {journey.status}
-            </span>
-
-            <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', textAlign: 'center' }}>
-              {journey.taskCount} task{journey.taskCount !== 1 ? 's' : ''}
-            </div>
-
-            {/* Like button */}
-            <LikeButton
-              journeyId={journey.id}
-              initialIsLiked={initialIsLiked}
-              initialLikeCount={journey.likeCount}
-            />
-
-            {/* Join button */}
-            {token && journey.status === 'PUBLISHED' && (
-              <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
-            )}
-            {!token && journey.status === 'PUBLISHED' && (
-              <Link
-                href="/auth/login"
-                style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-muted)' }}
-              >
-                Sign in to join
-              </Link>
-            )}
-          </div>
         </div>
 
         {/* Tasks */}
@@ -257,6 +222,36 @@ export default async function JourneyDetailPage({
           <StatsPanel journeyId={journey.id} totalTasks={journey.taskCount} />
         )}
       </div>
+
+      {/* Curator Bar */}
+      <div className="curator-bar">
+        <div className="curator-bar-inner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--text)' }}>
+              U
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontWeight: 600, fontSize: '15px' }}>{journey.title}</span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{journey.taskCount} tasks • {journey.likeCount} likes</span>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <LikeButton
+              journeyId={journey.id}
+              initialIsLiked={initialIsLiked}
+              initialLikeCount={journey.likeCount}
+            />
+            {token && journey.status === 'PUBLISHED' && (
+              <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
+            )}
+            {!token && journey.status === 'PUBLISHED' && (
+              <Link href="/auth/login" className="btn btn-primary">Sign in to join</Link>
+            )}
+          </div>
+        </div>
+      </div>
     </main>
+
   );
 }
