@@ -9,7 +9,9 @@ if (typeof window !== "undefined") {
 }
 import dynamic from "next/dynamic";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-
+const JerniBelt = dynamic(() => import("@/components/JerniBelt"), {
+  ssr: false,
+});
 
 export default function LandingPage() {
   const topicRef = useRef<HTMLSpanElement>(null);
@@ -123,7 +125,7 @@ export default function LandingPage() {
       <main style={{ background: 'var(--color-bg)', minHeight: '100vh', width: '100vw', overflowX: 'hidden' }}>
         {/* Section 1: Hero with 3D Typography */}
         <section style={{ height: '100vh', position: 'relative', overflow: 'hidden' }}>
-
+        <JerniBelt />
 
         {/* Overlay Navigation */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '2.5rem 3.5rem', display: 'flex', justifyContent: 'space-between', zIndex: 10, color: 'var(--muted)', pointerEvents: 'none' }}>
