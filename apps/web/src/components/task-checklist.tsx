@@ -77,8 +77,8 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
           </label>
 
           <div className="task-meta">
-            <span className={`task-kind-pill ${isRecurring ? 'recurring' : 'milestone'}`}>
-              {isRecurring ? '↻ Daily' : '◆ Milestone'}
+            <span className={`badge ${isRecurring ? 'recurring' : 'milestone'}`}>
+              {isRecurring ? 'RECURRING' : 'MILESTONE'}
             </span>
             {isRecurring && (
               <span style={{ color: 'var(--color-muted-2)', fontSize: '0.72rem' }}>

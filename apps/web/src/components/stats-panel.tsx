@@ -151,8 +151,8 @@ function Leaderboard({ entries }: { entries: LeaderboardEntry[] }) {
           <span className="stats-rank">#{i + 1}</span>
           <span className="stats-name" style={{ flex: 1 }}>{e.displayName}</span>
           <div className="stats-meta">
-            <span title="Milestones">◆ {e.milestonesCompleted}</span>
-            <span title="Recurring done today">↻ {e.recurringDoneToday}</span>
+            <span className="badge milestone" title="Milestones">MILESTONES: {e.milestonesCompleted}</span>
+            <span className="badge recurring" title="Recurring done today">RECURRING: {e.recurringDoneToday}</span>
           </div>
         </li>
       ))}

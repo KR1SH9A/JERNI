@@ -862,29 +862,21 @@ button:disabled, .btn:disabled, .btn-disabled {
   gap: 0.5rem;
 }
 
-.task-kind-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+/* ─── Task Kind Badges ─────────────────────────────────────────────────── */
+.badge.milestone, .task-kind-pill.milestone {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+  font-weight: 500;
 }
 
-.task-kind-pill.milestone {
-  background: rgba(96, 75, 117, 0.1);
-  color: var(--color-accent);
-  border: 1px solid rgba(96, 75, 117, 0.2);
+.badge.recurring, .task-kind-pill.recurring {
+  background: var(--teal);
+  color: var(--on-accent);
+  border-color: var(--teal);
+  font-weight: 500;
 }
 
-.task-kind-pill.recurring {
-  background: rgba(98, 193, 184, 0.1);
-  color: var(--color-success);
-  border: 1px solid rgba(98, 193, 184, 0.2);
-}
 
 /* ─── Like button ────────────────────────────────────────────────────────── */
 .like-btn {

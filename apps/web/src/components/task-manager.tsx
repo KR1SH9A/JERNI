@@ -85,7 +85,7 @@ export function TaskManager({
                     </span>
                     <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
                     <span className={`badge ${task.kind?.toLowerCase() ?? 'milestone'}`}>
-                      {task.kind === 'RECURRING' ? 'daily' : 'milestone'}
+                      {task.kind === 'RECURRING' ? 'RECURRING' : 'MILESTONE'}
                     </span>
                   </div>
                 ))}
