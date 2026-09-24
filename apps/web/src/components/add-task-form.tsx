@@ -1,10 +1,8 @@
 'use client';
-
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { queryKeys } from '@/lib/queries/query-keys';
-
 interface TaskReadModel {
   id: string;
   title: string;
@@ -12,18 +10,15 @@ interface TaskReadModel {
   kind: 'MILESTONE' | 'RECURRING';
   recurrenceRule: string | null;
 }
-
 interface AddTaskFormProps {
   journeyId: string;
   onTaskAdded?: (task: TaskReadModel) => void;
 }
-
 export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [kind, setKind] = useState<'MILESTONE' | 'RECURRING'>('MILESTONE');
   const [isExpanded, setIsExpanded] = useState(false);
-
   const mutation = useMutation({
     mutationFn: async (payload: { title: string; kind: string; recurrenceRule?: string }) => {
       const res = await fetch(`/api/journeys/${journeyId}/tasks`, {
@@ -38,7 +33,6 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
       }
       return res.json() as Promise<TaskReadModel>;
     },
-
     onSuccess: (newTask) => {
       // Reset form
       setTitle('');
@@ -49,12 +43,10 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
       // Invalidate journey so taskCount stays accurate
       queryClient.invalidateQueries({ queryKey: queryKeys.journey(journeyId) });
     },
-
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : 'Something went wrong');
     },
   });
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim() || mutation.isPending) return;
@@ -65,7 +57,6 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
     if (kind === 'RECURRING') payload.recurrenceRule = 'DAILY';
     mutation.mutate(payload);
   }
-
   return (
     <>
       <style>{`
@@ -123,51 +114,6 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
           gap: 1rem;
           align-items: center;
         }
-        .add-task-input {
-          flex: 1;
-          padding: 0.875rem 1.25rem;
-          border-radius: 12px;
-          border: 1px solid var(--color-border);
-          background: var(--color-surface-2);
-          color: var(--color-text);
-          font-family: var(--font-sans), system-ui, sans-serif;
-          font-size: 1rem;
-          transition: all 0.2s ease;
-        }
-        .add-task-input::placeholder {
-          color: var(--color-muted);
-        }
-        .add-task-input:focus {
-          outline: none;
-          border-color: var(--color-accent);
-          background: var(--color-surface-3);
-          box-shadow: 0 0 0 3px var(--color-accent-dim), 0 0 15px var(--color-accent-glow);
-        }
-        .add-task-select {
-          padding: 0.875rem 1.25rem;
-          border-radius: 12px;
-          border: 1px solid var(--color-border);
-          background: var(--color-surface-2);
-          color: var(--color-text);
-          font-family: var(--font-sans), system-ui, sans-serif;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          appearance: none;
-          padding-right: 2.5rem;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-          background-repeat: no-repeat;
-          background-position: right 1rem center;
-          background-size: 16px;
-        }
-        .add-task-select:focus {
-          outline: none;
-          border-color: var(--color-accent);
-        }
-        .add-task-select option {
-          background: var(--color-bg);
-          color: var(--color-text);
-        }
         .add-task-actions {
           display: flex;
           justify-content: flex-end;
@@ -201,7 +147,6 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
           background: var(--color-border);
         }
       `}</style>
-      
       <div className="add-task-container">
         {!isExpanded ? (
           <button 
@@ -229,13 +174,13 @@ export function AddTaskForm({ journeyId, onTaskAdded }: AddTaskFormProps) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   disabled={mutation.isPending}
-                  className="add-task-input"
+                  className="form-input"
                 />
                 <select
                   value={kind}
                   onChange={(e) => setKind(e.target.value as 'MILESTONE' | 'RECURRING')}
                   disabled={mutation.isPending}
-                  className="add-task-select"
+                  className="form-select"
                 >
                   <option value="MILESTONE">Milestone</option>
                   <option value="RECURRING">Recurring</option>
