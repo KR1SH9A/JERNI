@@ -4,84 +4,82 @@ import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import type { CuratorJourneyCard } from "@jerni/shared-types";
 
-function JourneyCard({ journey }: { journey: any }) {
-  const hue = journey.title.charCodeAt(0) * 5;
-  const hue2 = (journey.title.charCodeAt(1) || hue + 40) * 5;
+import { JourneyCover } from "@/components/brand/JourneyCover";
 
+function JourneyCard({ journey }: { journey: any }) {
   return (
-    <article className="journey-card" aria-label={journey.title}>
-      {/* Cover gradient */}
-      <div
-        className="journey-card-cover"
+    <Link href={`/journeys/${journey.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <article 
+        className="card" 
+        aria-label={journey.title}
         style={{
-          background: `linear-gradient(135deg, hsl(${hue},45%,14%) 0%, hsl(${hue2 % 360},35%,10%) 100%)`,
+          background: 'var(--surface)',
+          border: '1px solid var(--line)',
+          borderRadius: 'var(--r4)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
         }}
       >
-        <span className="journey-card-cover-initials">
-          {journey.title.slice(0, 2).toUpperCase()}
-        </span>
-        {/* Subtle grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, opacity: 0.04,
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px)',
-        }} />
-      </div>
-
-      <div className="journey-card-body">
-        {/* Tags */}
-        {journey.tags?.length > 0 && (
-          <div className="journey-card-tags">
-            {journey.tags.slice(0, 3).map((tag: string, i: number) => (
-              <span key={`${tag}-${i}`} className="badge">{tag}</span>
-            ))}
-          </div>
-        )}
-
-        {/* Title */}
-        <Link href={`/journeys/${journey.id}`} style={{ textDecoration: 'none' }}>
-          <h2 className="journey-card-title">{journey.title}</h2>
-        </Link>
-
-        {/* Description */}
-        {journey.description && (
-          <p className="journey-card-desc">
-            {journey.description.length > 90
-              ? `${journey.description.slice(0, 90)}…`
-              : journey.description}
-          </p>
-        )}
-
-        {/* Meta */}
-        <div className="journey-card-meta">
-          <span className="journey-card-meta-item">
-            <span>✦</span>
-            {journey.taskCount} task{journey.taskCount !== 1 ? 's' : ''}
-          </span>
-          <span className="journey-card-meta-item">
-            <span>♥</span>
-            {journey.likeCount}
-          </span>
-          {journey.memberCount !== undefined && (
-            <span className="journey-card-meta-item">
-              <span>◎</span>
-              {journey.memberCount}
-            </span>
+        <JourneyCover 
+          title={journey.title} 
+          tags={journey.tags} 
+          style={{ height: '150px' }} 
+        />
+        <div style={{ padding: 'var(--s4)', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          {journey.tags?.length > 0 && (
+            <div style={{ display: 'flex', gap: 'var(--s1)', flexWrap: 'wrap', marginBottom: 'var(--s3)' }}>
+              {journey.tags.slice(0, 3).map((tag: string, i: number) => (
+                <span key={`${tag}-${i}`} className="badge">{tag}</span>
+              ))}
+            </div>
+          )}
+          <h3 style={{ 
+            fontFamily: 'var(--font-fraunces)', 
+            fontSize: '1.5rem', 
+            fontWeight: 400, 
+            margin: '0 0 var(--s2) 0',
+            color: 'var(--text)',
+            lineHeight: 1.2
+          }}>
+            {journey.title}
+          </h3>
+          {journey.description && (
+            <p style={{ 
+              fontFamily: 'var(--font-ui)',
+              fontSize: '1rem',
+              color: 'var(--muted)',
+              margin: '0 0 var(--s4) 0',
+              lineHeight: 1.5,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {journey.description}
+            </p>
           )}
         </div>
-
-        {/* CTA */}
-        <div className="journey-card-cta">
-          <Link href={`/journeys/${journey.id}`}>
-            <button
-              id={`view-journey-${journey.id}`}
-              style={{ width: '100%', fontSize: '0.825rem', padding: '0.55rem 1rem' }}
-            >
-              View journey →
-            </button>
-          </Link>
+        <div style={{ 
+          marginTop: 'auto',
+          borderTop: '1px solid var(--line)',
+          padding: 'var(--s3) var(--s4)',
+          display: 'flex',
+          gap: 'var(--s4)',
+          color: 'var(--muted)',
+          fontSize: '0.875rem',
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 600
+        }}>
+          <span>✦ {journey.taskCount} task{journey.taskCount !== 1 ? 's' : ''}</span>
+          <span>♥ {journey.likeCount || 0}</span>
+          {journey.memberCount !== undefined && (
+            <span>◎ {journey.memberCount}</span>
+          )}
         </div>
-      </div>
-    </article>
+      </article>
+    </Link>
   );
 }
 
