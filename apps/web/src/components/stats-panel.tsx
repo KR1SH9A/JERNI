@@ -33,11 +33,11 @@ function LiveIndicator() {
     <span
       title="Live updates active"
       aria-label="Live"
-      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.73rem', color: '#34d399', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.05em' }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.73rem', color: 'var(--success)', fontFamily: 'var(--font-sans)', fontWeight: 600, letterSpacing: '0.05em' }}
     >
       <span
         style={{
-          width: 7, height: 7, borderRadius: '50%', background: '#34d399',
+          width: 7, height: 7, borderRadius: '50%', background: 'var(--success)',
           display: 'inline-block',
           animation: 'live-pulse 1.8s ease-in-out infinite',
         }}

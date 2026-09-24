@@ -32,7 +32,7 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
           <span style={{
             width: '12px', height: '12px',
             border: `2px solid ${isMember ? 'rgba(52,211,153,0.3)' : 'rgba(5,19,26,0.3)'}`,
-            borderTopColor: isMember ? '#34d399' : '#05131a',
+            borderTopColor: isMember ? 'var(--success)' : 'var(--on-accent)',
             borderRadius: '50%',
             display: 'inline-block',
             animation: 'spin 0.6s linear infinite',

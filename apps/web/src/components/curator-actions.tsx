@@ -137,7 +137,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
               disabled={mutation.isPending}
             >
               {mutation.isPending ? (
-                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: 'var(--text)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               ) : currentStatus === 'ARCHIVED' ? 'Re-publish' : 'Publish'}
             </button>
           )}
@@ -159,7 +159,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
               disabled={mutation.isPending}
             >
               {mutation.isPending ? (
-                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'var(--on-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               ) : 'Archive'}
             </button>
           )}

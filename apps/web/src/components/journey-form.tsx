@@ -115,7 +115,7 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <label htmlFor="journey-title" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>
-          Title <span aria-hidden style={{ color: '#ef4444' }}>*</span>
+          Title <span aria-hidden style={{ color: 'var(--error)' }}>*</span>
         </label>
         <input
           id="journey-title"

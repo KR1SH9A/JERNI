@@ -104,7 +104,7 @@ export function OnboardingModal() {
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                       <span style={{
                         width: '13px', height: '13px', border: '2px solid rgba(5,19,26,0.3)',
-                        borderTopColor: '#05131a', borderRadius: '50%',
+                        borderTopColor: 'var(--on-accent)', borderRadius: '50%',
                         display: 'inline-block',
                         animation: 'spin 0.6s linear infinite',
                       }} />

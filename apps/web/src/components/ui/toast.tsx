@@ -42,9 +42,9 @@ export function Toast({ message, type = 'info', actionText, onAction, onClose, d
   if (!mounted) return null;
 
   const bgColors = {
-    success: '#10b981', // green
-    error: '#ef4444', // red
-    info: '#3b82f6', // blue
+    success: 'var(--success)', // green
+    error: 'var(--error)', // red
+    info: 'var(--accent)', // blue
   };
 
   return createPortal(
@@ -57,8 +57,8 @@ export function Toast({ message, type = 'info', actionText, onAction, onClose, d
         opacity: visible ? 1 : 0,
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         zIndex: 9999,
-        background: '#1a1a1a', // Dark modern background
-        color: '#fff',
+        background: 'var(--surface)', // Dark modern background
+        color: 'var(--text)',
         padding: '12px 24px',
         borderRadius: '999px',
         boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)',
