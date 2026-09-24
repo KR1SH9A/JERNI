@@ -73,10 +73,6 @@ export function useLike(
     onSuccess: (_, nextLiked) => {
       toast.success(nextLiked ? 'Liked! ♥' : 'Unliked');
     },
-
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: key });
-    },
   });
 
   return {

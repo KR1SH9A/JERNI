@@ -52,11 +52,11 @@ export default function LoginPage() {
     if (data.user) {
       // Route based on persistent onboarding_completed flag
       const hasOnboarded = data.user.user_metadata?.onboarding_completed === true;
-      router.push(hasOnboarded ? '/dashboard' : '/onboarding');
+      window.location.href = hasOnboarded ? '/dashboard' : '/onboarding';
       return;
     }
 
-    router.push('/dashboard');
+    window.location.href = '/dashboard';
   }
 
   return (

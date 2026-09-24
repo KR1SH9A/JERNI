@@ -50,7 +50,7 @@ export default function SignupPage() {
       setToast({ message: 'Successfully sent mail, check your inbox.', type: 'success' });
     } else {
       // Auto logged in (email confirmation disabled) — go to onboarding
-      router.push('/onboarding');
+      window.location.href = '/onboarding';
     }
   }
 

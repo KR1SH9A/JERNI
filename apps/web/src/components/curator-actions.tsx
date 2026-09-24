@@ -61,11 +61,6 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
   const handleAction = (action: 'publish' | 'archive') => {
     if (mutation.isPending) return;
 
-    if (action === 'publish' && taskCount === 0) {
-      toast.error('Cannot publish a journey with no tasks. Add at least one task first.');
-      return;
-    }
-
     if (action === 'archive') {
       setShowArchiveModal(true);
       return;

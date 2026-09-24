@@ -10,9 +10,11 @@ export async function POST(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || req.url;
+  const url = req.nextUrl.clone();
+  url.pathname = '/';
+  url.search = '';
 
-  return NextResponse.redirect(new URL('/', baseUrl), {
+  return NextResponse.redirect(url, {
     status: 303,
   });
 }
