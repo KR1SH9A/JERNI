@@ -83,16 +83,40 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
     });
   }
 
+  const inputStyle = {
+    width: '100%',
+    padding: '1rem 1.25rem',
+    borderRadius: '12px',
+    border: '1px solid var(--color-border)',
+    background: 'rgba(255,255,255,0.03)',
+    color: 'var(--color-text)',
+    fontSize: '1rem',
+    outline: 'none',
+    transition: 'border-color 0.2s, background-color 0.2s',
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    e.target.style.borderColor = 'var(--color-accent)';
+    e.target.style.backgroundColor = 'rgba(255,255,255,0.05)';
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    e.target.style.borderColor = 'var(--color-border)';
+    e.target.style.backgroundColor = 'rgba(255,255,255,0.03)';
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
       {error && (
         <div className="form-error-banner">
           {error}
         </div>
       )}
 
-      <div className="form-field">
-        <label htmlFor="journey-title">Title <span aria-hidden>*</span></label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <label htmlFor="journey-title" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>
+          Title <span aria-hidden style={{ color: '#ef4444' }}>*</span>
+        </label>
         <input
           id="journey-title"
           type="text"
@@ -102,11 +126,14 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
           placeholder="e.g. 30-Day Coding Challenge"
           value={values.title}
           onChange={(e) => handleChange('title', e.target.value)}
+          style={inputStyle}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
-      <div className="form-field">
-        <label htmlFor="journey-description">Description</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <label htmlFor="journey-description" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>Description</label>
         <textarea
           id="journey-description"
           rows={4}
@@ -114,12 +141,15 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
           placeholder="What will participants learn or accomplish?"
           value={values.description}
           onChange={(e) => handleChange('description', e.target.value)}
+          style={{ ...inputStyle, resize: 'vertical', minHeight: '120px' }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
-      <div className="form-field">
-        <label htmlFor="journey-tags">
-          Tags <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>(comma-separated)</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <label htmlFor="journey-tags" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>
+          Tags <span style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 400 }}>(comma-separated)</span>
         </label>
         <input
           id="journey-tags"
@@ -127,27 +157,47 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
           placeholder="e.g. coding, react, web-dev"
           value={values.tags}
           onChange={(e) => handleChange('tags', e.target.value)}
+          style={inputStyle}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
 
-      <div className="form-field">
-        <label htmlFor="journey-visibility">Visibility</label>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <label htmlFor="journey-visibility" style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text)' }}>Visibility</label>
         <select
           id="journey-visibility"
           value={values.visibility}
           onChange={(e) => handleChange('visibility', e.target.value as 'PUBLIC' | 'PRIVATE')}
+          style={{ ...inputStyle, cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em' }}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         >
           <option value="PUBLIC">Public — anyone can find and join</option>
           <option value="PRIVATE">Private — invite-only (future)</option>
         </select>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
         <button
           type="submit"
-          className="btn-primary"
           disabled={isPending || !values.title.trim()}
-          style={{ flex: 1 }}
+          style={{
+            flex: 1,
+            padding: '1rem',
+            borderRadius: '999px',
+            background: 'var(--color-accent)',
+            color: 'var(--color-bg)',
+            border: 'none',
+            fontSize: '1rem',
+            fontWeight: 700,
+            cursor: (isPending || !values.title.trim()) ? 'not-allowed' : 'pointer',
+            opacity: (isPending || !values.title.trim()) ? 0.7 : 1,
+            transition: 'opacity 0.2s, transform 0.1s',
+          }}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           id={isEdit ? 'save-journey-btn' : 'create-journey-btn'}
         >
           {isPending ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Journey'}
@@ -155,7 +205,19 @@ export function JourneyForm({ journeyId, initialValues }: JourneyFormProps) {
         <button
           type="button"
           onClick={() => router.back()}
-          style={{ padding: '0 1.25rem' }}
+          style={{
+            padding: '0 1.5rem',
+            borderRadius: '999px',
+            background: 'transparent',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border)',
+            fontSize: '1rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           id="cancel-form-btn"
         >
           Cancel
