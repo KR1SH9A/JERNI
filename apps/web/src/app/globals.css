@@ -48,31 +48,31 @@
 
   /* Surfaces */
   --color-bg: #000000;
-  --color-surface: #080f0f;
-  --color-surface-2: #0e1f1f;
-  --color-surface-3: #142828;
-  --color-border: #1a3333;
-  --color-border-subtle: #112222;
+  --color-surface: #0a0a0a;
+  --color-surface-2: #141414;
+  --color-surface-3: #1f1f1f;
+  --color-border: #333333;
+  --color-border-subtle: #222222;
 
   /* Text */
-  --color-text: #F0F4F4;
-  --color-muted: #8FA8A8;
-  --color-muted-2: #5C7878;
+  --color-text: #ffffff;
+  --color-muted: #a3a3a3;
+  --color-muted-2: #737373;
 
   /* Accents */
-  --color-accent: #68C7EC;
-  --color-accent-hover: #4ea8cc;
-  --color-accent-dim: rgba(104, 199, 236, 0.12);
-  --color-accent-glow: rgba(104, 199, 236, 0.20);
+  --color-accent: #9CAF88; /* Sage Green */
+  --color-accent-hover: #8A9A5B;
+  --color-accent-dim: rgba(156, 175, 136, 0.12);
+  --color-accent-glow: rgba(156, 175, 136, 0.20);
 
   /* Semantic */
-  --color-success: #14A185;
-  --color-success-dim: rgba(20, 161, 133, 0.12);
+  --color-success: #319795; /* Teal for status */
+  --color-success-dim: rgba(49, 151, 149, 0.12);
   --color-warning: #E8922C;
   --color-warning-dim: rgba(232, 146, 44, 0.12);
-  --color-error: #D2042D;
-  --color-error-dim: rgba(210, 4, 45, 0.10);
-  --color-info: #68C7EC;
+  --color-error: #D27D7D; /* Muted Red */
+  --color-error-dim: rgba(210, 125, 125, 0.10);
+  --color-info: #319795;
 
   /* Shape */
   --radius-sm: 8px;

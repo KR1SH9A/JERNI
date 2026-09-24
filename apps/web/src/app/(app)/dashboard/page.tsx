@@ -129,7 +129,7 @@ export default async function DashboardPage() {
   const [mineData, joinedData] = await Promise.all([
     supabaseAdmin
       .from('journeys')
-      .select('*, task_definitions!task_definitions_journey_id_fkey(count)')
+      .select('*, task_definitions!task_definitions_journey_id_fkey(count), memberships(count)')
       .eq('curator_id', user.id)
       .order('created_at', { ascending: false }),
     supabaseAdmin
@@ -153,8 +153,9 @@ export default async function DashboardPage() {
     coverProvider: j.cover_provider,
     coverAssetId: j.cover_asset_id,
     createdAt: j.created_at,
-    memberCount: 0,
+    memberCount: Array.isArray(j.memberships) ? j.memberships[0]?.count || 0 : j.memberships?.count || 0,
   }));
+
 
   const joinedJourneys = (joinedData.data || [])
     .filter((m: any) => m.journeys)
@@ -173,81 +174,82 @@ export default async function DashboardPage() {
   const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'You';
 
   return (
-    <main style={{ paddingTop: 'var(--nav-height)', minHeight: '100vh' }}>
+    <main style={{ paddingTop: 'var(--nav-height)', minHeight: '100vh', background: 'var(--color-bg)' }}>
       {/* Header */}
-      <div style={{ borderBottom: '1px solid var(--color-border-subtle)', padding: '3rem 0 2.5rem' }}>
+      <div style={{ padding: '6rem 0 4rem' }}>
         <div className="container">
-          <div className="dashboard-header">
+          <div className="dashboard-header" style={{ alignItems: 'center' }}>
             <div>
-              <p className="page-header-label">Dashboard</p>
-              <h1 className="page-title">
+              <p className="page-header-label" style={{ marginBottom: '1rem', color: 'var(--color-accent)', fontWeight: 700, letterSpacing: '0.2em' }}>DASHBOARD</p>
+              <h1 className="page-title" style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', letterSpacing: '-0.03em', fontWeight: 500, marginBottom: '0.75rem' }}>
                 {displayName}
               </h1>
-              <p className="page-subtitle">
+              <p className="page-subtitle" style={{ fontSize: '1.1rem', color: 'var(--color-muted)' }}>
                 {myJourneys.length} journey{myJourneys.length !== 1 ? 's' : ''} curated
-                {joinedJourneys.length > 0 && ` · ${joinedJourneys.length} joined`}
+                {joinedJourneys.length > 0 && <span style={{ padding: '0 0.75rem', opacity: 0.3 }}>|</span>}
+                {joinedJourneys.length > 0 && `${joinedJourneys.length} joined`}
               </p>
             </div>
             <Link href="/dashboard/journeys/new" id="create-journey-link">
-              <button className="btn-primary" id="new-journey-btn">
-                + New Journey
+              <button className="btn-primary" id="new-journey-btn" style={{ padding: '0.75rem 1.75rem', fontSize: '1rem', borderRadius: '9999px', boxShadow: '0 8px 24px var(--color-accent-dim)', transition: 'all 0.3s ease' }}>
+                <span style={{ marginRight: '0.5rem', fontWeight: 400 }}>+</span> New Journey
               </button>
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="container" style={{ paddingTop: '2.5rem', paddingBottom: '5rem' }}>
+      <div className="container" style={{ paddingBottom: '8rem' }}>
 
-        {/* ── My Journeys ─────────────────────────────────────────────── */}
+        {/* ── Joined Journeys ─────────────────────────────────────────── */}
         <section>
-          <div className="section-heading">
-            <span className="section-heading-label">Curating</span>
-            <span className="section-heading-title">My Journeys</span>
+          <div className="section-heading" style={{ marginBottom: '3rem', borderBottom: '1px solid var(--color-border-subtle)', paddingBottom: '1.5rem', display: 'flex', alignItems: 'flex-end', gap: '1.5rem' }}>
+            <span className="section-heading-title" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)', fontWeight: 400 }}>Participating</span>
+            <span className="section-heading-label" style={{ borderRight: 'none', paddingRight: 0, paddingBottom: '0.4rem', color: 'var(--color-muted-2)' }}>Journeys I&apos;ve Joined</span>
           </div>
 
-          {myJourneys.length === 0 ? (
-            <div className="empty-state" style={{ padding: '3rem 1rem' }}>
-              <div className="empty-state-icon">✦</div>
-              <h2 className="empty-state-title">No journeys yet</h2>
-              <p className="empty-state-desc">
-                Create your first journey to share a curated path with the community.
+          {joinedJourneys.length === 0 ? (
+            <div className="empty-state" style={{ padding: '4rem 2rem', border: '1px dashed var(--color-border-subtle)', borderRadius: '24px', background: 'var(--color-surface)' }}>
+              <div className="empty-state-icon" style={{ fontSize: '2rem', opacity: 0.5, marginBottom: '1rem' }}>◎</div>
+              <h2 className="empty-state-title" style={{ fontSize: '1.5rem', fontWeight: 400, marginBottom: '0.5rem' }}>No journeys joined yet</h2>
+              <p className="empty-state-desc" style={{ color: 'var(--color-muted)', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+                Discover journeys created by others and start tracking your progress together.
               </p>
-              <Link href="/dashboard/journeys/new">
-                <button className="btn-primary" id="first-journey-btn">Create your first journey</button>
+              <Link href="/discover">
+                <button id="discover-btn" style={{ padding: '0.75rem 2rem', borderRadius: '9999px', background: 'var(--color-surface-2)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}>Discover journeys →</button>
               </Link>
             </div>
           ) : (
-            <div className="journey-grid">
-              {myJourneys.map((j) => (
-                <JourneyCard key={j.id} journey={j} variant="curator" />
+            <div className="journey-grid" style={{ gap: '2rem', marginTop: '0' }}>
+              {joinedJourneys.map((j) => (
+                <JourneyCard key={j.id} journey={j} variant="joined" />
               ))}
             </div>
           )}
         </section>
 
-        {/* ── Joined Journeys ─────────────────────────────────────────── */}
-        <section style={{ marginTop: '4rem' }}>
-          <div className="section-heading">
-            <span className="section-heading-label">Participating</span>
-            <span className="section-heading-title">Journeys I&apos;ve Joined</span>
+        {/* ── My Journeys ─────────────────────────────────────────────── */}
+        <section style={{ marginTop: '6rem' }}>
+          <div className="section-heading" style={{ marginBottom: '3rem', borderBottom: '1px solid var(--color-border-subtle)', paddingBottom: '1.5rem', display: 'flex', alignItems: 'flex-end', gap: '1.5rem' }}>
+            <span className="section-heading-title" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.25rem)', fontWeight: 400 }}>Curating</span>
+            <span className="section-heading-label" style={{ borderRight: 'none', paddingRight: 0, paddingBottom: '0.4rem', color: 'var(--color-muted-2)' }}>My Journeys</span>
           </div>
 
-          {joinedJourneys.length === 0 ? (
-            <div className="empty-state" style={{ padding: '2.5rem 1rem' }}>
-              <div className="empty-state-icon">◎</div>
-              <h2 className="empty-state-title">No journeys joined yet</h2>
-              <p className="empty-state-desc">
-                Discover journeys created by others and start tracking your progress together.
+          {myJourneys.length === 0 ? (
+            <div className="empty-state" style={{ padding: '4rem 2rem', border: '1px dashed var(--color-border-subtle)', borderRadius: '24px', background: 'var(--color-surface)' }}>
+              <div className="empty-state-icon" style={{ fontSize: '2rem', opacity: 0.5, marginBottom: '1rem' }}>✦</div>
+              <h2 className="empty-state-title" style={{ fontSize: '1.5rem', fontWeight: 400, marginBottom: '0.5rem' }}>No journeys yet</h2>
+              <p className="empty-state-desc" style={{ color: 'var(--color-muted)', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+                Create your first journey to share a curated path with the community.
               </p>
-              <Link href="/discover">
-                <button id="discover-btn">Discover journeys →</button>
+              <Link href="/dashboard/journeys/new">
+                <button className="btn-primary" id="first-journey-btn" style={{ padding: '0.75rem 2rem', borderRadius: '9999px' }}>Create your first journey</button>
               </Link>
             </div>
           ) : (
-            <div className="journey-grid">
-              {joinedJourneys.map((j) => (
-                <JourneyCard key={j.id} journey={j} variant="joined" />
+            <div className="journey-grid" style={{ gap: '2rem', marginTop: '0' }}>
+              {myJourneys.map((j) => (
+                <JourneyCard key={j.id} journey={j} variant="curator" />
               ))}
             </div>
           )}

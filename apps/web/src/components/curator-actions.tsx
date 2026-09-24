@@ -70,40 +70,114 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
   };
 
   return (
-    <div className="curator-bar animate-fade-in" style={{ marginTop: '1rem' }}>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-        <span className="curator-bar-label">You are the curator of this journey</span>
+    <>
+      <div 
+        className="curator-bar animate-fade-in" 
+        style={{ 
+          position: 'fixed', 
+          bottom: '2.5rem', 
+          left: '50%', 
+          transform: 'translateX(-50%)', 
+          zIndex: 50,
+          background: 'rgba(12, 12, 12, 0.75)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '9999px',
+          padding: '0.6rem 0.6rem 0.6rem 1.5rem',
+          display: 'flex', 
+          gap: '1.25rem', 
+          alignItems: 'center',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: currentStatus === 'PUBLISHED' ? 'var(--color-success)' : currentStatus === 'ARCHIVED' ? 'var(--color-muted-2)' : 'var(--color-warning)',
+            boxShadow: currentStatus === 'PUBLISHED' ? '0 0 12px var(--color-success)' : 'none',
+            transition: 'all 0.3s ease'
+          }} />
+          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', letterSpacing: '0.02em' }}>
+            {currentStatus === 'DRAFT' ? 'Draft Mode' : currentStatus === 'PUBLISHED' ? 'Live on Discover' : 'Archived'}
+          </span>
+        </div>
 
-        {currentStatus === 'DRAFT' && (
-          <>
-            <button
-              className="btn-sm"
-              onClick={() => handleAction('publish')}
-              disabled={mutation.isPending}
-              style={{ background: 'var(--color-primary, #6366f1)', color: 'white', border: 'none' }}
-            >
-              {mutation.isPending ? 'Publishing...' : 'Publish'}
-            </button>
+        <div style={{ width: '1px', height: '1.25rem', background: 'var(--color-border)' }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {currentStatus === 'DRAFT' && (
             <Link href={`/dashboard/journeys/${journeyId}/edit`}>
-              <button className="btn-sm" id="curator-edit-btn" disabled={mutation.isPending}>Edit</button>
+              <button 
+                className="btn-ghost" 
+                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '9999px', border: 'none' }} 
+                disabled={mutation.isPending}
+              >
+                Edit
+              </button>
             </Link>
-          </>
-        )}
+          )}
 
-        {currentStatus === 'PUBLISHED' && (
-          <button
-            className="btn-sm"
-            onClick={() => handleAction('archive')}
-            disabled={mutation.isPending}
-            style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
-          >
-            {mutation.isPending ? 'Archiving...' : 'Archive'}
-          </button>
-        )}
+          {(currentStatus === 'DRAFT' || currentStatus === 'ARCHIVED') && (
+            <button 
+              className="btn-primary" 
+              style={{ 
+                padding: '0.5rem 1.25rem', 
+                fontSize: '0.85rem', 
+                borderRadius: '9999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                minWidth: '100px',
+                justifyContent: 'center'
+              }}
+              onClick={() => handleAction('publish')} 
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              ) : currentStatus === 'ARCHIVED' ? 'Re-publish' : 'Publish'}
+            </button>
+          )}
 
-        <Link href="/dashboard">
-          <button className="btn-sm" id="curator-dashboard-btn" disabled={mutation.isPending}>Dashboard</button>
-        </Link>
+          {currentStatus === 'PUBLISHED' && (
+            <button 
+              className="btn-danger" 
+              style={{ 
+                padding: '0.5rem 1.25rem', 
+                fontSize: '0.85rem', 
+                borderRadius: '9999px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                minWidth: '100px',
+                justifyContent: 'center'
+              }}
+              onClick={() => handleAction('archive')} 
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              ) : 'Archive'}
+            </button>
+          )}
+
+          <Link href="/dashboard">
+            <button 
+              className="btn-ghost" 
+              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '9999px', border: 'none' }} 
+              disabled={mutation.isPending}
+            >
+              Dashboard
+            </button>
+          </Link>
+        </div>
+
+        <style dangerouslySetInnerHTML={{__html: `
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+        `}} />
       </div>
 
       <ConfirmModal
@@ -116,6 +190,6 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
         onConfirm={() => mutation.mutate('archive')}
         onCancel={() => setShowArchiveModal(false)}
       />
-    </div>
+    </>
   );
 }
