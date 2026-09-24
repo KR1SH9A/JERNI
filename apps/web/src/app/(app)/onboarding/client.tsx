@@ -25,9 +25,12 @@ export function OnboardingClient() {
   const [recommendations, setRecommendations] = useState<JourneyStub[]>([]);
 
   async function markComplete() {
-    // Fire-and-forget — we navigate immediately and the flag saves in background.
-    // Even if this fails, the user can still use the app normally.
-    fetch('/api/onboarding/complete', { method: 'POST' }).catch(() => {});
+    // Await to ensure the request is not cancelled by navigation
+    try {
+      await fetch('/api/onboarding/complete', { method: 'POST' });
+    } catch (e) {
+      console.error('Failed to mark complete', e);
+    }
   }
 
   async function handleGetRecommendations(e: React.FormEvent) {
@@ -48,11 +51,11 @@ export function OnboardingClient() {
       } else {
         // On any failure, skip gracefully to discover
         await markComplete();
-        router.push('/discover');
+        window.location.href = '/discover';
       }
     } catch {
       await markComplete();
-      router.push('/discover');
+      window.location.href = '/discover';
     } finally {
       setLoading(false);
     }
@@ -60,12 +63,12 @@ export function OnboardingClient() {
 
   async function handleSkip() {
     await markComplete();
-    router.push('/discover');
+    window.location.href = '/discover';
   }
 
   async function handleExploreAll() {
     await markComplete();
-    router.push('/discover');
+    window.location.href = '/discover';
   }
 
   return (
