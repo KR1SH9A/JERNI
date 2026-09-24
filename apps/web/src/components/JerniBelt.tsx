@@ -246,9 +246,9 @@ function PostProcessingEffects() {
 export default function JerniBelt({
   logoSrc = '/new-logo.svg',
   ribbonSrc = '/new-label.png',
-  bg = '#000000ff', // changed to light theme
-  logoColor = '#4C5372', // dark slate logo for light background
-  ribbonColor = '#f8f8ff',
+  bg = 'transparent', // changed to light theme
+  logoColor = '#604b75', // dark slate logo for light background
+  ribbonColor = '#fff9f2',
   className,
   style,
 }: JerniBeltProps) {
@@ -259,7 +259,7 @@ export default function JerniBelt({
       style={{
         width: '100%',
         height: '100%',
-        background: '#ffce39ff',
+        background: '#fdf1e4',
         ...style
       }}
     >

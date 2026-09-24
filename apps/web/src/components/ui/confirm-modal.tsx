@@ -54,15 +54,10 @@ export function ConfirmModal({
           </button>
           <button
             type="button"
-            className="btn-primary"
+            className="btn-danger"
             onClick={onConfirm}
             disabled={isPending}
-            style={{ 
-              minWidth: '100px', 
-              background: '#ef4444', 
-              color: 'white', 
-              border: '1px solid #ef4444' 
-            }}
+            style={{ minWidth: '100px' }}
           >
             {isPending ? 'Processing...' : confirmText}
           </button>

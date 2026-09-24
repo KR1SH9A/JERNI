@@ -17,8 +17,8 @@ export default function AppLayout({
         position="bottom-center"
         toastOptions={{
           style: {
-            background: '#1a1a1a',
-            color: '#fff',
+            background: 'var(--surface)',
+            color: 'var(--text)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: '999px',
             fontSize: '0.875rem',

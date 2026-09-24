@@ -1,5 +1,21 @@
 import type { Metadata } from 'next';
+import { Fraunces, Figtree } from 'next/font/google';
 import './globals.css';
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  variable: '--font-fraunces',
+  axes: ['opsz'],
+  weight: 'variable',
+  display: 'swap',
+});
+
+const figtree = Figtree({
+  subsets: ['latin'],
+  variable: '--font-figtree',
+  weight: 'variable',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -13,9 +29,6 @@ export const metadata: Metadata = {
     siteName: 'JERNI',
     type: 'website',
   },
-  icons: {
-    icon: '/nav-logo.png',
-  },
 };
 
 export default function RootLayout({
@@ -24,7 +37,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${fraunces.variable} ${figtree.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          try {
+            if (localStorage.theme === 'light' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+              document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+              document.documentElement.setAttribute('data-theme', 'dark');
+            }
+          } catch (_) {}
+        `}} />
+      </head>
       <body>
         {children}
       </body>

@@ -129,7 +129,7 @@ export default function LandingPage() {
         <JerniBelt />
 
         {/* Overlay Navigation */}
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '2.5rem 3.5rem', display: 'flex', justifyContent: 'space-between', zIndex: 10, color: '#4C5372', pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '2.5rem 3.5rem', display: 'flex', justifyContent: 'space-between', zIndex: 10, color: 'var(--muted)', pointerEvents: 'none' }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 500, pointerEvents: 'auto' }}>
             <a href="#about" onMouseEnter={(e) => handleNavHover(e, 'What is JERNI?')} style={{ textDecoration: 'none', color: 'inherit' }}>What is JERNI?</a>
           </div>
@@ -139,16 +139,16 @@ export default function LandingPage() {
             ) : (
               <>
                 <a href="/auth/login" onMouseEnter={(e) => handleNavHover(e, 'Log in')} style={{ textDecoration: 'none', color: 'inherit' }}>Log in</a>
-                <a href="/auth/signup" onMouseEnter={(e) => handleNavHover(e, 'Join today')} style={{ textDecoration: 'none', color: '#7C7E9D' }}>Join today</a>
+                <a href="/auth/signup" onMouseEnter={(e) => handleNavHover(e, 'Join today')} style={{ textDecoration: 'none', color: 'var(--muted)' }}>Join today</a>
               </>
             )}
           </nav>
         </div>
 
         {/* Overlay Bottom Left */}
-        <div style={{ position: 'absolute', bottom: '0.1rem', left: '0.1rem', zIndex: 10, color: '#4C5372', pointerEvents: 'none', maxWidth: '80vw' }}>
+        <div style={{ position: 'absolute', bottom: '0.1rem', left: '0.1rem', zIndex: 10, color: 'var(--muted)', pointerEvents: 'none', maxWidth: '80vw' }}>
           <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 4rem)', fontWeight: 600, margin: 0, lineHeight: 1, fontFamily: 'var(--font-sans)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-            Join or Create your own <span ref={topicRef} style={{ color: '#949AB1', display: 'inline-block', minWidth: '150px' }}>{topics[0]}</span>
+            Join or Create your own <span ref={topicRef} style={{ color: 'var(--muted)', display: 'inline-block', minWidth: '150px' }}>{topics[0]}</span>
           </h1>
         </div>
       </section>
