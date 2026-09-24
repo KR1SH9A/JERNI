@@ -31,6 +31,7 @@ export interface JourneyReadModel {
   coverAssetId: string | null;
   likeCount: number;
   taskCount: number;
+  memberCount?: number;
   createdAt: Date;
 }
 
@@ -52,7 +53,10 @@ export class GetDiscoverFeedQuery {
     );
 
     return {
-      journeys: result.data.map(this.toReadModel),
+      journeys: result.data.map((item) => ({
+        ...this.toReadModel(item.journey),
+        memberCount: item.memberCount,
+      })),
       total: result.total,
       page,
       pageSize,

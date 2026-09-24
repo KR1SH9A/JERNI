@@ -69,10 +69,10 @@ export class Journey {
    * Invariant: cannot publish if it has no tasks.
    */
   publish(): void {
-    if (this.status !== 'DRAFT') {
+    if (this.status === 'PUBLISHED') {
       throw new DomainError(
         `Cannot publish a journey that is already ${this.status}.`,
-        'JOURNEY_NOT_DRAFT',
+        'JOURNEY_ALREADY_PUBLISHED',
       );
     }
     if (this._taskDefinitions.length === 0) {

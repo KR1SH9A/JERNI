@@ -30,6 +30,8 @@ interface TaskManagerProps {
   isCurator: boolean;
 }
 
+import { useMembership } from '@/lib/queries/use-membership';
+
 export function TaskManager({
   journeyId,
   initialTasks,
@@ -40,6 +42,7 @@ export function TaskManager({
   isCurator,
 }: TaskManagerProps) {
   const [tasks, setTasks] = useState<TaskReadModel[]>(initialTasks);
+  const { isMember } = useMembership(journeyId, initialIsMember);
 
   const handleTaskAdded = (newTask: TaskReadModel) => {
     setTasks((prev) => [...prev, newTask]);
@@ -53,7 +56,7 @@ export function TaskManager({
 
       {tasks.length > 0 && (
         <>
-          {token && initialIsMember ? (
+          {token && isMember ? (
             <TaskChecklist
               journeyId={journeyId}
               tasks={tasks}
@@ -91,7 +94,7 @@ export function TaskManager({
                   <Link href="/auth/login">Sign in</Link> and join this journey to track your progress.
                 </p>
               )}
-              {token && !initialIsMember && status === 'PUBLISHED' && (
+              {token && !isMember && status === 'PUBLISHED' && (
                 <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginTop: '8px' }}>
                   Join this journey to start tracking your progress.
                 </p>

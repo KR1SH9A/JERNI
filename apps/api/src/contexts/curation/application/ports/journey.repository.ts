@@ -17,7 +17,7 @@ export interface PaginatedResult<T> {
 
 export interface JourneyRepository {
   findById(id: JourneyId): Promise<Journey | null>;
-  findPublicPublished(filters: JourneyFilters, page: number, pageSize: number): Promise<PaginatedResult<Journey>>;
+  findPublicPublished(filters: JourneyFilters, page: number, pageSize: number): Promise<PaginatedResult<{ journey: Journey; memberCount: number }>>;
   findByCuratorId(curatorId: string): Promise<{ journey: Journey; memberCount: number }[]>;
   save(journey: Journey): Promise<void>;
   nextOrderIndex(journeyId: JourneyId): Promise<number>;

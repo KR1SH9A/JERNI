@@ -35,7 +35,7 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
     filters: JourneyFilters,
     page: number,
     pageSize: number,
-  ): Promise<PaginatedResult<Journey>> {
+  ): Promise<PaginatedResult<{ journey: Journey; memberCount: number }>> {
     const where: Record<string, unknown> = {
       status: 'PUBLISHED',
       visibility: 'PUBLIC',
@@ -61,8 +61,31 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
       offset,
     });
 
+    const journeyIds = orms.map((o) => o.id);
+    let countMap = new Map<string, number>();
+    if (journeyIds.length > 0) {
+      const em = this.repo.getEntityManager();
+      const countRows = await em.getConnection().execute<
+        { journey_id: string; member_count: string }[]
+      >(
+        `SELECT journey_id, COUNT(*)::int AS member_count
+         FROM memberships
+         WHERE journey_id IN (?) AND status = 'ACTIVE'
+         GROUP BY journey_id`,
+        [journeyIds],
+      );
+      countMap = new Map<string, number>(
+        countRows.map((r: { journey_id: string; member_count: string | number }) =>
+          [r.journey_id, Number(r.member_count)] as [string, number],
+        ),
+      );
+    }
+
     return {
-      data: orms.map((o) => this.toDomain(o)),
+      data: orms.map((o) => ({
+        journey: this.toDomain(o),
+        memberCount: countMap.get(o.id) ?? 0,
+      })),
       total,
       page,
       pageSize,
@@ -159,22 +182,15 @@ export class MikroOrmJourneyRepository implements JourneyRepository {
 
     if (orms.length === 0) return [];
 
-    // Live member count — one raw query for all journey IDs at once.
-    //
-    // Bug fix: MikroORM execute() with ANY(?) and a JS array parameter
-    // sends the array as a bare comma-separated string, which PostgreSQL
-    // rejects with syntax error 42601. Using the explicit pg-native ARRAY[]
-    // constructor with positional $1 parameter instead.
     const journeyIds = orms.map((o) => o.id);
-    const placeholders = journeyIds.map((_, i) => `$${i + 1}`).join(', ');
     const countRows = await em.getConnection().execute<
       { journey_id: string; member_count: string }[]
     >(
       `SELECT journey_id, COUNT(*)::int AS member_count
        FROM memberships
-       WHERE journey_id IN (${placeholders}) AND status = 'ACTIVE'
+       WHERE journey_id IN (?) AND status = 'ACTIVE'
        GROUP BY journey_id`,
-      journeyIds,
+      [journeyIds],
     );
 
     const countMap = new Map<string, number>(
