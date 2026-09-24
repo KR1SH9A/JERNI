@@ -1377,3 +1377,12 @@ table{width:100%;border-collapse:collapse;font-size:15px}td,th{text-align:left;p
   align-items: center;
   justify-content: space-between;
 }
+
+@media (min-width: 1024px) {
+  .journey-main-col {
+    grid-column: span 8 !important;
+  }
+  .journey-side-col {
+    grid-column: span 4 !important;
+  }
+}

@@ -10,6 +10,7 @@ import { LikeButton } from '@/components/like-button';
 import { TaskManager } from '@/components/task-manager';
 import { StatsPanel } from '@/components/stats-panel';
 import { CuratorActions } from '@/components/curator-actions';
+import { JourneyCover } from '@/components/brand/JourneyCover';
 
 interface TaskReadModel {
   id: string;
@@ -126,132 +127,119 @@ export default async function JourneyDetailPage({
   const hue2 = (journey.title.charCodeAt(1) || hue + 40) * 5;
 
   return (
-    <main style={{ paddingTop: 'var(--nav-height)', minHeight: '100vh' }}>
-      {/* Hero cover */}
-      <div
-        style={{
-          height: 'clamp(200px, 30vw, 320px)',
-          background: `linear-gradient(135deg, hsl(${hue},50%,12%) 0%, hsl(${hue2 % 360},40%,8%) 100%)`,
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'flex-end',
-        }}
-      >
-        {/* Grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, opacity: 0.04,
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.5) 40px), repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.5) 40px)',
-        }} />
-        {/* Large initials */}
-        <div style={{
-          position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 'clamp(5rem, 15vw, 10rem)', fontWeight: 800, letterSpacing: '-0.04em',
-          color: 'rgba(255,255,255,0.05)', fontFamily: 'var(--font-sans)',
-        }}>
-          {journey.title.slice(0, 2).toUpperCase()}
-        </div>
-        {/* Gradient fade bottom */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%',
-          background: 'linear-gradient(to top, var(--color-bg), transparent)',
-        }} />
+    <main style={{ paddingTop: 'var(--nav-height)', minHeight: '100vh', paddingBottom: '96px' }}>
+      {/* Hero cover band */}
+      <div style={{ height: '240px', width: '100%', overflow: 'hidden' }}>
+        <JourneyCover 
+          title={journey.title} 
+          tags={journey.tags} 
+          style={{ width: '100%', height: '100%', padding: '0', gap: '0' }}
+        />
       </div>
 
-      <div className="container" style={{ paddingBottom: '5rem' }}>
-        {/* Back link */}
-        <div style={{ paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <Link
-            href="/discover"
-            style={{ fontSize: '0.825rem', color: 'var(--color-muted-2)', display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-          >
-            ← Back to Discover
-          </Link>
-        </div>
-
-        {/* Curator action bar */}
-        {isCurator && (
-          <div style={{ marginBottom: '1.5rem' }}>
-            <CuratorActions journeyId={journey.id} status={journey.status} taskCount={journey.taskCount} />
+      <div className="container" style={{ paddingBottom: 'var(--s8)', display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 'var(--gutter)', marginTop: 'var(--s5)' }}>
+        
+        {/* Main Column (Span 8 on desktop, 12 on mobile) */}
+        <div style={{ gridColumn: '1 / -1' }} className="journey-main-col">
+          
+          <div style={{ marginBottom: 'var(--s5)' }}>
+            <Link
+              href="/discover"
+              style={{ fontSize: '14px', color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', fontFamily: 'var(--font-ui)', fontWeight: 600 }}
+            >
+              ← Back to Discover
+            </Link>
           </div>
-        )}
 
-        {/* Title + actions */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', flexWrap: 'wrap', marginBottom: '2.5rem' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 className="page-title" style={{ marginBottom: '0.75rem' }}>
-              {journey.title}
-            </h1>
-            {journey.description && (
-              <p style={{ color: 'var(--color-muted)', marginBottom: '1rem', lineHeight: 1.65, maxWidth: '640px' }}>
-                {journey.description}
-              </p>
-            )}
-            {/* Tags */}
-            {journey.tags?.length > 0 && (
-              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                {Array.from(new Set(journey.tags)).map((tag, i) => (
-                  <span key={`${tag}-${i}`} className="badge">{tag}</span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+          <h1 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '48px', fontWeight: 300, lineHeight: 1.1, marginBottom: 'var(--s3)', color: 'var(--text)' }}>
+            {journey.title}
+          </h1>
 
-        {/* Tasks */}
-        <section>
-          <div className="section-heading" style={{ marginBottom: '1.5rem' }}>
-            <span className="section-heading-label">Tasks</span>
-            <span className="section-heading-title">
+          {journey.description && (
+            <p style={{ color: 'var(--muted)', fontSize: '20px', fontFamily: 'var(--font-ui)', fontWeight: 500, lineHeight: 1.5, marginBottom: 'var(--s4)', maxWidth: '65ch' }}>
+              {journey.description}
+            </p>
+          )}
+
+          {journey.tags?.length > 0 && (
+            <div style={{ display: 'flex', gap: 'var(--s2)', flexWrap: 'wrap', marginBottom: 'var(--s7)' }}>
+              {Array.from(new Set(journey.tags)).map((tag, i) => (
+                <span key={`${tag}-${i}`} className="badge">{tag}</span>
+              ))}
+            </div>
+          )}
+
+          <section>
+            <h2 style={{ fontFamily: 'var(--font-fraunces)', fontSize: '36px', fontWeight: 400, marginBottom: 'var(--s5)', color: 'var(--text)' }}>
               {journey.taskCount} task{journey.taskCount !== 1 ? 's' : ''} in this journey
-            </span>
-          </div>
-          <TaskManager
-            journeyId={journey.id}
-            initialTasks={journey.tasks}
-            initialCompletions={initialCompletions}
-            token={token}
-            initialIsMember={initialIsMember}
-            status={journey.status}
-            isCurator={isCurator}
-          />
-        </section>
+            </h2>
+            <TaskManager
+              journeyId={journey.id}
+              initialTasks={journey.tasks}
+              initialCompletions={initialCompletions}
+              token={token}
+              initialIsMember={initialIsMember}
+              status={journey.status}
+              isCurator={isCurator}
+            />
+          </section>
 
-        {/* Stats panel */}
-        {journey.status === 'PUBLISHED' && (
-          <StatsPanel journeyId={journey.id} totalTasks={journey.taskCount} />
-        )}
+          {journey.status === 'PUBLISHED' && (
+            <div style={{ marginTop: 'var(--s8)' }}>
+              <StatsPanel journeyId={journey.id} totalTasks={journey.taskCount} />
+            </div>
+          )}
+        </div>
+
+        {/* Side Column (Span 4 on desktop, 12 on mobile) */}
+        <aside style={{ gridColumn: '1 / -1' }} className="journey-side-col">
+          <div style={{ position: 'sticky', top: 'calc(var(--nav-height) + var(--s5))', background: 'var(--surface)', padding: 'var(--s5)', borderRadius: 'var(--r4)', border: '1px solid var(--line)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--s5)' }}>
+              <span className="badge" style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--text)' }}>
+                {journey.status === 'PUBLISHED' ? 'Published' : journey.status === 'DRAFT' ? 'Draft' : 'Archived'}
+              </span>
+              <div style={{ display: 'flex', gap: 'var(--s2)', alignItems: 'center' }}>
+                <LikeButton
+                  journeyId={journey.id}
+                  initialIsLiked={initialIsLiked}
+                  initialLikeCount={journey.likeCount}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--s4)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: 'var(--text)', fontFamily: 'var(--font-ui)' }}>
+                <span style={{ color: 'var(--muted)' }}>Tasks</span>
+                <span style={{ fontWeight: 600 }}>{journey.taskCount}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: 'var(--text)', fontFamily: 'var(--font-ui)' }}>
+                <span style={{ color: 'var(--muted)' }}>Members</span>
+                <span style={{ fontWeight: 600 }}>{(journey as any).memberCount || '◎'}</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: 'var(--s6)' }}>
+              {token && journey.status === 'PUBLISHED' && (
+                <div style={{ width: '100%' }}>
+                  <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
+                </div>
+              )}
+              {!token && journey.status === 'PUBLISHED' && (
+                <Link href="/auth/login" style={{ display: 'block', width: '100%' }}>
+                  <button className="btn btn-primary" style={{ width: '100%' }}>Sign in to join</button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </aside>
+
       </div>
 
       {/* Curator Bar */}
-      <div className="curator-bar">
-        <div className="curator-bar-inner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--text)' }}>
-              U
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontWeight: 600, fontSize: '15px' }}>{journey.title}</span>
-              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>{journey.taskCount} tasks • {journey.likeCount} likes</span>
-            </div>
-          </div>
-          
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <LikeButton
-              journeyId={journey.id}
-              initialIsLiked={initialIsLiked}
-              initialLikeCount={journey.likeCount}
-            />
-            {token && journey.status === 'PUBLISHED' && (
-              <JoinButton journeyId={journey.id} initialIsMember={initialIsMember} />
-            )}
-            {!token && journey.status === 'PUBLISHED' && (
-              <Link href="/auth/login" className="btn btn-primary">Sign in to join</Link>
-            )}
-          </div>
-        </div>
-      </div>
+      {isCurator && (
+        <CuratorActions journeyId={journey.id} status={journey.status} taskCount={journey.taskCount} />
+      )}
     </main>
-
   );
 }

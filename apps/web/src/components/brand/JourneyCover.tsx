@@ -30,7 +30,7 @@ export function JourneyCover({ title, tags = [], imageUrl, className = '', style
   // If there is an image, we render it (per the media_uploads requirement)
   if (imageUrl) {
     return (
-      <div 
+      <div
         className={`journey-cover image-cover ${className}`}
         style={{
           ...style,
@@ -46,7 +46,7 @@ export function JourneyCover({ title, tags = [], imageUrl, className = '', style
   const glyph = glyphFor(title);
 
   return (
-    <div 
+    <div
       className={`journey-cover generated-cover ${className}`}
       style={{
         ...style,
@@ -69,7 +69,7 @@ export function JourneyCover({ title, tags = [], imageUrl, className = '', style
       <div style={{ background: `var(--cv-${tone}-a)`, borderRadius: '999px' }} />
 
       {/* Glyph Overlay */}
-      <div 
+      <div
         aria-hidden="true"
         style={{
           position: 'absolute',
@@ -77,7 +77,7 @@ export function JourneyCover({ title, tags = [], imageUrl, className = '', style
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'var(--cream, #fdf1e4)',
+          color: 'var(--ink-950, #120e1a)',
           fontFamily: 'var(--font-fraunces)',
           fontSize: '4rem',
           fontWeight: 300,
