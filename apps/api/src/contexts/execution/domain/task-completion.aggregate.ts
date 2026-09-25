@@ -28,7 +28,7 @@ export class TaskCompletion {
   readonly taskKindSnapshot: TaskKindSnapshot;
   /** ISO date string 'YYYY-MM-DD' for RECURRING; null for MILESTONE */
   readonly forDate: string | null;
-  readonly completedAt: Date;
+  completedAt: Date;
   revokedAt: Date | null;
 
   private constructor(props: {
@@ -106,6 +106,20 @@ export class TaskCompletion {
       );
     }
     this.revokedAt = new Date();
+  }
+
+  /**
+   * Un-revoke a previously revoked completion (soft-delete reversal).
+   */
+  recomplete(): void {
+    if (this.revokedAt === null) {
+      throw new DomainError(
+        'This task completion is already active.',
+        'COMPLETION_ALREADY_ACTIVE',
+      );
+    }
+    this.revokedAt = null;
+    this.completedAt = new Date();
   }
 
   /** True if this completion has not been revoked. */

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 import { ConfirmModal } from './ui/confirm-modal';
 import { queryKeys } from '@/lib/queries/query-keys';
+import { PenLine, Globe, Archive, LayoutDashboard } from 'lucide-react';
 
 interface CuratorActionsProps {
   journeyId: string;
@@ -104,10 +105,10 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             <Link href={`/dashboard/journeys/${journeyId}/edit`}>
               <button 
                 className="btn-ghost" 
-                style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none' }} 
+                style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }} 
                 disabled={mutation.isPending}
               >
-                Edit
+                <PenLine size={14} /> Edit
               </button>
             </Link>
           )}
@@ -130,7 +131,11 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             >
               {mutation.isPending ? (
                 <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(0,0,0,0.2)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              ) : currentStatus === 'ARCHIVED' ? 'Re-publish' : 'Publish'}
+              ) : (
+                <>
+                  <Globe size={14} /> {currentStatus === 'ARCHIVED' ? 'Re-publish' : 'Publish'}
+                </>
+              )}
             </button>
           )}
 
@@ -152,17 +157,21 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             >
               {mutation.isPending ? (
                 <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              ) : 'Archive'}
+              ) : (
+                <>
+                  <Archive size={14} /> Archive
+                </>
+              )}
             </button>
           )}
 
           <Link href="/dashboard">
             <button 
               className="btn-ghost" 
-              style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none' }} 
+              style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }} 
               disabled={mutation.isPending}
             >
-              Dashboard
+              <LayoutDashboard size={14} /> Dashboard
             </button>
           </Link>
         </div>

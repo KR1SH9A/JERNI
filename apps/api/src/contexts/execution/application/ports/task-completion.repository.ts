@@ -15,6 +15,16 @@ export interface TaskCompletionRepository {
   ): Promise<TaskCompletion | null>;
 
   /**
+   * Find any completion (active or revoked) for a given combination.
+   */
+  findAny(
+    journeyId: JourneyId,
+    userId: UserId,
+    taskDefinitionId: string,
+    forDate: string | null,
+  ): Promise<TaskCompletion | null>;
+
+  /**
    * Find all completions (including revoked) for a user within a journey.
    * Used by GetMyProgressQuery to seed initial checkbox state on the frontend.
    */

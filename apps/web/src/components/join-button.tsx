@@ -1,6 +1,7 @@
 'use client';
 
 import { useMembership } from '@/lib/queries/use-membership';
+import { Check } from 'lucide-react';
 
 interface JoinButtonProps {
   journeyId: string;
@@ -38,7 +39,11 @@ export function JoinButton({ journeyId, initialIsMember }: JoinButtonProps) {
             animation: 'spin 0.6s linear infinite',
           }} />
         </span>
-      ) : isMember ? '✓ Joined' : 'Join Journey'}
+      ) : isMember ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          <Check size={16} strokeWidth={2} /> Joined
+        </span>
+      ) : 'Join Journey'}
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </button>
   );

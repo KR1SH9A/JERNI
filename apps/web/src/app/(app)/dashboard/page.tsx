@@ -5,6 +5,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { CuratorJourneyCard, JoinedJourneyCard } from '@jerni/shared-types';
 import { JourneyCover } from "@/components/brand/JourneyCover";
+import { CheckSquare, Users, Heart, Plus, ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'My Dashboard — JERNI',
@@ -52,18 +53,24 @@ function JourneyCard({ journey, variant }: { journey: CuratorJourneyCard | Joine
           </p>
         )}
 
-        <div className="journey-card-meta">
-          <span className="journey-card-meta-item">✦ {journey.taskCount} tasks</span>
+        <div className="journey-card-meta" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <span className="journey-card-meta-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <CheckSquare size={14} /> {journey.taskCount} tasks
+          </span>
           {isCurator && card.memberCount !== undefined && (
-            <span className="journey-card-meta-item">◎ {card.memberCount} members</span>
+            <span className="journey-card-meta-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <Users size={14} /> {card.memberCount} members
+            </span>
           )}
-          <span className="journey-card-meta-item">♥ {journey.likeCount}</span>
+          <span className="journey-card-meta-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Heart size={14} /> {journey.likeCount}
+          </span>
         </div>
 
         <div className="journey-card-cta" style={{ display: 'flex', gap: '0.5rem' }}>
           <Link href={`/journeys/${journey.id}`} style={{ flex: 1 }}>
-            <button id={`view-journey-${journey.id}`} style={{ width: '100%', fontSize: '0.8rem', padding: '0.5rem 0.75rem' }}>
-              {isCurator ? 'View' : 'Continue →'}
+            <button id={`view-journey-${journey.id}`} style={{ width: '100%', fontSize: '0.8rem', padding: '0.5rem 0.75rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.3rem' }}>
+              {isCurator ? 'View' : 'Continue'} {!isCurator && <ArrowRight size={14} />}
             </button>
           </Link>
           {isCurator && journey.status === 'DRAFT' && (
@@ -171,8 +178,8 @@ export default async function DashboardPage() {
               </p>
             </div>
             <Link href="/dashboard/journeys/new" id="create-journey-link">
-              <button className="btn-primary" id="new-journey-btn" style={{ padding: '0.75rem 1.75rem', fontSize: '1rem', borderRadius: '9999px', boxShadow: '0 8px 24px var(--color-accent-dim)', transition: 'all 0.3s ease' }}>
-                <span style={{ marginRight: '0.5rem', fontWeight: 400 }}>+</span> New Journey
+              <button className="btn-primary" id="new-journey-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem', fontSize: '1rem', borderRadius: '9999px', boxShadow: '0 8px 24px var(--color-accent-dim)', transition: 'all 0.3s ease' }}>
+                <Plus size={18} /> New Journey
               </button>
             </Link>
           </div>

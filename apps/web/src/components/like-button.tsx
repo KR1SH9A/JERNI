@@ -1,6 +1,7 @@
 'use client';
 
 import { useLike } from '@/lib/queries/use-like';
+import { Heart } from 'lucide-react';
 
 interface LikeButtonProps {
   journeyId: string;
@@ -32,8 +33,8 @@ export function LikeButton({ journeyId, initialIsLiked, initialLikeCount }: Like
       className={`like-btn${isLiked ? ' liked' : ''}`}
       style={{ width: '100%', justifyContent: 'center', opacity: isPending ? 0.6 : 1 }}
     >
-      <span className="heart-icon" aria-hidden="true">
-        {isLiked ? '♥' : '♡'}
+      <span className="heart-icon" aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} strokeWidth={isLiked ? 2 : 1.5} />
       </span>
       <span>{likeCount}</span>
     </button>

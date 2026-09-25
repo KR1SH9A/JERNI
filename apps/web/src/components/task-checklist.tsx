@@ -1,6 +1,7 @@
 'use client';
 
 import { useCompletions } from '@/lib/queries/use-completions';
+import { Repeat, CheckCircle } from 'lucide-react';
 
 interface TaskReadModel {
   id: string;
@@ -77,8 +78,8 @@ export function TaskChecklist({ journeyId, tasks, initialCompletions, isReadOnly
           </label>
 
           <div className="task-meta">
-            <span className={`task-kind-pill ${isRecurring ? 'recurring' : 'milestone'}`}>
-              {isRecurring ? '↻ Daily' : '◆ Milestone'}
+            <span className={`task-kind-pill ${isRecurring ? 'recurring' : 'milestone'}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              {isRecurring ? <><Repeat size={12} /> Daily</> : <><CheckCircle size={12} /> Milestone</>}
             </span>
             {isRecurring && (
               <span style={{ color: 'var(--color-muted-2)', fontSize: '0.72rem' }}>
