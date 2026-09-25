@@ -74,24 +74,18 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
       <div 
         className="curator-bar animate-fade-in" 
         style={{ 
-          position: 'fixed', 
-          bottom: '2.5rem', 
-          left: '50%', 
-          transform: 'translateX(-50%)', 
-          zIndex: 50,
-          background: 'rgba(12, 12, 12, 0.75)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          background: 'transparent',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: '9999px',
-          padding: '0.6rem 0.6rem 0.6rem 1.5rem',
+          padding: '0.4rem 0.6rem',
           display: 'flex', 
-          gap: '1.25rem', 
+          gap: '0.5rem', 
           alignItems: 'center',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02)'
+          justifyContent: 'space-between',
+          width: '100%'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
           <div style={{
             width: '8px',
             height: '8px',
@@ -100,19 +94,17 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             boxShadow: currentStatus === 'PUBLISHED' ? '0 0 12px var(--color-success)' : 'none',
             transition: 'all 0.3s ease'
           }} />
-          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', letterSpacing: '0.02em' }}>
-            {currentStatus === 'DRAFT' ? 'Draft Mode' : currentStatus === 'PUBLISHED' ? 'Live on Discover' : 'Archived'}
+          <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text)', letterSpacing: '0.02em' }}>
+            {currentStatus === 'DRAFT' ? 'Draft' : currentStatus === 'PUBLISHED' ? 'Published' : 'Archived'}
           </span>
         </div>
 
-        <div style={{ width: '1px', height: '1.25rem', background: 'var(--color-border)' }} />
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           {currentStatus === 'DRAFT' && (
             <Link href={`/dashboard/journeys/${journeyId}/edit`}>
               <button 
                 className="btn-ghost" 
-                style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '9999px', border: 'none' }} 
+                style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none' }} 
                 disabled={mutation.isPending}
               >
                 Edit
@@ -124,13 +116,13 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             <button 
               className="btn-primary" 
               style={{ 
-                padding: '0.5rem 1.25rem', 
-                fontSize: '0.85rem', 
+                padding: '0.4rem 0.8rem', 
+                fontSize: '0.75rem', 
                 borderRadius: '9999px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                minWidth: '100px',
+                gap: '0.4rem',
+                minWidth: '80px',
                 justifyContent: 'center'
               }}
               onClick={() => handleAction('publish')} 
@@ -146,13 +138,13 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
             <button 
               className="btn-danger" 
               style={{ 
-                padding: '0.5rem 1.25rem', 
-                fontSize: '0.85rem', 
+                padding: '0.4rem 0.8rem', 
+                fontSize: '0.75rem', 
                 borderRadius: '9999px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                minWidth: '100px',
+                gap: '0.4rem',
+                minWidth: '80px',
                 justifyContent: 'center'
               }}
               onClick={() => handleAction('archive')} 
@@ -167,7 +159,7 @@ export function CuratorActions({ journeyId, status, taskCount }: CuratorActionsP
           <Link href="/dashboard">
             <button 
               className="btn-ghost" 
-              style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', borderRadius: '9999px', border: 'none' }} 
+              style={{ padding: '0.4rem 0.6rem', fontSize: '0.75rem', borderRadius: '9999px', border: 'none' }} 
               disabled={mutation.isPending}
             >
               Dashboard
