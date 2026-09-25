@@ -13,9 +13,7 @@ export const metadata: Metadata = {
     siteName: 'JERNI',
     type: 'website',
   },
-  icons: {
-    icon: '/nav-logo.png',
-  },
+
 };
 
 export default function RootLayout({

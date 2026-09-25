@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { ConfirmModal } from '@/components/ui/confirm-modal';
 import PillNav, { PillNavItem } from './pill-nav';
+import { Logo } from '@/components/brand/Logo';
 
 export function NavClient({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [showSignoutModal, setShowSignoutModal] = useState(false);
@@ -35,10 +36,8 @@ export function NavClient({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 1000, pointerEvents: 'none' }}>
         <div className="container" style={{ position: 'relative', pointerEvents: 'auto' }}>
           <PillNav
-            logo="/jerni-logo.svg"
-            logoAlt="jerni"
+            logo={<Logo height={48} />}
             items={items}
-            logoBg="#ffce39ff"
           />
         </div>
       </div>

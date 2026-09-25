@@ -3,29 +3,14 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import type { CuratorJourneyCard } from "@jerni/shared-types";
+import { JourneyCover } from "@/components/brand/JourneyCover";
 
 function JourneyCard({ journey }: { journey: any }) {
-  const hue = journey.title.charCodeAt(0) * 5;
-  const hue2 = (journey.title.charCodeAt(1) || hue + 40) * 5;
 
   return (
     <article className="journey-card" aria-label={journey.title}>
-      {/* Cover gradient */}
-      <div
-        className="journey-card-cover"
-        style={{
-          background: `linear-gradient(135deg, hsl(${hue},45%,14%) 0%, hsl(${hue2 % 360},35%,10%) 100%)`,
-        }}
-      >
-        <span className="journey-card-cover-initials">
-          {journey.title.slice(0, 2).toUpperCase()}
-        </span>
-        {/* Subtle grid overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, opacity: 0.04,
-          backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,255,255,0.5) 20px)',
-        }} />
-      </div>
+      {/* Cover */}
+      <JourneyCover title={journey.title} tags={journey.tags} />
 
       <div className="journey-card-body">
         {/* Tags */}

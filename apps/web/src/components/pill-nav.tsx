@@ -12,8 +12,7 @@ export type PillNavItem = {
 };
 
 export interface PillNavProps {
-  logo: string;
-  logoAlt?: string;
+  logo?: React.ReactNode;
   items: PillNavItem[];
   activeHref?: string;
   className?: string;
@@ -22,14 +21,12 @@ export interface PillNavProps {
   pillColor?: string;
   hoveredPillTextColor?: string;
   pillTextColor?: string;
-  logoBg?: string;
   onMobileMenuClick?: () => void;
   initialLoadAnimation?: boolean;
 }
 
 const PillNav: React.FC<PillNavProps> = ({
   logo,
-  logoAlt = 'Logo',
   items,
   activeHref,
   className = '',
@@ -38,7 +35,6 @@ const PillNav: React.FC<PillNavProps> = ({
   pillColor = '#120F17',
   hoveredPillTextColor = '#120F17',
   pillTextColor,
-  logoBg,
   onMobileMenuClick,
   initialLoadAnimation = true
 }) => {
@@ -48,8 +44,6 @@ const PillNav: React.FC<PillNavProps> = ({
   const circleRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const tlRefs = useRef<Array<gsap.core.Timeline | null>>([]);
   const activeTweenRefs = useRef<Array<gsap.core.Tween | null>>([]);
-  const logoImgRef = useRef<HTMLImageElement | null>(null);
-  const logoTweenRef = useRef<gsap.core.Tween | null>(null);
   const hamburgerRef = useRef<HTMLButtonElement | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement | null>(null);
   const navItemsRef = useRef<HTMLDivElement | null>(null);
@@ -223,19 +217,6 @@ const PillNav: React.FC<PillNavProps> = ({
     });
   };
 
-  const handleLogoEnter = () => {
-    const img = logoImgRef.current;
-    if (!img) return;
-    logoTweenRef.current?.kill();
-    gsap.set(img, { rotate: 0 });
-    logoTweenRef.current = gsap.to(img, {
-      rotate: 360,
-      duration: 0.2,
-      ease,
-      overwrite: 'auto'
-    });
-  };
-
   const toggleMobileMenu = () => {
     const newState = !isMobileMenuOpen;
     setIsMobileMenuOpen(newState);
@@ -304,7 +285,6 @@ const PillNav: React.FC<PillNavProps> = ({
     ['--hover-text' as string]: hoveredPillTextColor,
     ['--pill-text' as string]: resolvedPillTextColor,
     ['--nav-h' as string]: '42px',
-    ['--logo-size' as string]: '70px',
     ['--pill-pad-x' as string]: '18px',
     ['--pill-gap' as string]: '3px'
   } as React.CSSProperties;
@@ -323,7 +303,7 @@ const PillNav: React.FC<PillNavProps> = ({
           .pill-nav-mobile-menu { display: none !important; }
         }
         .pill-nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; padding: 0 1rem; }
-        .pill-nav-logo { border-radius: 9999px; padding: 0.5rem; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; text-decoration: none; }
+        .pill-nav-logo { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
         .pill-nav-items { position: relative; align-items: center; border-radius: 9999px; display: none; margin-left: 0.5rem; overflow: hidden; }
         .pill-nav-ul { list-style: none; display: flex; align-items: stretch; margin: 0; padding: 3px; height: 100%; }
         .pill-nav-li { display: flex; height: 100%; }
@@ -352,36 +332,25 @@ const PillNav: React.FC<PillNavProps> = ({
             <Link
               href={items[0].href!}
               aria-label="Home"
-              onMouseEnter={handleLogoEnter}
               role="menuitem"
               ref={(el) => {
                 logoRef.current = el as unknown as HTMLElement;
               }}
               className="pill-nav-logo"
-              style={{
-                width: 'var(--logo-size)',
-                height: 'var(--logo-size)',
-                background: logoBg || 'var(--base, #000)'
-              }}
             >
-              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '70%', height: '70%', objectFit: 'contain', display: 'block' }} />
+              {logo}
             </Link>
           ) : (
             <a
               href={items?.[0]?.href || '#'}
               aria-label="Home"
-              onMouseEnter={handleLogoEnter}
+              role="menuitem"
               ref={(el) => {
                 logoRef.current = el as unknown as HTMLElement;
               }}
               className="pill-nav-logo"
-              style={{
-                width: 'var(--logo-size)',
-                height: 'var(--logo-size)',
-                background: logoBg || 'var(--base, #ffed65ff)'
-              }}
             >
-              <img src={logo} alt={logoAlt} ref={logoImgRef} style={{ width: '70%', height: '70%', objectFit: 'contain', display: 'block' }} />
+              {logo}
             </a>
           )}
 

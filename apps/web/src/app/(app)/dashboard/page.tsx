@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { CuratorJourneyCard, JoinedJourneyCard } from '@jerni/shared-types';
+import { JourneyCover } from "@/components/brand/JourneyCover";
 
 export const metadata: Metadata = {
   title: 'My Dashboard — JERNI',
@@ -17,48 +18,27 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 function JourneyCard({ journey, variant }: { journey: CuratorJourneyCard | JoinedJourneyCard; variant: 'curator' | 'joined' }) {
-  const hue = journey.title.charCodeAt(0) * 5;
-  const hue2 = (journey.title.charCodeAt(1) || hue + 40) * 5;
   const isCurator = variant === 'curator';
   const card = journey as any;
 
   return (
     <article className="journey-card" aria-label={journey.title}>
       {/* Cover */}
-      <div
-        className="journey-card-cover"
-        style={{
-          background: `linear-gradient(135deg, hsl(${hue},45%,13%) 0%, hsl(${hue2 % 360},35%,10%) 100%)`,
-          height: 100,
-        }}
-      >
-        <span className="journey-card-cover-initials" style={{ fontSize: '2rem' }}>
-          {journey.title.slice(0, 2).toUpperCase()}
-        </span>
-        {/* Status pill overlaid on cover */}
-        {isCurator && (
-          <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem' }}>
+      <JourneyCover title={journey.title} tags={journey.tags} style={{ height: 100 }} />
+
+      <div className="journey-card-body">
+        <div className="journey-card-tags">
+          {isCurator ? (
             <span className={STATUS_BADGE[journey.status] || 'badge'}>
               {journey.status}
             </span>
-          </div>
-        )}
-        {!isCurator && (
-          <div style={{ position: 'absolute', top: '0.75rem', right: '0.75rem' }}>
+          ) : (
             <span className="badge badge-accent">Joined</span>
-          </div>
-        )}
-      </div>
-
-      <div className="journey-card-body">
-        {/* Tags */}
-        {journey.tags?.length > 0 && (
-          <div className="journey-card-tags">
-            {journey.tags.slice(0, 2).map((tag, i) => (
-              <span key={`${tag}-${i}`} className="badge">{tag}</span>
-            ))}
-          </div>
-        )}
+          )}
+          {journey.tags?.slice(0, 2).map((tag, i) => (
+            <span key={`${tag}-${i}`} className="badge">{tag}</span>
+          ))}
+        </div>
 
         <Link href={`/journeys/${journey.id}`} style={{ textDecoration: 'none' }}>
           <h2 className="journey-card-title">{journey.title}</h2>

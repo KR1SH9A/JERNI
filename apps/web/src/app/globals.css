@@ -46,6 +46,13 @@
   --font-serif: 'Gambetta', Georgia, serif;
   --font-script: 'Flaviotte', cursive;
 
+  /* cover pairs: light tone + deep tone */
+  --cv-lav-a:#ac92c1; --cv-lav-b:#655a7d;
+  --cv-teal-a:#62c1b8; --cv-teal-b:#2e6f6b;
+  --cv-sage-a:#a9bb92; --cv-sage-b:#55694a;
+  --cv-mar-a:#f0cb5f;  --cv-mar-b:#85622a;
+  --cv-rose-a:#e58fa0; --cv-rose-b:#7d4056;
+
   /* Surfaces */
   --color-bg: #000000;
   --color-surface: #0a0a0a;
@@ -466,10 +473,10 @@ button:disabled {
 
 .journey-card-title {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
-  font-weight: 400;
+  font-size: 1.35rem;
+  font-weight: 500;
   color: var(--color-text);
-  line-height: 1.3;
+  line-height: 1.25;
   transition: color 0.2s ease;
 }
 
