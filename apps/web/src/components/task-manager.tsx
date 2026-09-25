@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { TaskChecklist } from './task-checklist';
 import { AddTaskForm } from './add-task-form';
+import { Circle, Square } from 'lucide-react';
 
 interface TaskReadModel {
   id: string;
@@ -80,8 +81,8 @@ export function TaskManager({
                       border: '1px solid var(--color-border)',
                     }}
                   >
-                    <span style={{ color: 'var(--color-muted)', fontSize: '14px' }}>
-                      {task.kind === 'RECURRING' ? 'O' : '◻'}
+                    <span style={{ color: 'var(--color-muted)', fontSize: '14px', display: 'flex', alignItems: 'center' }}>
+                      {task.kind === 'RECURRING' ? <Circle size={16} /> : <Square size={16} />}
                     </span>
                     <span style={{ flex: 1, fontSize: '14px' }}>{task.title}</span>
                     <span className={`badge ${task.kind?.toLowerCase() ?? 'milestone'}`}>

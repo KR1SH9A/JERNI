@@ -68,24 +68,29 @@ export class CompleteTaskUseCase {
     // 4. Determine forDate based on task kind (snapshot happens here)
     const forDate = taskDef.kind === 'RECURRING' ? todayUtc() : null;
 
-    // 5. Guard against duplicate active completion
-    const existing = await this.completionRepo.findActive(journeyId, userId, cmd.taskDefinitionId, forDate);
-    if (existing) {
-      throw new DomainError(
-        'This task has already been completed.',
-        'TASK_ALREADY_COMPLETED',
-      );
-    }
+    // 5. Check if completion exists
+    let completion = await this.completionRepo.findAny(journeyId, userId, cmd.taskDefinitionId, forDate);
 
-    // 6. Create the completion (domain factory validates forDate/kind consistency)
-    const completion = TaskCompletion.create({
-      id: randomUUID(),
-      journeyId,
-      userId,
-      taskDefinitionId: cmd.taskDefinitionId,
-      taskKindSnapshot: taskDef.kind, // ← snapshot at completion time
-      forDate,
-    });
+    if (completion) {
+      if (completion.isActive()) {
+        throw new DomainError(
+          'This task has already been completed.',
+          'TASK_ALREADY_COMPLETED',
+        );
+      }
+      // Re-complete the revoked one to avoid unique constraint violations
+      completion.recomplete();
+    } else {
+      // 6. Create the completion (domain factory validates forDate/kind consistency)
+      completion = TaskCompletion.create({
+        id: randomUUID(),
+        journeyId,
+        userId,
+        taskDefinitionId: cmd.taskDefinitionId,
+        taskKindSnapshot: taskDef.kind, // ← snapshot at completion time
+        forDate,
+      });
+    }
 
     await this.completionRepo.save(completion);
 

@@ -11,6 +11,7 @@ import { TaskManager } from '@/components/task-manager';
 import { StatsPanel } from '@/components/stats-panel';
 import { CuratorActions } from '@/components/curator-actions';
 import { JourneyCover, toneFor } from '@/components/brand/JourneyCover';
+import { ArrowLeft, ListTodo } from 'lucide-react';
 
 interface TaskReadModel {
   id: string;
@@ -135,7 +136,7 @@ export default async function JourneyDetailPage({
             href="/discover"
             style={{ fontSize: '0.85rem', color: 'var(--color-muted-2)', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
           >
-            ← Back to Discover
+            <ArrowLeft size={16} /> Back to Discover
           </Link>
         </div>
 
@@ -178,7 +179,9 @@ export default async function JourneyDetailPage({
             
             {/* Tasks Section Heading */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', letterSpacing: '0.02em' }}>Tasks</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text)', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <ListTodo size={16} /> Tasks
+              </span>
               <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '2rem', fontWeight: 400, color: 'var(--color-text)' }}>
                 {journey.taskCount} tasks in this journey
               </h2>

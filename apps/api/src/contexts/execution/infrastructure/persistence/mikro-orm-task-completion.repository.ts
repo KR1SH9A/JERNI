@@ -34,6 +34,24 @@ export class MikroOrmTaskCompletionRepository implements TaskCompletionRepositor
     return this.toDomain(orm);
   }
 
+  async findAny(
+    journeyId: JourneyId,
+    userId: UserId,
+    taskDefinitionId: string,
+    forDate: string | null,
+  ): Promise<TaskCompletion | null> {
+    const where: Record<string, unknown> = {
+      journeyId: journeyId.value,
+      userId: userId.value,
+      taskDefinitionId,
+    };
+    where['forDate'] = forDate ?? null;
+
+    const orm = await this.repo.findOne(where);
+    if (!orm) return null;
+    return this.toDomain(orm);
+  }
+
   async findAllForUser(journeyId: JourneyId, userId: UserId): Promise<TaskCompletion[]> {
     const orms = await this.repo.find({
       journeyId: journeyId.value,
@@ -59,8 +77,9 @@ export class MikroOrmTaskCompletionRepository implements TaskCompletionRepositor
       orm.revokedAt = completion.revokedAt;
       em.persist(orm);
     } else {
-      // Only revokedAt changes (uncomplete)
+      // Update revokedAt and completedAt (for recompletion)
       existing.revokedAt = completion.revokedAt;
+      existing.completedAt = completion.completedAt;
     }
 
     await em.flush();
